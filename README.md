@@ -1,15 +1,12 @@
-# Projeto de Sistemas Distribuídos 2017/18 #
+# Projeto de Sistemas DistribuÃ­dos 2017/18 #
 
-Grupo CXX
-*(preencher com identificador de grupo e depois apagar esta linha)*
+Grupo T6
 
-... ... ...
-
-... ... ...
-
-... ... ...
-*(preencher com nome, número e email de membro do grupo e depois apagar esta linha)*
+| Number | Name  | Email
+| :---: |:--------------:| :--------------------------------:| 
+| 84718 | Francisco Aguiar | francisco.aguiar@tecnico.ulisboa.pt 
+| 84719 | GonÃ§alo Marques | goncalo.alexandre.marques@tecnico.ulisboa.pt
+| 84740 | Manuel Sousa | manuelvsousa@tecnico.ulisboa.pt
 
 
--------------------------------------------------------------------------------
-**FIM**
+
