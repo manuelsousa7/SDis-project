@@ -18,7 +18,6 @@
 		<maven.compiler.target>1.8</maven.compiler.target>
 
 		<wsdl.directory>${basedir}/../binas-ws/src/main/resources</wsdl.directory>
-		<wsdl.filename>binas.wsdl</wsdl.filename>
 
 		<mainclass>org.binas.ws.cli.BinasClientApp</mainclass>
 
