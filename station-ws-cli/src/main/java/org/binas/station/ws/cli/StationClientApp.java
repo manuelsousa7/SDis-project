@@ -33,6 +33,15 @@ public class StationClientApp {
 			System.out.printf("[INFO] Creating client using UDDI at %s for server with name %s%n", uddiURL, wsName);
 			client = new StationClient(uddiURL, wsName);
 		}
+
+		// The following remote invocation is just a basic example.
+		// The actual tests are made using JUnit.
+
+		 System.out.println("Invoke ping()...");
+		 String result = client.testPing("client");
+		 System.out.print("Result: ");
+		 System.out.println(result);
+
 	}
 
 }
