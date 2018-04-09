@@ -9,6 +9,7 @@ import org.binas.station.ws.cli.StationClient;
 public class BinasManager {
 	
 	private HashMap<String, StationClient> connectedStations = new HashMap<String, StationClient>();
+	private HashMap<String, User> users = new HashMap<>();
 
 	private BinasManager() {
 	}
@@ -20,6 +21,10 @@ public class BinasManager {
 	public static synchronized BinasManager getInstance() {
 		return SingletonHolder.INSTANCE;
 	}
+
+	public User getUserByEmail(String email) {
+	    return users.get(email);
+    }
 	
 	public void PopulateStations(String uddiUrl,String stationPrefix) {
 		Boolean hasMore = true;
