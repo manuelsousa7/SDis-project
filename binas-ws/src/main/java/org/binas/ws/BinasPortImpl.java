@@ -29,8 +29,7 @@ public class BinasPortImpl implements BinasPortType {
 
 	@Override
 	public int getCredit(String email) throws UserNotExists_Exception {
-		// TODO Auto-generated method stub
-		return 0;
+		return BinasManager.getInstance().getUserCredit(email);
 	}
 
 	@Override
