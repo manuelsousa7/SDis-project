@@ -56,6 +56,7 @@ public class StationPortImpl implements StationPortType {
 	public void getBina() throws NoBinaAvail_Exception {
 		try {
 			Station.getInstance().getBina();
+			System.out.println("Got Bina");
 		} catch (NoBinaAvailException e) {
 			throwNoBinaAvail("No Bina available");
 		}

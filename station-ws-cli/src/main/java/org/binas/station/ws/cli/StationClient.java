@@ -10,6 +10,10 @@ import org.binas.station.ws.NoSlotAvail_Exception;
 import org.binas.station.ws.StationPortType;
 import org.binas.station.ws.StationService;
 import org.binas.station.ws.StationView;
+
+import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINaming;
+import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINamingException;
+
 import static javax.xml.ws.BindingProvider.ENDPOINT_ADDRESS_PROPERTY;
 
 /**
@@ -29,6 +33,9 @@ public class StationClient implements StationPortType {
 
 	/** UDDI server URL */
 	private String uddiURL = null;
+	
+	/** endpoint address*/
+	private String endpointAddress = null; 
 
 	/** WS name */
 	private String wsName = null;
@@ -67,7 +74,20 @@ public class StationClient implements StationPortType {
 
 	/** UDDI lookup */
 	private void uddiLookup() throws StationClientException {
-		// TODO
+		UDDINaming uddiNaming;
+		try {
+			uddiNaming = new UDDINaming(uddiURL);
+			endpointAddress = uddiNaming.lookup(wsName);
+		} catch (UDDINamingException e) {
+			throw  new StationClientException();
+		}
+
+		if (endpointAddress == null) {
+			System.out.println("Not found!");
+			return;
+		} else {
+			System.out.printf("Found %s%n", endpointAddress);
+		}
 	}
 
 
@@ -83,6 +103,12 @@ public class StationClient implements StationPortType {
 			BindingProvider bindingProvider = (BindingProvider) port;
 			Map<String, Object> requestContext = bindingProvider.getRequestContext();
 			requestContext.put(ENDPOINT_ADDRESS_PROPERTY, wsURL);
+		}
+		else {
+			System.out.println("Setting endpoint address ...");
+			BindingProvider bindingProvider = (BindingProvider) port;
+			Map<String, Object> requestContext = bindingProvider.getRequestContext();
+			requestContext.put(ENDPOINT_ADDRESS_PROPERTY, endpointAddress);
 		}
 	}
 

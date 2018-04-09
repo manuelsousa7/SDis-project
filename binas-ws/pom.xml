@@ -3,6 +3,8 @@
 	<modelVersion>4.0.0</modelVersion>
 	<!-- http://maven.apache.org/pom.html#Quick_Overview -->
 
+	<!-- Please replace 'T06' below with your C (campus) with A (Alameda) / 
+		T (Tagus); and your group number with two digits. Then delete this comment. -->
 	<groupId>org.binas.T06</groupId>
 	<artifactId>binas-ws</artifactId>
 	<version>1.0-SNAPSHOT</version>
@@ -21,6 +23,9 @@
 		<uddi.url>http://localhost:9090</uddi.url>
 		<group.id>T06</group.id>
 
+		<uddi.url>http://localhost:9090</uddi.url>
+		<station.name>${group.id}_Station</station.name>
+
 		<ws.name>${group.id}_Binas</ws.name>
 		<ws.url>http://localhost:8080/binas-ws/endpoint</ws.url>
 
@@ -33,6 +38,11 @@
 			<artifactId>jaxws-rt</artifactId>
 			<version>2.2.10</version>
 		</dependency>
+		<dependency>
+        				<groupId>org.binas.T06</groupId>
+        				<artifactId>station-ws-cli</artifactId>
+        				<version>1.0-SNAPSHOT</version>
+    				</dependency>
 	</dependencies>
 
 	<build>
@@ -94,6 +104,7 @@
 					<mainClass>${mainclass}</mainClass>
 					<arguments>
 						<argument>${uddi.url}</argument>
+						<argument>${station.name}</argument>
 						<argument>${ws.name}</argument>
 						<argument>${ws.url}</argument>
 					</arguments>

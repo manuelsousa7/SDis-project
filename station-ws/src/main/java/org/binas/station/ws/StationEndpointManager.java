@@ -4,6 +4,8 @@ import java.io.IOException;
 
 import javax.xml.ws.Endpoint;
 
+import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINaming;
+
 /** The endpoint manager starts and registers the service. */
 public class StationEndpointManager {
 
@@ -11,6 +13,8 @@ public class StationEndpointManager {
 	private String uddiURL = null;
 	/** Web Service name */
 	private String wsName = null;
+	
+	private static UDDINaming uddiNaming = null;
 
 	/** Get Web Service UDDI publication name */
 	public String getWsName() {
@@ -119,11 +123,16 @@ public class StationEndpointManager {
 	/* UDDI */
 
 	void publishToUDDI() throws Exception {
-		// TODO
+		System.out.printf("Publishing '%s' to UDDI at %s%n",wsName, uddiURL);
+		uddiNaming = new UDDINaming(uddiURL);
+		uddiNaming.rebind(wsName, wsURL);
 	}
 
-	void unpublishFromUDDI() {
-		// TODO
+	void unpublishFromUDDI() throws Exception{
+		if (uddiNaming!=null) {
+			uddiNaming.unbind(wsName);
+			System.out.printf("Deleted '%s' from UDDI%n", wsName);
+		}
 	}
 
 }

@@ -26,6 +26,7 @@
 
 		<!-- instance number -->
 		<ws.i>1</ws.i>
+		<ws.name>T06_Station${ws.i}</ws.name>
 		<uddi.url>http://localhost:9090</uddi.url>
 
 		<!-- Please replace 'T06' below with your C (campus) with A (Alameda) / 
@@ -39,6 +40,11 @@
 	</properties>
 
 	<dependencies>
+		<dependency>
+        	<groupId>pt.ulisboa.tecnico.sdis</groupId>
+        	<artifactId>uddi-naming</artifactId>
+        	<version>1.2</version>
+    	</dependency>
 		<dependency>
 			<groupId>com.sun.xml.ws</groupId>
 			<artifactId>jaxws-rt</artifactId>
@@ -111,7 +117,8 @@
 					<killAfter>-1</killAfter>
 					<mainClass>${mainclass}</mainClass>
 					<arguments>
-						<argument>${ws.url}</argument>
+						<argument>${uddi.url}</argument>
+						<argument>${ws.name}</argument>
 					</arguments>
 				</configuration>
 			</plugin>
