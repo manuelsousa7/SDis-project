@@ -2,12 +2,13 @@ package org.binas.domain;
 
 import java.util.HashMap;
 
-import org.binas.station.ws.CoordinatesView;
+import org.binas.exceptions.StationNotFoundException;
+import org.binas.station.ws.NoSlotAvail_Exception;
 import org.binas.station.ws.cli.StationClient;
 
 public class BinasManager {
 	
-	HashMap<String, StationClient> connectedStations = new HashMap<String, StationClient>();
+	private HashMap<String, StationClient> connectedStations = new HashMap<String, StationClient>();
 
 	private BinasManager() {
 	}
@@ -36,6 +37,15 @@ public class BinasManager {
 			}
 			currentStation += 1;
 		}
+	}
+	
+	
+	public void ReturnBina(String stationId,String email) throws NoSlotAvail_Exception {
+		StationClient station = this.connectedStations.get(stationId);
+		if(station==null) {
+			throw new StationNotFoundException();
+		}
+		station.returnBina();
 	}
 	
 	// TODO
