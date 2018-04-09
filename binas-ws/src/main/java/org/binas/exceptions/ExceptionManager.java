@@ -1,5 +1,7 @@
 package org.binas.exceptions;
 
+import org.binas.ws.FullStation;
+import org.binas.ws.FullStation_Exception;
 import org.binas.ws.InvalidStation;
 import org.binas.ws.InvalidStation_Exception;
 import org.binas.ws.NoBinaRented;
@@ -25,5 +27,10 @@ public abstract class ExceptionManager {
 		String message = "[ERROR] User has no bina rented";
 		NoBinaRented faultInfo = new NoBinaRented();
 		throw new NoBinaRented_Exception(message, faultInfo );
+	}
+	public static void fullStation() throws FullStation_Exception{
+		String message = "[ERROR] Station Full";
+		FullStation faultInfo = new FullStation();
+		throw new FullStation_Exception(message, faultInfo );
 	}
 }

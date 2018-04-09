@@ -5,6 +5,7 @@ import java.util.HashMap;
 import org.binas.exceptions.ExceptionManager;
 import org.binas.station.ws.NoSlotAvail_Exception;
 import org.binas.station.ws.cli.StationClient;
+import org.binas.ws.FullStation_Exception;
 import org.binas.ws.InvalidStation_Exception;
 import org.binas.ws.NoBinaRented_Exception;
 import org.binas.ws.UserNotExists_Exception;
@@ -59,13 +60,17 @@ public class BinasManager {
 		}
 	}
 	
-	public void ReturnBina(String stationId,String email) throws NoSlotAvail_Exception, InvalidStation_Exception, UserNotExists_Exception, NoBinaRented_Exception {
+	public void ReturnBina(String stationId,String email) throws InvalidStation_Exception, UserNotExists_Exception, NoBinaRented_Exception, FullStation_Exception {
 		StationClient station = getStation(stationId);
 		User user = getUserByEmail(email);
 		if (!user.hasBina()) {
 			ExceptionManager.noBinaRented();
 		}
-		station.returnBina();
+		try {
+			station.returnBina();
+		} catch (NoSlotAvail_Exception e) {
+			ExceptionManager.fullStation();
+		}
 	}
 	
 	// TODO

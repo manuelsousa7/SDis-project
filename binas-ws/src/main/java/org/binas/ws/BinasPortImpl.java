@@ -4,6 +4,9 @@ import java.util.List;
 
 import javax.jws.WebService;
 
+import org.binas.domain.BinasManager;
+import org.binas.station.ws.NoSlotAvail_Exception;
+
 @WebService(endpointInterface = "org.binas.ws.BinasPortType",
 wsdlLocation = "binas.1_0.wsdl",
 name ="BinasWebService",
@@ -46,8 +49,7 @@ public class BinasPortImpl implements BinasPortType {
 	@Override
 	public void returnBina(String stationId, String email)
 			throws FullStation_Exception, InvalidStation_Exception, NoBinaRented_Exception, UserNotExists_Exception {
-		// TODO Auto-generated method stub
-		
+		BinasManager.getInstance().ReturnBina(stationId, email);
 	}
 
 	@Override
