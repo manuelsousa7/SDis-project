@@ -2,9 +2,12 @@ package org.binas.domain;
 
 import java.util.HashMap;
 
-import org.binas.exceptions.StationNotFoundException;
+import org.binas.exceptions.ExceptionManager;
 import org.binas.station.ws.NoSlotAvail_Exception;
 import org.binas.station.ws.cli.StationClient;
+import org.binas.ws.InvalidStation_Exception;
+import org.binas.ws.NoBinaRented_Exception;
+import org.binas.ws.UserNotExists_Exception;
 
 public class BinasManager {
 	
@@ -22,9 +25,21 @@ public class BinasManager {
 		return SingletonHolder.INSTANCE;
 	}
 
-	public User getUserByEmail(String email) {
-	    return users.get(email);
+	private User getUserByEmail(String email) throws UserNotExists_Exception {
+		
+		User user = users.get(email);
+		if(user==null) {
+			ExceptionManager.userNotFound(email);
+		}
+		return user;
     }
+	private StationClient getStation(String stationId) throws InvalidStation_Exception {
+		StationClient station = this.connectedStations.get(stationId);
+		if(station==null) {
+			ExceptionManager.stationNotFound(stationId);
+		}
+		return station;
+	}
 	
 	public void PopulateStations(String uddiUrl,String stationPrefix) {
 		Boolean hasMore = true;
@@ -44,11 +59,11 @@ public class BinasManager {
 		}
 	}
 	
-	
-	public void ReturnBina(String stationId,String email) throws NoSlotAvail_Exception {
-		StationClient station = this.connectedStations.get(stationId);
-		if(station==null) {
-			throw new StationNotFoundException();
+	public void ReturnBina(String stationId,String email) throws NoSlotAvail_Exception, InvalidStation_Exception, UserNotExists_Exception, NoBinaRented_Exception {
+		StationClient station = getStation(stationId);
+		User user = getUserByEmail(email);
+		if (!user.hasBina()) {
+			ExceptionManager.noBinaRented();
 		}
 		station.returnBina();
 	}
