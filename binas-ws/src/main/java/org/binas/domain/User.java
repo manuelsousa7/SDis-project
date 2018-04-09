@@ -2,9 +2,9 @@ package org.binas.domain;
 
 public class User {
 
-    protected String email;
-    protected boolean hasBina;
-    protected int credit;
+    private String email;
+    private boolean hasBina;
+    private int credit;
 
     public User(String email, boolean hasBina, int credit) {
         this.email = email;

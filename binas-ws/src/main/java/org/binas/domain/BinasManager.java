@@ -61,7 +61,7 @@ public class BinasManager {
 	}
 	
 	public int getUserCredit(String email) throws UserNotExists_Exception {
-		return getUserByEmail(email).credit;
+		return getUserByEmail(email).getCredit();
 	}
 	
 	public void ReturnBina(String stationId,String email) throws InvalidStation_Exception, UserNotExists_Exception, NoBinaRented_Exception, FullStation_Exception {

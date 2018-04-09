@@ -5,7 +5,6 @@ import java.util.List;
 import javax.jws.WebService;
 
 import org.binas.domain.BinasManager;
-import org.binas.station.ws.NoSlotAvail_Exception;
 
 @WebService(endpointInterface = "org.binas.ws.BinasPortType",
 wsdlLocation = "binas.1_0.wsdl",
