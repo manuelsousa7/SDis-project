@@ -8,6 +8,7 @@ import org.binas.station.ws.cli.StationClient;
 public class BinasManager {
 	
 	HashMap<CoordinatesView, StationClient> connectedStations = new HashMap<CoordinatesView, StationClient>();
+	HashMap<String, User> users = new HashMap<>();
 
 	private BinasManager() {
 	}
@@ -19,6 +20,10 @@ public class BinasManager {
 	public static synchronized BinasManager getInstance() {
 		return SingletonHolder.INSTANCE;
 	}
+
+	public User getUserByEmail(String email) {
+	    return users.get(email);
+    }
 	
 	public void PopulateStations(String uddiUrl,String stationPrefix) {
 		Boolean hasMore = true;
