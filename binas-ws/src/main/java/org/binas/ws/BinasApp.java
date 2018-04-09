@@ -1,9 +1,6 @@
 package org.binas.ws;
 
-import java.util.HashMap;
-
-import org.binas.station.ws.CoordinatesView;
-import org.binas.station.ws.cli.StationClient;
+import org.binas.domain.BinasManager;
 import org.binas.station.ws.cli.StationClientApp;
 
 public class BinasApp {
@@ -21,26 +18,9 @@ public class BinasApp {
 		stationPrefix= args[1];
 		
 		System.out.println(BinasApp.class.getSimpleName() + " running");
-		
-		HashMap<CoordinatesView, StationClient> connectedStations = new HashMap<CoordinatesView, StationClient>();
-		
+		BinasManager manager = BinasManager.getInstance();
 		if(uddiUrl != null) {
-			Boolean hasMore = true;
-			int currentStation = 1;
-			while(hasMore) {
-				StationClient client = null;
-				String stationName = stationPrefix + currentStation;
-				try {
-					client = new StationClient(uddiUrl, stationName);
-					System.out.printf("[INFO] Created client using UDDI at %s for server with name %s%n", uddiUrl, stationName);
-					CoordinatesView coordinates = client.getInfo().getCoordinate();
-					connectedStations.put(coordinates, client);
-				}catch (Exception se) {
-					hasMore = false;
-				}
-				currentStation += 1;
-			}
-			
+			manager.PopulateStations(uddiUrl, stationPrefix);			
 		}
 	}
 
