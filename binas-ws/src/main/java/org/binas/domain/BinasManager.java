@@ -7,7 +7,7 @@ import org.binas.station.ws.cli.StationClient;
 
 public class BinasManager {
 	
-	HashMap<CoordinatesView, StationClient> connectedStations = new HashMap<CoordinatesView, StationClient>();
+	HashMap<String, StationClient> connectedStations = new HashMap<String, StationClient>();
 
 	private BinasManager() {
 	}
@@ -24,13 +24,13 @@ public class BinasManager {
 		Boolean hasMore = true;
 		int currentStation = 1;
 		while(hasMore) {
-			StationClient client = null;
+			StationClient station = null;
 			String stationName = stationPrefix + currentStation;
 			try {
-				client = new StationClient(uddiUrl, stationName);
+				station = new StationClient(uddiUrl, stationName);
 				System.out.printf("[INFO] Created client using UDDI at %s for server with name %s%n", uddiUrl, stationName);
-				CoordinatesView coordinates = client.getInfo().getCoordinate();
-				connectedStations.put(coordinates, client);
+				String stationId = station.getInfo().getId();
+				connectedStations.put(stationId, station);
 			}catch (Exception se) {
 				hasMore = false;
 			}
