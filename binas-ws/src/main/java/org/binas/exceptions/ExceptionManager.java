@@ -1,15 +1,6 @@
 package org.binas.exceptions;
 
-import org.binas.ws.FullStation;
-import org.binas.ws.FullStation_Exception;
-import org.binas.ws.InvalidStation;
-import org.binas.ws.InvalidStation_Exception;
-import org.binas.ws.NoBinaRented;
-import org.binas.ws.NoBinaRented_Exception;
-import org.binas.ws.AlreadyHasBina;
-import org.binas.ws.AlreadyHasBina_Exception;
-import org.binas.ws.UserNotExists;
-import org.binas.ws.UserNotExists_Exception;
+import org.binas.ws.*;
 
 public abstract class ExceptionManager {
 	
@@ -18,18 +9,28 @@ public abstract class ExceptionManager {
 		InvalidStation faultInfo = new InvalidStation();
 		throw new InvalidStation_Exception(message, faultInfo);
 	}
-	
 	public static void userNotFound(String email) throws UserNotExists_Exception  {
 		String message = "[ERROR] No user found with email " + email;
 		UserNotExists faultInfo = new UserNotExists();
 		throw new UserNotExists_Exception(message, faultInfo );
 	}
-	
 	public static void noBinaRented() throws NoBinaRented_Exception{
 		String message = "[ERROR] User has no bina rented";
 		NoBinaRented faultInfo = new NoBinaRented();
 		throw new NoBinaRented_Exception(message, faultInfo );
 	}
+
+    public static void noBinaAvail() throws NoBinaAvail_Exception{
+        String message = "[ERROR] There is no Bina available";
+        NoBinaAvail faultInfo = new NoBinaAvail();
+        throw new NoBinaAvail_Exception(message, faultInfo );
+    }
+
+    public static void noCreditException() throws NoCredit_Exception{
+        String message = "[ERROR] User has no sufficient credit";
+        NoCredit faultInfo = new NoCredit();
+        throw new NoCredit_Exception(message, faultInfo );
+    }
 
 	public static void alreadyHasBina() throws AlreadyHasBina_Exception {
 		String message = "[ERROR] User already has a bina rented";
@@ -43,9 +44,10 @@ public abstract class ExceptionManager {
 		throw new FullStation_Exception(message, faultInfo );
 	}
 
-	public static void emptyStation()/* throws EmptyStation_Exception*/{
-		/*String message = "[ERROR] Station is Empty";
-		EmptyStation faultInfo = new EmptyStation();
-		throw new EmptyStation_Exception(message, faultInfo );*/
+	public static void badInit() throws BadInit_Exception{
+		String message = "[ERROR] Bad init values";
+		BadInit faultInfo = new BadInit();
+		throw new BadInit_Exception(message, faultInfo);
+
 	}
 }

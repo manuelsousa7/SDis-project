@@ -11,11 +11,21 @@ public class User {
         this.hasBina = hasBina;
         this.credit = credit;
     }
+    public User(String email,int credit) {
+    	this.email = email;
+        this.hasBina = false;
+        this.credit = credit;
+    }
 
     public String getEmail() {
         return email;
     }
-
+    public void setHasBina(boolean hasBina) {
+    	this.hasBina = hasBina;
+    }
+    public void addBonus(int bonus) {
+    	this.credit += bonus;
+    }
     public boolean hasBina() {
         return hasBina;
     }
