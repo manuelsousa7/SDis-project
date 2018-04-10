@@ -77,6 +77,12 @@ public class BinasManager {
 		}
 	}
 	
+	public void testClear() {
+		for (StationClient station : connectedStations.values()) {
+			station.testClear();
+		}
+	}
+	
 	// TODO
 
 }

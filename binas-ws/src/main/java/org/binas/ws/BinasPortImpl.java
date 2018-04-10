@@ -58,8 +58,7 @@ public class BinasPortImpl implements BinasPortType {
 
 	@Override
 	public void testClear() {
-		// TODO Auto-generated method stub
-		
+		BinasManager.getInstance().testClear();		
 	}
 
 	@Override
