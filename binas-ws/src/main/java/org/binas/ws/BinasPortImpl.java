@@ -91,7 +91,6 @@ public class BinasPortImpl implements BinasPortType {
 
 	@Override
 	public void testInit(int userInitialPoints) throws BadInit_Exception {
-		// TODO Auto-generated method stub
-		
+		BinasManager.getInstance().usersInit(userInitialPoints);
 	}
 }

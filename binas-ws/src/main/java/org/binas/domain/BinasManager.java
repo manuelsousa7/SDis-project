@@ -3,6 +3,7 @@ package org.binas.domain;
 import java.util.HashMap;
 
 import org.binas.exceptions.ExceptionManager;
+import org.binas.ws.BadInit_Exception;
 import org.binas.station.ws.NoSlotAvail_Exception;
 import org.binas.station.ws.cli.StationClient;
 import org.binas.ws.FullStation_Exception;
@@ -13,7 +14,7 @@ import org.binas.ws.UserNotExists_Exception;
 public class BinasManager {
 	
 	private HashMap<String, StationClient> connectedStations = new HashMap<String, StationClient>();
-	private HashMap<String, User> users = new HashMap<>();
+	private HashMap<String, User> users = new HashMap<String,User>();
 
 	private BinasManager() {
 	}
@@ -81,6 +82,20 @@ public class BinasManager {
 		for (StationClient station : connectedStations.values()) {
 			station.testClear();
 		}
+		users = new HashMap<String,User>();
+	}
+	
+	public void usersInit(int userInitialPoints) throws BadInit_Exception {
+		if(userInitialPoints<=0) ExceptionManager.badInit();
+		String userEmail1 = "testing1@text.com";
+		String userEmail2 = "testing2@text.com";
+		String userEmail3 = "testing3@text.com";
+		User user1 = new User(userEmail1,userInitialPoints);
+		User user2 = new User(userEmail2,userInitialPoints);
+		User user3 = new User(userEmail3,userInitialPoints);
+		users.put(userEmail1, user1);
+		users.put(userEmail2,user2);
+		users.put(userEmail3,user3);
 	}
 	
 	// TODO

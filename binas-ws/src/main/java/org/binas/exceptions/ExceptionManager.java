@@ -1,5 +1,7 @@
 package org.binas.exceptions;
 
+import org.binas.ws.BadInit;
+import org.binas.ws.BadInit_Exception;
 import org.binas.ws.FullStation;
 import org.binas.ws.FullStation_Exception;
 import org.binas.ws.InvalidStation;
@@ -32,5 +34,10 @@ public abstract class ExceptionManager {
 		String message = "[ERROR] Station Full";
 		FullStation faultInfo = new FullStation();
 		throw new FullStation_Exception(message, faultInfo );
+	}
+	public static void badInit() throws BadInit_Exception{
+		String message = "[ERROR] Bad init values";
+		BadInit faultInfo = new BadInit();
+		throw new BadInit_Exception(message, faultInfo);
 	}
 }

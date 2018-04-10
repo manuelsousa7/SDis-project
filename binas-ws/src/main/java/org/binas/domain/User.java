@@ -11,6 +11,11 @@ public class User {
         this.hasBina = hasBina;
         this.credit = credit;
     }
+    public User(String email,int credit) {
+    	this.email = email;
+        this.hasBina = false;
+        this.credit = credit;
+    }
 
     public String getEmail() {
         return email;
