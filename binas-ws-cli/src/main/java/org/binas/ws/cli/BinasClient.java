@@ -5,8 +5,11 @@ import org.binas.ws.*;
 import javax.xml.ws.BindingProvider;
 import java.util.List;
 import java.util.Map;
+import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINaming;
+import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINamingException;
 
 import static javax.xml.ws.BindingProvider.ENDPOINT_ADDRESS_PROPERTY;
+
 
 /**
  * Client.
@@ -30,6 +33,9 @@ public class BinasClient implements BinasPortType {
      * UDDI server URL
      */
     private String uddiURL = null;
+
+    /** endpoint address*/
+    private String endpointAddress = null;
 
     /**
      * WS name
@@ -79,8 +85,22 @@ public class BinasClient implements BinasPortType {
     /**
      * UDDI lookup
      */
+    /** UDDI lookup */
     private void uddiLookup() throws BinasClientException {
-        // TODO
+        UDDINaming uddiNaming;
+        try {
+            uddiNaming = new UDDINaming(uddiURL);
+            endpointAddress = uddiNaming.lookup(wsName);
+        } catch (UDDINamingException e) {
+            throw  new BinasClientException();
+        }
+
+        if (endpointAddress == null) {
+            System.out.println("Not found!");
+            return;
+        } else {
+            System.out.printf("Found %s%n", endpointAddress);
+        }
     }
 
     /**

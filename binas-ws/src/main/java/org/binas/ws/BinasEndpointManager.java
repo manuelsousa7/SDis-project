@@ -13,7 +13,7 @@ public class BinasEndpointManager {
 	private boolean verbose = true;
 	private static UDDINaming uddiNaming = null;
 	private Endpoint endpoint = null;
-	BinasPortImpl portImpl = new BinasPortImpl();
+	BinasPortImpl portImpl = new BinasPortImpl(this);
 	
 	public BinasEndpointManager(String uddiURL,String wsName,String wsURL) {
 		this.wsURL = wsURL;
