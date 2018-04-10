@@ -13,6 +13,16 @@ portName = "BinasPort",
 targetNamespace="http://ws.binas.org/",
 serviceName = "BinasService" )
 public class BinasPortImpl implements BinasPortType {
+	/**
+	 * The Endpoint manager controls the Web Service instance during its whole
+	 * lifecycle.
+	 */
+	private BinasEndpointManager endpointManager;
+
+	/** Constructor receives a reference to the endpoint manager. */
+	public BinasPortImpl(BinasEndpointManager endpointManager) {
+		this.endpointManager = endpointManager;
+	}
 
 	@Override
 	public List<StationView> listStations(Integer numberOfStations, CoordinatesView coordinates) {
@@ -52,10 +62,21 @@ public class BinasPortImpl implements BinasPortType {
 
 	@Override
 	public String testPing(String inputMessage) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+		// If no input is received, return a default name.
+		if (inputMessage == null || inputMessage.trim().length() == 0)
+			inputMessage = "friend";
 
+		// If the station does not have a name, return a default.
+		String wsName = endpointManager.getWsName();
+		if (wsName == null || wsName.trim().length() == 0)
+			wsName = "Station";
+
+		// Build a string with a message to return.
+		StringBuilder builder = new StringBuilder();
+		builder.append("Hello ").append(inputMessage);
+		builder.append(" from ").append(wsName);
+		return builder.toString();
+	}
 	@Override
 	public void testClear() {
 		// TODO Auto-generated method stub
