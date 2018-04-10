@@ -4,14 +4,17 @@ import java.util.HashMap;
 
 import org.binas.exceptions.ExceptionManager;
 import org.binas.station.ws.NoSlotAvail_Exception;
+import org.binas.station.ws.NoBinaAvail_Exception;
 import org.binas.station.ws.cli.StationClient;
 import org.binas.ws.FullStation_Exception;
+//import org.binas.ws.EmptyStation_Exception;
 import org.binas.ws.InvalidStation_Exception;
 import org.binas.ws.NoBinaRented_Exception;
+import org.binas.ws.AlreadyHasBina_Exception;
 import org.binas.ws.UserNotExists_Exception;
 
 public class BinasManager {
-	
+
 	private HashMap<String, StationClient> connectedStations = new HashMap<String, StationClient>();
 	private HashMap<String, User> users = new HashMap<>();
 
@@ -34,6 +37,7 @@ public class BinasManager {
 		}
 		return user;
     }
+
 	private StationClient getStation(String stationId) throws InvalidStation_Exception {
 		StationClient station = this.connectedStations.get(stationId);
 		if(station==null) {
@@ -64,7 +68,10 @@ public class BinasManager {
 		return getUserByEmail(email).getCredit();
 	}
 
-	public void getBina(String stationId,String email) {
+	public void getBina(String stationId,String email) throws InvalidStation_Exception,
+																UserNotExists_Exception,
+																AlreadyHasBina_Exception/*,
+																EmptyStation_Exception*/ {
 		StationClient station = getStation(stationId);
 		User user = getUserByEmail(email);
 		if (user.hasBina()) {
@@ -72,7 +79,7 @@ public class BinasManager {
 		}
 		try {
 			station.getBina();
-		} catch (AlreadyHasBina_Exception e) {
+		} catch (NoBinaAvail_Exception e) {
 			ExceptionManager.emptyStation();
 		}
 	}

@@ -6,6 +6,8 @@ import org.binas.ws.InvalidStation;
 import org.binas.ws.InvalidStation_Exception;
 import org.binas.ws.NoBinaRented;
 import org.binas.ws.NoBinaRented_Exception;
+import org.binas.ws.AlreadyHasBina;
+import org.binas.ws.AlreadyHasBina_Exception;
 import org.binas.ws.UserNotExists;
 import org.binas.ws.UserNotExists_Exception;
 
@@ -41,9 +43,9 @@ public abstract class ExceptionManager {
 		throw new FullStation_Exception(message, faultInfo );
 	}
 
-	public static void emptyStation() throws EmptyStation_Exception{
-		String message = "[ERROR] Station is Empty";
+	public static void emptyStation()/* throws EmptyStation_Exception*/{
+		/*String message = "[ERROR] Station is Empty";
 		EmptyStation faultInfo = new EmptyStation();
-		throw new EmptyStation_Exception(message, faultInfo );
+		throw new EmptyStation_Exception(message, faultInfo );*/
 	}
 }
