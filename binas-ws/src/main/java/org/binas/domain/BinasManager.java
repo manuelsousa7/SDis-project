@@ -73,6 +73,7 @@ public class BinasManager {
 		}
 		try {
 			station.returnBina();
+			user.setHasBina(false);
 		} catch (NoSlotAvail_Exception e) {
 			ExceptionManager.fullStation();
 		}

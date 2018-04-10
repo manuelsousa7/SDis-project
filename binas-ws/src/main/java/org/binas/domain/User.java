@@ -20,7 +20,9 @@ public class User {
     public String getEmail() {
         return email;
     }
-
+    public void setHasBina(boolean hasBina) {
+    	this.hasBina = hasBina;
+    }
     public boolean hasBina() {
         return hasBina;
     }
