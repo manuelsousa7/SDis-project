@@ -72,7 +72,8 @@ public class BinasManager {
 			ExceptionManager.noBinaRented();
 		}
 		try {
-			station.returnBina();
+			int bonus = station.returnBina();
+			user.addBonus(bonus);
 			user.setHasBina(false);
 		} catch (NoSlotAvail_Exception e) {
 			ExceptionManager.fullStation();

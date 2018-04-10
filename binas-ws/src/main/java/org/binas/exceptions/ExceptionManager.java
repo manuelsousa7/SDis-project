@@ -18,13 +18,11 @@ public abstract class ExceptionManager {
 		InvalidStation faultInfo = new InvalidStation();
 		throw new InvalidStation_Exception(message, faultInfo);
 	}
-	
 	public static void userNotFound(String email) throws UserNotExists_Exception  {
 		String message = "[ERROR] No user found with email " + email;
 		UserNotExists faultInfo = new UserNotExists();
 		throw new UserNotExists_Exception(message, faultInfo );
 	}
-	
 	public static void noBinaRented() throws NoBinaRented_Exception{
 		String message = "[ERROR] User has no bina rented";
 		NoBinaRented faultInfo = new NoBinaRented();

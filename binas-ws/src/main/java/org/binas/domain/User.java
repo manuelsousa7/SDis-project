@@ -23,6 +23,9 @@ public class User {
     public void setHasBina(boolean hasBina) {
     	this.hasBina = hasBina;
     }
+    public void addBonus(int bonus) {
+    	this.credit += bonus;
+    }
     public boolean hasBina() {
         return hasBina;
     }
