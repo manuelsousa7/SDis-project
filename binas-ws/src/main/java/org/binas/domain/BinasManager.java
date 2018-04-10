@@ -1,17 +1,15 @@
 package org.binas.domain;
 
-import java.util.HashMap;
+import java.util.*;
 
 import org.binas.exceptions.ExceptionManager;
 import org.binas.station.ws.NoSlotAvail_Exception;
 import org.binas.station.ws.NoBinaAvail_Exception;
 import org.binas.station.ws.cli.StationClient;
-import org.binas.ws.FullStation_Exception;
+import org.binas.station.ws.CoordinatesView;
+import org.binas.ws.*;
 //import org.binas.ws.EmptyStation_Exception;
-import org.binas.ws.InvalidStation_Exception;
-import org.binas.ws.NoBinaRented_Exception;
-import org.binas.ws.AlreadyHasBina_Exception;
-import org.binas.ws.UserNotExists_Exception;
+
 
 public class BinasManager {
 
@@ -63,6 +61,31 @@ public class BinasManager {
 			currentStation += 1;
 		}
 	}
+
+    public ArrayList<StationClient> listStations(int k, CoordinatesView coordenadas) {
+        ArrayList<StationClient> Stations = new ArrayList<StationClient>();
+        SortedMap<Float, StationClient> Distances = new TreeMap<>();
+
+        for (Map.Entry<String, StationClient> station : connectedStations.entrySet()) {
+            CoordinatesView coord = station.getValue().getInfo().getCoordinate();
+            float DistanceX = coord.getX() - coordenadas.getX();
+            float DistanceY = coord.getY() - coordenadas.getY();
+            Distances.put(Math.abs((float)Math.sqrt(DistanceX*DistanceX + DistanceY*DistanceY)), station.getValue());
+        }
+
+        int instanceCounter = 0;
+
+        for (Map.Entry<Float, StationClient> distance : Distances.entrySet()) {
+            StationClient newStation = distance.getValue();
+            Stations.add(newStation);
+            instanceCounter++;
+            if (instanceCounter >= k) {
+                break;
+            }
+        }
+
+        return Stations;
+    }
 	
 	public int getUserCredit(String email) throws UserNotExists_Exception {
 		return getUserByEmail(email).getCredit();
