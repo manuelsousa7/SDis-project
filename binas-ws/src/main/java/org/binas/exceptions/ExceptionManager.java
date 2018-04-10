@@ -28,9 +28,22 @@ public abstract class ExceptionManager {
 		NoBinaRented faultInfo = new NoBinaRented();
 		throw new NoBinaRented_Exception(message, faultInfo );
 	}
+
+	public static void alreadyHasBina() throws AlreadyHasBina_Exception {
+		String message = "[ERROR] User already has a bina rented";
+		AlreadyHasBina faultInfo = new AlreadyHasBina();
+		throw new AlreadyHasBina_Exception(message, faultInfo );
+	}
+
 	public static void fullStation() throws FullStation_Exception{
 		String message = "[ERROR] Station Full";
 		FullStation faultInfo = new FullStation();
 		throw new FullStation_Exception(message, faultInfo );
+	}
+
+	public static void emptyStation() throws EmptyStation_Exception{
+		String message = "[ERROR] Station is Empty";
+		EmptyStation faultInfo = new EmptyStation();
+		throw new EmptyStation_Exception(message, faultInfo );
 	}
 }
