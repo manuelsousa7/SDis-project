@@ -3,13 +3,9 @@ package org.binas.domain;
 import java.util.HashMap;
 
 import org.binas.exceptions.ExceptionManager;
-import org.binas.ws.BadInit_Exception;
+import org.binas.ws.*;
 import org.binas.station.ws.NoSlotAvail_Exception;
 import org.binas.station.ws.cli.StationClient;
-import org.binas.ws.FullStation_Exception;
-import org.binas.ws.InvalidStation_Exception;
-import org.binas.ws.NoBinaRented_Exception;
-import org.binas.ws.UserNotExists_Exception;
 
 public class BinasManager {
 	
@@ -41,6 +37,18 @@ public class BinasManager {
 			ExceptionManager.stationNotFound(stationId);
 		}
 		return station;
+	}
+
+	private void activateUser(String email) throws InvalidEmail_Exception{
+		if(email == null){
+			ExceptionManager.invalidEmail(email);
+		} else {
+			Boolean isValidEmail = email.matches("^(.+)@(.+)$");
+			if(!isValidEmail){
+				ExceptionManager.invalidEmail(email);
+			}
+		}
+		// return is UserView
 	}
 	
 	public void PopulateStations(String uddiUrl,String stationPrefix) {
@@ -87,7 +95,7 @@ public class BinasManager {
 		users = new HashMap<String,User>();
 	}
 	
-	public void usersInit(int userInitialPoints) throws BadInit_Exception {
+	public void usersInit(int userInitialPoints) throws BadInit_Exception,InvalidEmail_Exception {
 		if(userInitialPoints<=0) ExceptionManager.badInit();
 		String userEmail1 = "testing1@text.com";
 		String userEmail2 = "testing2@text.com";
