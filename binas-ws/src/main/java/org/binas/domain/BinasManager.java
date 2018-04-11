@@ -5,10 +5,7 @@ import org.binas.station.ws.NoSlotAvail_Exception;
 import org.binas.station.ws.cli.StationClient;
 import org.binas.ws.*;
 
-import java.util.HashMap;
-
-import com.oracle.webservices.api.EnvelopeStyle;
-import org.binas.ws.CoordinatesView;
+import java.util.*;
 
 public class BinasManager {
 
@@ -60,7 +57,7 @@ public class BinasManager {
 	}
 
 
-	public synchronized UserView  activateUser(String email) throws InvalidEmail_Exception{
+	public synchronized UserView activateUser(String email) throws InvalidEmail_Exception{
 		if(email == null){
 			ExceptionManager.invalidEmail(email);
 		} else {
@@ -102,7 +99,7 @@ public class BinasManager {
         SortedMap<Float, StationClient> Distances = new TreeMap<>();
 
         for (Map.Entry<String, StationClient> station : connectedStations.entrySet()) {
-            CoordinatesView coord = station.getValue().getInfo().getCoordinate();
+            org.binas.station.ws.CoordinatesView coord = station.getValue().getInfo().getCoordinate();
             float DistanceX = coord.getX() - coordenadas.getX();
             float DistanceY = coord.getY() - coordenadas.getY();
             Distances.put(Math.abs((float)Math.sqrt(DistanceX*DistanceX + DistanceY*DistanceY)), station.getValue());
