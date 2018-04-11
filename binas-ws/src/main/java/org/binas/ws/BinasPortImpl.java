@@ -1,10 +1,9 @@
 package org.binas.ws;
 
-import java.util.List;
+import org.binas.domain.BinasManager;
 
 import javax.jws.WebService;
-
-import org.binas.domain.BinasManager;
+import java.util.List;
 
 @WebService(endpointInterface = "org.binas.ws.BinasPortType",
 wsdlLocation = "binas.1_0.wsdl",
