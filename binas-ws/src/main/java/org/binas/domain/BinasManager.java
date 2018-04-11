@@ -1,11 +1,11 @@
 package org.binas.domain;
 
-import java.util.HashMap;
-
 import org.binas.exceptions.ExceptionManager;
-import org.binas.ws.*;
 import org.binas.station.ws.NoSlotAvail_Exception;
 import org.binas.station.ws.cli.StationClient;
+import org.binas.ws.*;
+
+import java.util.HashMap;
 
 public class BinasManager {
 	
