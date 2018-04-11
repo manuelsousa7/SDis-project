@@ -8,7 +8,7 @@ import org.binas.ws.*;
 import java.util.HashMap;
 
 import com.oracle.webservices.api.EnvelopeStyle;
-import org.binas.station.ws.CoordinatesView;
+import org.binas.ws.CoordinatesView;
 
 public class BinasManager {
 
@@ -60,7 +60,7 @@ public class BinasManager {
 	}
 
 
-	private synchronized void  activateUser(String email) throws InvalidEmail_Exception{
+	public synchronized UserView  activateUser(String email) throws InvalidEmail_Exception{
 		if(email == null){
 			ExceptionManager.invalidEmail(email);
 		} else {
