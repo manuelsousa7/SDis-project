@@ -3,12 +3,13 @@ package org.binas.domain;
 import java.util.*;
 
 import org.binas.exceptions.ExceptionManager;
-import org.binas.ws.BadInit_Exception;
+import org.binas.ws.*;
+
+import com.oracle.webservices.api.EnvelopeStyle;
+
 import org.binas.station.ws.NoSlotAvail_Exception;
-import org.binas.station.ws.NoBinaAvail_Exception
 import org.binas.station.ws.cli.StationClient;
 import org.binas.station.ws.CoordinatesView;
-import org.binas.ws.*;
 
 
 public class BinasManager {
@@ -42,6 +43,24 @@ public class BinasManager {
 			ExceptionManager.stationNotFound(stationId);
 		}
 		return station;
+	}
+
+	private synchronized void  activateUser(String email) throws InvalidEmail_Exception{
+		if(email == null){
+			ExceptionManager.invalidEmail(email);
+		} else {
+			Boolean isValidEmail = email.matches("^(.+)@(.+)$");
+			if(!isValidEmail){
+				ExceptionManager.invalidEmail(email);
+			}
+		}
+
+		User user = new User(email,10);
+		this.users.put(email,user);
+		UserView uv = new UserView();
+		uv.setCredit(user.getCredit());
+		uv.setEmail(user.getEmail());
+		return uv;
 	}
 	
 	public void PopulateStations(String uddiUrl,String stationPrefix) {
@@ -91,7 +110,7 @@ public class BinasManager {
 		return getUserByEmail(email).getCredit();
 	}
 
-    public void getBina(String stationId, String email) throws AlreadyHasBina_Exception, InvalidStation_Exception, NoCredit_Exception, UserNotExists_Exception, NoBinaAvail_Exception {
+    public synchronized void getBina(String stationId, String email) throws AlreadyHasBina_Exception, InvalidStation_Exception, NoCredit_Exception, UserNotExists_Exception,NoBinaAvail_Exception {
 
         StationClient station = getStation(stationId);
         User user = getUserByEmail(email);
@@ -104,11 +123,15 @@ public class BinasManager {
             ExceptionManager.alreadyHasBina();
         }
 
-        station.getBina();
+        try {
+			station.getBina();
+		} catch (org.binas.station.ws.NoBinaAvail_Exception e) {
+			ExceptionManager.noBinaAvail();
+		}
         user.addBonus(-1);
     }
 	
-	public void ReturnBina(String stationId,String email) throws InvalidStation_Exception, UserNotExists_Exception, NoBinaRented_Exception, FullStation_Exception {
+	public synchronized void returnBina(String stationId,String email) throws InvalidStation_Exception, UserNotExists_Exception, NoBinaRented_Exception, FullStation_Exception {
 		StationClient station = getStation(stationId);
 		User user = getUserByEmail(email);
 		if (!user.hasBina()) {
