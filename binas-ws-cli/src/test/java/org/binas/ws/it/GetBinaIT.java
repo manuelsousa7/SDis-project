@@ -51,7 +51,9 @@ public class GetBinaIT extends BaseIT {
     @Test (expected = NoCredit_Exception.class)
     public void noCredit() throws NoCredit_Exception {
         try {
-            client.testInit(0);
+            client.testInit(1);
+            client.rentBina(stationID, USER_EMAIL);
+            client.returnBina(stationID, USER_EMAIL);
             client.rentBina(stationID, USER_EMAIL);
         }
         catch(NoCredit_Exception nce) {
@@ -63,9 +65,9 @@ public class GetBinaIT extends BaseIT {
     }
 
     @Test (expected = AlreadyHasBina_Exception.class)
-    public void alreadyRented() throws AlreadyHasBina_Exception {
+    public void alreadyRented() throws AlreadyHasBina_Exception, NoCredit_Exception {
         try {
-            client.testInit(1);
+            client.testInit(2);
             client.rentBina(stationID, USER_EMAIL);
             client.rentBina(stationID, USER_EMAIL);
         }
@@ -77,15 +79,18 @@ public class GetBinaIT extends BaseIT {
         }
     }
 
-    @Test (expected = NoBinaAvail_Exception.class)
+    @Test
     public void noBinaAvail() throws NoBinaAvail_Exception {
         try {
-            //TODO Complete test
             client.testInit(1);
-            client.rentBina(stationID, USER_EMAIL);
-        }
-        catch(NoBinaAvail_Exception nbae) {
-            throw nbae;
+            try {
+                client.testInitStation(stationID, 5, 5, 0, 5);
+                client.rentBina(stationID, USER_EMAIL);
+            } catch (NoBinaAvail_Exception e) {
+                Assert.assertTrue(client.getInfoStation(stationID).getAvailableBinas() == 0);
+                return;
+            }
+            Assert.fail();
         }
         catch (Exception e) {
             Assert.fail();
