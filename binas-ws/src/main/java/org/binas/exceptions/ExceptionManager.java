@@ -19,7 +19,7 @@ public abstract class ExceptionManager {
 		NoBinaRented faultInfo = new NoBinaRented();
 		throw new NoBinaRented_Exception(message, faultInfo );
 	}
-
+	
     public static void noBinaAvail() throws NoBinaAvail_Exception{
         String message = "[ERROR] There is no Bina available";
         NoBinaAvail faultInfo = new NoBinaAvail();
