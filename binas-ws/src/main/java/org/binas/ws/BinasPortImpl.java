@@ -25,14 +25,12 @@ public class BinasPortImpl implements BinasPortType {
 
 	@Override
 	public List<StationView> listStations(Integer numberOfStations, CoordinatesView coordinates) {
-		// TODO Auto-generated method stub
-		return null;
+        return BinasManager.getInstance().listStations(numberOfStations, coordinates);
 	}
 
 	@Override
 	public StationView getInfoStation(String stationId) throws InvalidStation_Exception {
-		// TODO Auto-generated method stub
-		return null;
+		return BinasManager.getInstance().getInfoStation(stationId);
 	}
 
 	@Override
@@ -83,8 +81,7 @@ public class BinasPortImpl implements BinasPortType {
 	@Override
 	public void testInitStation(String stationId, int x, int y, int capacity, int returnPrize)
 			throws BadInit_Exception {
-		// TODO Auto-generated method stub
-		
+		BinasManager.getInstance().stationInit(stationId, x, y, capacity, returnPrize);
 	}
 
 	@Override

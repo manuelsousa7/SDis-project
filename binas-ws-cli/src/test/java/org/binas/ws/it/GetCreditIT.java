@@ -1,12 +1,24 @@
 package org.binas.ws.it;
 
+import org.binas.ws.BadInit_Exception;
 import org.binas.ws.UserNotExists_Exception;
+import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 public class GetCreditIT extends BaseIT {
 	public static final String USER_EMAIL = "testing1@text.com";
 	public static final int INITIAL_CREDIT = 10;
+	
+	@Before
+	public void setUp() {
+		try {
+			client.testInit(10);
+		} catch (BadInit_Exception e) {
+			e.printStackTrace();
+		}
+	}
 	
 	@Test
 	public void success() {
@@ -37,5 +49,10 @@ public class GetCreditIT extends BaseIT {
 			throw e;
 		}
 		Assert.fail();
+	}
+	
+	@After
+	public void tearDown() {
+		client.testClear();
 	}
 }

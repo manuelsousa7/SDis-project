@@ -1,16 +1,11 @@
 package org.binas.domain;
 
-import java.util.*;
-
 import org.binas.exceptions.ExceptionManager;
-import org.binas.ws.*;
-
-import com.oracle.webservices.api.EnvelopeStyle;
-
 import org.binas.station.ws.NoSlotAvail_Exception;
 import org.binas.station.ws.cli.StationClient;
-import org.binas.station.ws.CoordinatesView;
+import org.binas.ws.*;
 
+import java.util.*;
 
 public class BinasManager {
 
@@ -45,7 +40,24 @@ public class BinasManager {
 		return station;
 	}
 
-	private synchronized void  activateUser(String email) throws InvalidEmail_Exception{
+	public StationView getInfoStation(String stationId) throws InvalidStation_Exception{
+		StationClient station = getStation(stationId);
+		StationView out = new StationView();
+		out.setAvailableBinas(station.getInfo().getAvailableBinas());
+		out.setFreeDocks(station.getInfo().getFreeDocks());
+		out.setCapacity(station.getInfo().getCapacity());
+		CoordinatesView coordinates = new CoordinatesView();
+		coordinates.setX(station.getInfo().getCoordinate().getX());
+		coordinates.setY(station.getInfo().getCoordinate().getY());
+		out.setCoordinate(coordinates);
+		out.setId(stationId);
+		out.setTotalGets(station.getInfo().getTotalGets());
+		out.setTotalReturns(station.getInfo().getTotalReturns());
+		return out;
+	}
+
+
+	public synchronized UserView activateUser(String email) throws InvalidEmail_Exception{
 		if(email == null){
 			ExceptionManager.invalidEmail(email);
 		} else {
@@ -63,6 +75,7 @@ public class BinasManager {
 		return uv;
 	}
 	
+
 	public void PopulateStations(String uddiUrl,String stationPrefix) {
 		Boolean hasMore = true;
 		int currentStation = 1;
@@ -81,21 +94,27 @@ public class BinasManager {
 		}
 	}
 
-    public ArrayList<StationClient> listStations(int k, CoordinatesView coordenadas) {
-        ArrayList<StationClient> Stations = new ArrayList<StationClient>();
-        SortedMap<Float, StationClient> Distances = new TreeMap<>();
+    public List<StationView> listStations(Integer k, CoordinatesView coordinates) {
+        ArrayList<StationView> Stations = new ArrayList<StationView>();
+        SortedMap<Float, StationView> Distances = new TreeMap<>();
 
-        for (Map.Entry<String, StationClient> station : connectedStations.entrySet()) {
-            CoordinatesView coord = station.getValue().getInfo().getCoordinate();
-            float DistanceX = coord.getX() - coordenadas.getX();
-            float DistanceY = coord.getY() - coordenadas.getY();
-            Distances.put(Math.abs((float)Math.sqrt(DistanceX*DistanceX + DistanceY*DistanceY)), station.getValue());
+        for (String station : connectedStations.keySet()) {
+            try {
+                StationView newInfo = getInfoStation(station);
+                CoordinatesView coord = newInfo.getCoordinate();
+                float DistanceX = coord.getX() - coordinates.getX();
+                float DistanceY = coord.getY() - coordinates.getY();
+                Distances.put(Math.abs((float)Math.sqrt(DistanceX*DistanceX + DistanceY*DistanceY)), newInfo);
+            }
+            catch (InvalidStation_Exception ise) {
+                //Station is invalid
+            }
         }
 
         int instanceCounter = 0;
 
-        for (Map.Entry<Float, StationClient> distance : Distances.entrySet()) {
-            StationClient newStation = distance.getValue();
+        for (Map.Entry<Float, StationView> distance : Distances.entrySet()) {
+            StationView newStation = distance.getValue();
             Stations.add(newStation);
             instanceCounter++;
             if (instanceCounter >= k) {
@@ -128,6 +147,7 @@ public class BinasManager {
 		} catch (org.binas.station.ws.NoBinaAvail_Exception e) {
 			ExceptionManager.noBinaAvail();
 		}
+		user.setHasBina(true);
         user.addBonus(-1);
     }
 	
@@ -164,6 +184,14 @@ public class BinasManager {
 		users.put(userEmail1, user1);
 		users.put(userEmail2,user2);
 		users.put(userEmail3,user3);
+	}
+	
+	public void stationInit(String stationId, int x, int y, int capacity, int returnPrize)throws BadInit_Exception{
+		try {
+			connectedStations.get(stationId).testInit(x, y, capacity, returnPrize);
+		} catch (org.binas.station.ws.BadInit_Exception e) {
+			ExceptionManager.badInit();
+		}
 	}
 	
 	// TODO
