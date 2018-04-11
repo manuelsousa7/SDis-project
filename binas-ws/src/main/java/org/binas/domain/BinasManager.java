@@ -42,7 +42,7 @@ public class BinasManager {
 		return station;
 	}
 
-	private void activateUser(String email) throws InvalidEmail_Exception{
+	public UserView activateUser(String email) throws InvalidEmail_Exception{
 		if(email == null){
 			ExceptionManager.invalidEmail(email);
 		} else {
@@ -51,7 +51,13 @@ public class BinasManager {
 				ExceptionManager.invalidEmail(email);
 			}
 		}
-		// return is UserView
+
+		User user = new User(email,10);
+		this.users.put(email,user);
+		UserView uv = new UserView();
+		uv.setCredit(user.getCredit());
+		uv.setEmail(user.getEmail());
+		return uv;
 	}
 	
 	public void PopulateStations(String uddiUrl,String stationPrefix) {
