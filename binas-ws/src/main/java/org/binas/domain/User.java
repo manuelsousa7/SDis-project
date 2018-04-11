@@ -1,5 +1,12 @@
 package org.binas.domain;
 
+import org.binas.exceptions.ExceptionManager;
+import org.binas.ws.EmailExists;
+import org.binas.ws.InvalidEmail_Exception;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public class User {
 
     private String email;
@@ -11,8 +18,9 @@ public class User {
         this.hasBina = hasBina;
         this.credit = credit;
     }
-    public User(String email,int credit) {
-    	this.email = email;
+
+    public User(String email,int credit){
+        this.email = email;
         this.hasBina = false;
         this.credit = credit;
     }
