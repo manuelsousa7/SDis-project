@@ -1,12 +1,5 @@
 package org.binas.domain;
 
-import org.binas.exceptions.ExceptionManager;
-import org.binas.ws.EmailExists;
-import org.binas.ws.InvalidEmail_Exception;
-
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 public class User {
 
     private String email;
