@@ -20,10 +20,10 @@
 		<maven.compiler.target>1.8</maven.compiler.target>
 
 		<mainclass>org.binas.ws.BinasApp</mainclass>
-		<uddi.url>http://localhost:9090</uddi.url>
+		<uddi.url>http://t06:uwsgtYE@uddi.sd.rnl.tecnico.ulisboa.pt:9090/</uddi.url>
 		<group.id>T06</group.id>
 
-		<uddi.url>http://localhost:9090</uddi.url>
+		<uddi.url>http://t06:uwsgtYE@uddi.sd.rnl.tecnico.ulisboa.pt:9090/</uddi.url>
 		<station.name>${group.id}_Station</station.name>
 
 		<ws.name>${group.id}_Binas</ws.name>
