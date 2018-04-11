@@ -1,10 +1,9 @@
 package org.binas.ws;
 
-import java.util.List;
+import org.binas.domain.BinasManager;
 
 import javax.jws.WebService;
-
-import org.binas.domain.BinasManager;
+import java.util.List;
 
 @WebService(endpointInterface = "org.binas.ws.BinasPortType",
 wsdlLocation = "binas.1_0.wsdl",
@@ -42,9 +41,8 @@ public class BinasPortImpl implements BinasPortType {
 	}
 
 	@Override
-	public UserView activateUser(String email) throws EmailExists_Exception, InvalidEmail_Exception {
-		// TODO Auto-generated method stub
-		return null;
+	public UserView activateUser(String email) throws InvalidEmail_Exception {
+		return BinasManager.getInstance().activateUser(email);
 	}
 
 	@Override
