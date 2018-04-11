@@ -19,15 +19,36 @@ public abstract class ExceptionManager {
 		NoBinaRented faultInfo = new NoBinaRented();
 		throw new NoBinaRented_Exception(message, faultInfo );
 	}
+
+    public static void noBinaAvail() throws NoBinaAvail_Exception{
+        String message = "[ERROR] There is no Bina available";
+        NoBinaAvail faultInfo = new NoBinaAvail();
+        throw new NoBinaAvail_Exception(message, faultInfo );
+    }
+
+    public static void noCreditException() throws NoCredit_Exception{
+        String message = "[ERROR] User has no sufficient credit";
+        NoCredit faultInfo = new NoCredit();
+        throw new NoCredit_Exception(message, faultInfo );
+    }
+
+	public static void alreadyHasBina() throws AlreadyHasBina_Exception {
+		String message = "[ERROR] User already has a bina rented";
+		AlreadyHasBina faultInfo = new AlreadyHasBina();
+		throw new AlreadyHasBina_Exception(message, faultInfo );
+	}
+
 	public static void fullStation() throws FullStation_Exception{
 		String message = "[ERROR] Station Full";
 		FullStation faultInfo = new FullStation();
 		throw new FullStation_Exception(message, faultInfo );
 	}
+
 	public static void badInit() throws BadInit_Exception{
 		String message = "[ERROR] Bad init values";
 		BadInit faultInfo = new BadInit();
 		throw new BadInit_Exception(message, faultInfo);
+
 	}
 
 	public static void invalidEmail(String email) throws InvalidEmail_Exception{
