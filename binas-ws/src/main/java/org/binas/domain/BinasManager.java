@@ -69,7 +69,13 @@ public class BinasManager {
 				ExceptionManager.invalidEmail(email);
 			}
 		}
-		// return is UserView
+
+		User user = new User(email,10);
+		this.users.put(email,user);
+		UserView uv = new UserView();
+		uv.setCredit(user.getCredit());
+		uv.setEmail(user.getEmail());
+		return uv;
 	}
 	
 
