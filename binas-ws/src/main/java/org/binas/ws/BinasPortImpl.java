@@ -48,14 +48,14 @@ public class BinasPortImpl implements BinasPortType {
 	@Override
 	public void rentBina(String stationId, String email) throws AlreadyHasBina_Exception, InvalidStation_Exception,
 			NoBinaAvail_Exception, NoCredit_Exception, UserNotExists_Exception {
-		// TODO Auto-generated method stub
+		BinasManager.getInstance().getBina(stationId, email);
 		
 	}
 
 	@Override
 	public void returnBina(String stationId, String email)
 			throws FullStation_Exception, InvalidStation_Exception, NoBinaRented_Exception, UserNotExists_Exception {
-		BinasManager.getInstance().ReturnBina(stationId, email);
+		BinasManager.getInstance().returnBina(stationId, email);
 	}
 
 	@Override

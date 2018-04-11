@@ -7,8 +7,11 @@ import org.binas.ws.*;
 
 import java.util.HashMap;
 
+import com.oracle.webservices.api.EnvelopeStyle;
+import org.binas.station.ws.CoordinatesView;
+
 public class BinasManager {
-	
+
 	private HashMap<String, StationClient> connectedStations = new HashMap<String, StationClient>();
 	private HashMap<String, User> users = new HashMap<String,User>();
 
@@ -31,6 +34,7 @@ public class BinasManager {
 		}
 		return user;
     }
+
 	private StationClient getStation(String stationId) throws InvalidStation_Exception {
 		StationClient station = this.connectedStations.get(stationId);
 		if(station==null) {
@@ -55,6 +59,20 @@ public class BinasManager {
 		return out;
 	}
 
+
+	private synchronized void  activateUser(String email) throws InvalidEmail_Exception{
+		if(email == null){
+			ExceptionManager.invalidEmail(email);
+		} else {
+			Boolean isValidEmail = email.matches("^(.+)@(.+)$");
+			if(!isValidEmail){
+				ExceptionManager.invalidEmail(email);
+			}
+		}
+		// return is UserView
+	}
+	
+
 	public void PopulateStations(String uddiUrl,String stationPrefix) {
 		Boolean hasMore = true;
 		int currentStation = 1;
@@ -72,12 +90,58 @@ public class BinasManager {
 			currentStation += 1;
 		}
 	}
+
+    public ArrayList<StationClient> listStations(int k, CoordinatesView coordenadas) {
+        ArrayList<StationClient> Stations = new ArrayList<StationClient>();
+        SortedMap<Float, StationClient> Distances = new TreeMap<>();
+
+        for (Map.Entry<String, StationClient> station : connectedStations.entrySet()) {
+            CoordinatesView coord = station.getValue().getInfo().getCoordinate();
+            float DistanceX = coord.getX() - coordenadas.getX();
+            float DistanceY = coord.getY() - coordenadas.getY();
+            Distances.put(Math.abs((float)Math.sqrt(DistanceX*DistanceX + DistanceY*DistanceY)), station.getValue());
+        }
+
+        int instanceCounter = 0;
+
+        for (Map.Entry<Float, StationClient> distance : Distances.entrySet()) {
+            StationClient newStation = distance.getValue();
+            Stations.add(newStation);
+            instanceCounter++;
+            if (instanceCounter >= k) {
+                break;
+            }
+        }
+
+        return Stations;
+    }
 	
 	public int getUserCredit(String email) throws UserNotExists_Exception {
 		return getUserByEmail(email).getCredit();
 	}
+
+    public synchronized void getBina(String stationId, String email) throws AlreadyHasBina_Exception, InvalidStation_Exception, NoCredit_Exception, UserNotExists_Exception,NoBinaAvail_Exception {
+
+        StationClient station = getStation(stationId);
+        User user = getUserByEmail(email);
+
+        if (user.getCredit() <= 0) {
+            ExceptionManager.noCreditException();
+        }
+
+        if (user.hasBina()) {
+            ExceptionManager.alreadyHasBina();
+        }
+
+        try {
+			station.getBina();
+		} catch (org.binas.station.ws.NoBinaAvail_Exception e) {
+			ExceptionManager.noBinaAvail();
+		}
+        user.addBonus(-1);
+    }
 	
-	public void ReturnBina(String stationId,String email) throws InvalidStation_Exception, UserNotExists_Exception, NoBinaRented_Exception, FullStation_Exception {
+	public synchronized void returnBina(String stationId,String email) throws InvalidStation_Exception, UserNotExists_Exception, NoBinaRented_Exception, FullStation_Exception {
 		StationClient station = getStation(stationId);
 		User user = getUserByEmail(email);
 		if (!user.hasBina()) {
