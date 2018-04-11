@@ -80,6 +80,7 @@ public class Station {
 			throw new NoSlotAvailException();
 		freeDocks.decrementAndGet();
 		totalReturns.incrementAndGet();
+		System.out.println(getBonus());
 		return getBonus();
 	}
 

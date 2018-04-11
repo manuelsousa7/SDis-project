@@ -141,6 +141,7 @@ public class BinasManager {
 		} catch (org.binas.station.ws.NoBinaAvail_Exception e) {
 			ExceptionManager.noBinaAvail();
 		}
+        user.setHasBina(true);
         user.addBonus(-1);
     }
 	

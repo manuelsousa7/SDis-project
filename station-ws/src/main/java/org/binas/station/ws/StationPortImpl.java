@@ -56,7 +56,6 @@ public class StationPortImpl implements StationPortType {
 	public void getBina() throws NoBinaAvail_Exception {
 		try {
 			Station.getInstance().getBina();
-			System.out.println("Got Bina");
 		} catch (NoBinaAvailException e) {
 			throwNoBinaAvail("No Bina available");
 		}
@@ -66,8 +65,7 @@ public class StationPortImpl implements StationPortType {
 	@Override
 	public int returnBina() throws NoSlotAvail_Exception {
 		try {
-			Station.getInstance().returnBina();
-			System.out.println("Returned Bina");
+			return Station.getInstance().returnBina();
 		} catch (NoSlotAvailException e) {
 			throwNoSlotAvail("No slots available");
 		}
