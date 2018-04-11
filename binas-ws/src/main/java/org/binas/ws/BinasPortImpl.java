@@ -25,8 +25,7 @@ public class BinasPortImpl implements BinasPortType {
 
 	@Override
 	public List<StationView> listStations(Integer numberOfStations, CoordinatesView coordinates) {
-		// TODO Auto-generated method stub
-		return null;
+        return BinasManager.getInstance().listStations(numberOfStations, coordinates);
 	}
 
 	@Override

@@ -94,21 +94,27 @@ public class BinasManager {
 		}
 	}
 
-    public ArrayList<StationClient> listStations(int k, CoordinatesView coordenadas) {
-        ArrayList<StationClient> Stations = new ArrayList<StationClient>();
-        SortedMap<Float, StationClient> Distances = new TreeMap<>();
+    public List<StationView> listStations(Integer k, CoordinatesView coordinates) {
+        ArrayList<StationView> Stations = new ArrayList<StationView>();
+        SortedMap<Float, StationView> Distances = new TreeMap<>();
 
-        for (Map.Entry<String, StationClient> station : connectedStations.entrySet()) {
-            org.binas.station.ws.CoordinatesView coord = station.getValue().getInfo().getCoordinate();
-            float DistanceX = coord.getX() - coordenadas.getX();
-            float DistanceY = coord.getY() - coordenadas.getY();
-            Distances.put(Math.abs((float)Math.sqrt(DistanceX*DistanceX + DistanceY*DistanceY)), station.getValue());
+        for (String station : connectedStations.keySet()) {
+            try {
+                StationView newInfo = getInfoStation(station);
+                CoordinatesView coord = newInfo.getCoordinate();
+                float DistanceX = coord.getX() - coordinates.getX();
+                float DistanceY = coord.getY() - coordinates.getY();
+                Distances.put(Math.abs((float)Math.sqrt(DistanceX*DistanceX + DistanceY*DistanceY)), newInfo);
+            }
+            catch (InvalidStation_Exception ise) {
+                //Station is invalid
+            }
         }
 
         int instanceCounter = 0;
 
-        for (Map.Entry<Float, StationClient> distance : Distances.entrySet()) {
-            StationClient newStation = distance.getValue();
+        for (Map.Entry<Float, StationView> distance : Distances.entrySet()) {
+            StationView newStation = distance.getValue();
             Stations.add(newStation);
             instanceCounter++;
             if (instanceCounter >= k) {
@@ -141,6 +147,7 @@ public class BinasManager {
 		} catch (org.binas.station.ws.NoBinaAvail_Exception e) {
 			ExceptionManager.noBinaAvail();
 		}
+		user.setHasBina(true);
         user.addBonus(-1);
     }
 	
