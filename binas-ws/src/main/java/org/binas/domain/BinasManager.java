@@ -3,13 +3,9 @@ package org.binas.domain;
 import java.util.HashMap;
 
 import org.binas.exceptions.ExceptionManager;
-import org.binas.ws.BadInit_Exception;
+import org.binas.ws.*;
 import org.binas.station.ws.NoSlotAvail_Exception;
 import org.binas.station.ws.cli.StationClient;
-import org.binas.ws.FullStation_Exception;
-import org.binas.ws.InvalidStation_Exception;
-import org.binas.ws.NoBinaRented_Exception;
-import org.binas.ws.UserNotExists_Exception;
 
 public class BinasManager {
 	
@@ -42,7 +38,23 @@ public class BinasManager {
 		}
 		return station;
 	}
-	
+
+	public StationView getInfoStation(String stationId) throws InvalidStation_Exception{
+		StationClient station = getStation(stationId);
+		StationView out = new StationView();
+		out.setAvailableBinas(station.getInfo().getAvailableBinas());
+		out.setFreeDocks(station.getInfo().getFreeDocks());
+		out.setCapacity(station.getInfo().getCapacity());
+		CoordinatesView coordinates = new CoordinatesView();
+		coordinates.setX(station.getInfo().getCoordinate().getX());
+		coordinates.setY(station.getInfo().getCoordinate().getY());
+		out.setCoordinate(coordinates);
+		out.setId(stationId);
+		out.setTotalGets(station.getInfo().getTotalGets());
+		out.setTotalReturns(station.getInfo().getTotalReturns());
+		return out;
+	}
+
 	public void PopulateStations(String uddiUrl,String stationPrefix) {
 		Boolean hasMore = true;
 		int currentStation = 1;

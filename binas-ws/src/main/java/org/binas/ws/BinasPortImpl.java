@@ -32,8 +32,7 @@ public class BinasPortImpl implements BinasPortType {
 
 	@Override
 	public StationView getInfoStation(String stationId) throws InvalidStation_Exception {
-		// TODO Auto-generated method stub
-		return null;
+		return BinasManager.getInstance().getInfoStation(stationId);
 	}
 
 	@Override
@@ -42,9 +41,8 @@ public class BinasPortImpl implements BinasPortType {
 	}
 
 	@Override
-	public UserView activateUser(String email) throws EmailExists_Exception, InvalidEmail_Exception {
-		// TODO Auto-generated method stub
-		return null;
+	public void activateUser(String email) throws EmailExists_Exception, InvalidEmail_Exception {
+		// return BinasManager.getInstance().activateUser(email);
 	}
 
 	@Override
