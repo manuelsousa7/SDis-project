@@ -96,7 +96,7 @@ public class BinasManager {
         StationClient station = getStation(stationId);
         User user = getUserByEmail(email);
 
-        if (user.getCredit() <= 1) {
+        if (user.getCredit() <= 0) {
             ExceptionManager.noCreditException();
         }
 
@@ -105,6 +105,7 @@ public class BinasManager {
         }
 
         station.getBina();
+        user.addBonus(-1);
     }
 	
 	public void ReturnBina(String stationId,String email) throws InvalidStation_Exception, UserNotExists_Exception, NoBinaRented_Exception, FullStation_Exception {
