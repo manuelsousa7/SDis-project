@@ -57,13 +57,16 @@ public class BinasManager {
 	}
 
 
-	public synchronized UserView activateUser(String email) throws InvalidEmail_Exception{
+	public synchronized UserView activateUser(String email) throws EmailExists_Exception, InvalidEmail_Exception{
 		if(email == null){
 			ExceptionManager.invalidEmail(email);
 		} else {
 			Boolean isValidEmail = email.matches("^(.+)@(.+)$");
 			if(!isValidEmail){
 				ExceptionManager.invalidEmail(email);
+			}
+			if(users.containsKey(email)){
+				ExceptionManager.emailExists(email);
 			}
 		}
 
