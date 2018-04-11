@@ -45,7 +45,6 @@ public class BaseIT {
 			client = new BinasClient(wsURL);
 		}
 		client.setVerbose("true".equalsIgnoreCase(verboseEnabled));
-		client.testInit(10);
 	}
 
 	@AfterClass

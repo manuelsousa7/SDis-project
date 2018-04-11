@@ -179,6 +179,14 @@ public class BinasManager {
 		users.put(userEmail3,user3);
 	}
 	
+	public void stationInit(String stationId, int x, int y, int capacity, int returnPrize)throws BadInit_Exception{
+		try {
+			connectedStations.get(stationId).testInit(x, y, capacity, returnPrize);
+		} catch (org.binas.station.ws.BadInit_Exception e) {
+			ExceptionManager.badInit();
+		}
+	}
+	
 	// TODO
 
 }
