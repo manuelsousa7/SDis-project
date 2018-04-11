@@ -1,16 +1,14 @@
 package org.binas.domain;
 
-import java.util.*;
-
 import org.binas.exceptions.ExceptionManager;
-import org.binas.ws.*;
-
-import com.oracle.webservices.api.EnvelopeStyle;
-
 import org.binas.station.ws.NoSlotAvail_Exception;
 import org.binas.station.ws.cli.StationClient;
-import org.binas.station.ws.CoordinatesView;
+import org.binas.ws.*;
 
+import java.util.HashMap;
+
+import com.oracle.webservices.api.EnvelopeStyle;
+import org.binas.station.ws.CoordinatesView;
 
 public class BinasManager {
 
@@ -45,6 +43,23 @@ public class BinasManager {
 		return station;
 	}
 
+	public StationView getInfoStation(String stationId) throws InvalidStation_Exception{
+		StationClient station = getStation(stationId);
+		StationView out = new StationView();
+		out.setAvailableBinas(station.getInfo().getAvailableBinas());
+		out.setFreeDocks(station.getInfo().getFreeDocks());
+		out.setCapacity(station.getInfo().getCapacity());
+		CoordinatesView coordinates = new CoordinatesView();
+		coordinates.setX(station.getInfo().getCoordinate().getX());
+		coordinates.setY(station.getInfo().getCoordinate().getY());
+		out.setCoordinate(coordinates);
+		out.setId(stationId);
+		out.setTotalGets(station.getInfo().getTotalGets());
+		out.setTotalReturns(station.getInfo().getTotalReturns());
+		return out;
+	}
+
+
 	private synchronized void  activateUser(String email) throws InvalidEmail_Exception{
 		if(email == null){
 			ExceptionManager.invalidEmail(email);
@@ -63,6 +78,7 @@ public class BinasManager {
 		return uv;
 	}
 	
+
 	public void PopulateStations(String uddiUrl,String stationPrefix) {
 		Boolean hasMore = true;
 		int currentStation = 1;
