@@ -5,7 +5,6 @@ import java.util.*;
 import org.binas.exceptions.ExceptionManager;
 import org.binas.ws.*;
 import org.binas.station.ws.NoSlotAvail_Exception;
-import org.binas.station.ws.NoBinaAvail_Exception
 import org.binas.station.ws.cli.StationClient;
 import org.binas.station.ws.CoordinatesView;
 
@@ -102,7 +101,7 @@ public class BinasManager {
 		return getUserByEmail(email).getCredit();
 	}
 
-    public void getBina(String stationId, String email) throws AlreadyHasBina_Exception, InvalidStation_Exception, NoCredit_Exception, UserNotExists_Exception, NoBinaAvail_Exception {
+    public void getBina(String stationId, String email) throws AlreadyHasBina_Exception, InvalidStation_Exception, NoCredit_Exception, UserNotExists_Exception,NoBinaAvail_Exception {
 
         StationClient station = getStation(stationId);
         User user = getUserByEmail(email);
@@ -115,7 +114,11 @@ public class BinasManager {
             ExceptionManager.alreadyHasBina();
         }
 
-        station.getBina();
+        try {
+			station.getBina();
+		} catch (org.binas.station.ws.NoBinaAvail_Exception e) {
+			ExceptionManager.noBinaAvail();
+		}
         user.addBonus(-1);
     }
 	
