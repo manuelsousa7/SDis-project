@@ -4,6 +4,9 @@ import java.util.*;
 
 import org.binas.exceptions.ExceptionManager;
 import org.binas.ws.*;
+
+import com.oracle.webservices.api.EnvelopeStyle;
+
 import org.binas.station.ws.NoSlotAvail_Exception;
 import org.binas.station.ws.cli.StationClient;
 import org.binas.station.ws.CoordinatesView;
@@ -42,7 +45,7 @@ public class BinasManager {
 		return station;
 	}
 
-	public UserView activateUser(String email) throws InvalidEmail_Exception{
+	private synchronized void  activateUser(String email) throws InvalidEmail_Exception{
 		if(email == null){
 			ExceptionManager.invalidEmail(email);
 		} else {
@@ -107,7 +110,7 @@ public class BinasManager {
 		return getUserByEmail(email).getCredit();
 	}
 
-    public void getBina(String stationId, String email) throws AlreadyHasBina_Exception, InvalidStation_Exception, NoCredit_Exception, UserNotExists_Exception,NoBinaAvail_Exception {
+    public synchronized void getBina(String stationId, String email) throws AlreadyHasBina_Exception, InvalidStation_Exception, NoCredit_Exception, UserNotExists_Exception,NoBinaAvail_Exception {
 
         StationClient station = getStation(stationId);
         User user = getUserByEmail(email);
@@ -128,7 +131,7 @@ public class BinasManager {
         user.addBonus(-1);
     }
 	
-	public void ReturnBina(String stationId,String email) throws InvalidStation_Exception, UserNotExists_Exception, NoBinaRented_Exception, FullStation_Exception {
+	public synchronized void returnBina(String stationId,String email) throws InvalidStation_Exception, UserNotExists_Exception, NoBinaRented_Exception, FullStation_Exception {
 		StationClient station = getStation(stationId);
 		User user = getUserByEmail(email);
 		if (!user.hasBina()) {

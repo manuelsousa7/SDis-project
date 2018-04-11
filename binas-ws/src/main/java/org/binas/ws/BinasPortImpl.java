@@ -55,7 +55,7 @@ public class BinasPortImpl implements BinasPortType {
 	@Override
 	public void returnBina(String stationId, String email)
 			throws FullStation_Exception, InvalidStation_Exception, NoBinaRented_Exception, UserNotExists_Exception {
-		BinasManager.getInstance().ReturnBina(stationId, email);
+		BinasManager.getInstance().returnBina(stationId, email);
 	}
 
 	@Override
