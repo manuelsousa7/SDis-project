@@ -1,15 +1,6 @@
 package org.binas.exceptions;
 
-import org.binas.ws.BadInit;
-import org.binas.ws.BadInit_Exception;
-import org.binas.ws.FullStation;
-import org.binas.ws.FullStation_Exception;
-import org.binas.ws.InvalidStation;
-import org.binas.ws.InvalidStation_Exception;
-import org.binas.ws.NoBinaRented;
-import org.binas.ws.NoBinaRented_Exception;
-import org.binas.ws.UserNotExists;
-import org.binas.ws.UserNotExists_Exception;
+import org.binas.ws.*;
 
 public abstract class ExceptionManager {
 	
@@ -37,5 +28,17 @@ public abstract class ExceptionManager {
 		String message = "[ERROR] Bad init values";
 		BadInit faultInfo = new BadInit();
 		throw new BadInit_Exception(message, faultInfo);
+	}
+
+	public static void invalidEmail(String email) throws InvalidEmail_Exception{
+		String message = "[ERROR] Email " + email + " is not in correct format";
+		InvalidEmail faultInfo = new InvalidEmail();
+		throw new InvalidEmail_Exception(message, faultInfo);
+	}
+
+	public static void emailExists(String email) throws EmailExists_Exception {
+		String message = "[ERROR] No email found for email " + email;
+		EmailExists faultInfo = new EmailExists();
+		throw new EmailExists_Exception(message, faultInfo);
 	}
 }

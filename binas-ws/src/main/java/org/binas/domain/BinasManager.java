@@ -95,7 +95,7 @@ public class BinasManager {
 		users = new HashMap<String,User>();
 	}
 	
-	public void usersInit(int userInitialPoints) throws BadInit_Exception,InvalidEmail_Exception {
+	public void usersInit(int userInitialPoints) throws BadInit_Exception {
 		if(userInitialPoints<=0) ExceptionManager.badInit();
 		String userEmail1 = "testing1@text.com";
 		String userEmail2 = "testing2@text.com";
