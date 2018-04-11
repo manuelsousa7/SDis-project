@@ -3,12 +3,11 @@ package org.binas.domain;
 import java.util.*;
 
 import org.binas.exceptions.ExceptionManager;
-import org.binas.ws.BadInit_Exception;
+import org.binas.ws.*;
 import org.binas.station.ws.NoSlotAvail_Exception;
 import org.binas.station.ws.NoBinaAvail_Exception
 import org.binas.station.ws.cli.StationClient;
 import org.binas.station.ws.CoordinatesView;
-import org.binas.ws.*;
 
 
 public class BinasManager {
@@ -42,6 +41,18 @@ public class BinasManager {
 			ExceptionManager.stationNotFound(stationId);
 		}
 		return station;
+	}
+
+	private void activateUser(String email) throws InvalidEmail_Exception{
+		if(email == null){
+			ExceptionManager.invalidEmail(email);
+		} else {
+			Boolean isValidEmail = email.matches("^(.+)@(.+)$");
+			if(!isValidEmail){
+				ExceptionManager.invalidEmail(email);
+			}
+		}
+		// return is UserView
 	}
 	
 	public void PopulateStations(String uddiUrl,String stationPrefix) {

@@ -50,4 +50,16 @@ public abstract class ExceptionManager {
 		throw new BadInit_Exception(message, faultInfo);
 
 	}
+
+	public static void invalidEmail(String email) throws InvalidEmail_Exception{
+		String message = "[ERROR] Email " + email + " is not in correct format";
+		InvalidEmail faultInfo = new InvalidEmail();
+		throw new InvalidEmail_Exception(message, faultInfo);
+	}
+
+	public static void emailExists(String email) throws EmailExists_Exception {
+		String message = "[ERROR] No email found for email " + email;
+		EmailExists faultInfo = new EmailExists();
+		throw new EmailExists_Exception(message, faultInfo);
+	}
 }
