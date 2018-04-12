@@ -43,7 +43,7 @@ public class ReturnBinaIT extends BaseIT {
 			Assert.fail();
 		}
 		Assert.assertEquals(USER_POINTS,client.getCredit(EMAIL));
-		//Assert.assertEquals(client.getInfoStation(STATION_ID).getAvailableBinas(),CAPACITY);
+		Assert.assertEquals(client.getInfoStation(STATION_ID).getAvailableBinas(),CAPACITY);
 	}
 	
 	@Test(expected = NoBinaRented_Exception.class)
