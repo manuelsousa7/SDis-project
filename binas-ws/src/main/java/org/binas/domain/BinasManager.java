@@ -73,6 +73,7 @@ public class BinasManager {
 		User user = new User(email,10);
 		this.users.put(email,user);
 		UserView uv = new UserView();
+		uv.setHasBina(user.hasBina());
 		uv.setCredit(user.getCredit());
 		uv.setEmail(user.getEmail());
 		return uv;
@@ -90,7 +91,7 @@ public class BinasManager {
 				System.out.printf("[INFO] Created client using UDDI at %s for server with name %s%n", uddiUrl, stationName);
 				String stationId = station.getInfo().getId();
 				connectedStations.put(stationId, station);
-			}catch (Exception se) {
+			} catch (Exception se) {
 				hasMore = false;
 			}
 			currentStation += 1;
@@ -108,8 +109,7 @@ public class BinasManager {
                 float DistanceX = coord.getX() - coordinates.getX();
                 float DistanceY = coord.getY() - coordinates.getY();
                 Distances.put(Math.abs((float)Math.sqrt(DistanceX*DistanceX + DistanceY*DistanceY)), newInfo);
-            }
-            catch (InvalidStation_Exception ise) {
+            } catch (InvalidStation_Exception ise) {
                 //Station is invalid
             }
         }
