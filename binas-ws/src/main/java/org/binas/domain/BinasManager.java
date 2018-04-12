@@ -1,5 +1,6 @@
 package org.binas.domain;
 
+import com.google.common.collect.*;
 import org.binas.exceptions.ExceptionManager;
 import org.binas.station.ws.NoSlotAvail_Exception;
 import org.binas.station.ws.cli.StationClient;
@@ -100,27 +101,24 @@ public class BinasManager {
 
     public List<StationView> listStations(Integer k, CoordinatesView coordinates) {
         ArrayList<StationView> Stations = new ArrayList<StationView>();
-        SortedMap<Float, StationView> Distances = new TreeMap<>();
+        SetMultimap<Float, StationView> map = MultimapBuilder.hashKeys().hashSetValues().build();
 
         for (String station : connectedStations.keySet()) {
             try {
-                StationView newInfo = getInfoStation(station);
-                CoordinatesView coord = newInfo.getCoordinate();
-                float DistanceX = coord.getX() - coordinates.getX();
-                float DistanceY = coord.getY() - coordinates.getY();
-                Distances.put(Math.abs((float)Math.sqrt(DistanceX*DistanceX + DistanceY*DistanceY)), newInfo);
+                CoordinatesView coord1 = getInfoStation(station).getCoordinate();
+                float DistanceX1 = coord1.getX() - coordinates.getX();
+                float DistanceY1 = coord1.getY() - coordinates.getY();
+
+                float Distance1 = (float)Math.sqrt(DistanceX1*DistanceX1 + DistanceY1*DistanceY1);
+                map.put(Distance1, getInfoStation(station));
             } catch (InvalidStation_Exception ise) {
                 //Station is invalid
             }
         }
 
-        int instanceCounter = 0;
-
-        for (Map.Entry<Float, StationView> distance : Distances.entrySet()) {
-            StationView newStation = distance.getValue();
-            Stations.add(newStation);
-            instanceCounter++;
-            if (instanceCounter >= k) {
+        for (StationView station : map.values()) {
+            Stations.add(station);
+            if (Stations.size() >= k) {
                 break;
             }
         }
