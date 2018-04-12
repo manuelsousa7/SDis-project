@@ -39,7 +39,7 @@ public class BinasPortImpl implements BinasPortType {
 	}
 
 	@Override
-	public UserView activateUser(String email) throws InvalidEmail_Exception {
+	public UserView activateUser(String email) throws EmailExists_Exception, InvalidEmail_Exception {
 		return BinasManager.getInstance().activateUser(email);
 	}
 
