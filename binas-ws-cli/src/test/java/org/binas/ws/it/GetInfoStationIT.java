@@ -9,8 +9,8 @@ import org.junit.Test;
 public class GetInfoStationIT extends BaseIT {
 	private static final String STATION_ID = "T06_Station1";
 	private static final int CAPACITY = 10;
-	private static final int COORDINATE_X = 5;
-	private static final int COORDINATE_Y = 10;
+	private static final Integer COORDINATE_X = 5;
+	private static final Integer COORDINATE_Y = 10;
 	private static final String VALID_EMAIL = "testing1@text.com";
 	private StationView st = null;
 
@@ -30,8 +30,8 @@ public class GetInfoStationIT extends BaseIT {
 		try {
 			Assert.assertEquals(this.st.getCapacity(), CAPACITY);
 			Assert.assertEquals(this.st.getAvailableBinas(), CAPACITY);
-			Assert.assertTrue(this.st.getCoordinate().getX() == COORDINATE_X);
-			Assert.assertTrue(this.st.getCoordinate().getY() == COORDINATE_Y);
+			Assert.assertEquals(this.st.getCoordinate().getX(), COORDINATE_X);
+			Assert.assertEquals(this.st.getCoordinate().getY(), COORDINATE_Y);
 			Assert.assertEquals(this.st.getId(), STATION_ID);
 			Assert.assertEquals(st.getTotalReturns(),0);
 			Assert.assertEquals(st.getTotalGets(),0);
