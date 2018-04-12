@@ -132,7 +132,7 @@ public class BinasManager {
 		return getUserByEmail(email).getCredit();
 	}
 
-    public synchronized void getBina(String stationId, String email) throws AlreadyHasBina_Exception, InvalidStation_Exception, NoCredit_Exception, UserNotExists_Exception,NoBinaAvail_Exception {
+    public void getBina(String stationId, String email) throws AlreadyHasBina_Exception, InvalidStation_Exception, NoCredit_Exception, UserNotExists_Exception,NoBinaAvail_Exception {
 
         StationClient station = getStation(stationId);
         User user = getUserByEmail(email);
@@ -154,7 +154,7 @@ public class BinasManager {
         user.addBonus(-1);
     }
 	
-	public synchronized void returnBina(String stationId,String email) throws InvalidStation_Exception, UserNotExists_Exception, NoBinaRented_Exception, FullStation_Exception {
+	public void returnBina(String stationId,String email) throws InvalidStation_Exception, UserNotExists_Exception, NoBinaRented_Exception, FullStation_Exception {
 		StationClient station = getStation(stationId);
 		User user = getUserByEmail(email);
 		if (!user.hasBina()) {
@@ -169,14 +169,14 @@ public class BinasManager {
 		}
 	}
 	
-	public void testClear() {
+	public synchronized void testClear() {
 		for (StationClient station : connectedStations.values()) {
 			station.testClear();
 		}
 		users = new HashMap<String,User>();
 	}
 	
-	public void usersInit(int userInitialPoints) throws BadInit_Exception {
+	public synchronized void usersInit(int userInitialPoints) throws BadInit_Exception {
 		if(userInitialPoints<=0) ExceptionManager.badInit();
 		String userEmail1 = "testing1@text.com";
 		String userEmail2 = "testing2@text.com";
