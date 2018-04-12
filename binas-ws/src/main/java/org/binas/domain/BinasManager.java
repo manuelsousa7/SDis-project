@@ -129,6 +129,7 @@ public class BinasManager {
     }
 	
 	public int getUserCredit(String email) throws UserNotExists_Exception {
+		if(!validString(email)) ExceptionManager.userNotFound(email);
 		return getUserByEmail(email).getCredit();
 	}
 
@@ -155,6 +156,10 @@ public class BinasManager {
     }
 	
 	public void returnBina(String stationId,String email) throws InvalidStation_Exception, UserNotExists_Exception, NoBinaRented_Exception, FullStation_Exception {
+		
+		if(!validString(stationId)) ExceptionManager.stationNotFound(stationId);
+		if(!validString(email)) ExceptionManager.userNotFound(email);
+		
 		StationClient station = getStation(stationId);
 		User user = getUserByEmail(email);
 		if (!user.hasBina()) {
@@ -195,6 +200,12 @@ public class BinasManager {
 		} catch (org.binas.station.ws.BadInit_Exception e) {
 			ExceptionManager.badInit();
 		}
+	}
+	
+	private boolean validString(String input) {
+		if(input==null) return false;
+		if(input.trim().equals("")) return false;
+		else return true;
 	}
 	
 	// TODO
