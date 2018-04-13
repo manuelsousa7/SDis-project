@@ -25,13 +25,13 @@ public class BinasManager {
 	}
 
 	private User getUserByEmail(String email) throws UserNotExists_Exception {
-		
+
 		User user = users.get(email);
 		if(user==null) {
 			ExceptionManager.userNotFound(email);
 		}
 		return user;
-    }
+	}
 
 	private StationClient getStation(String stationId) throws InvalidStation_Exception {
 		StationClient station = this.connectedStations.get(stationId);
@@ -57,13 +57,35 @@ public class BinasManager {
 		return out;
 	}
 
+	private Boolean checkEmail(String email){
+		if(email.split("@").length != 2){ //Check if email contains only 1 @
+			return false;
+		}
+		String[] emailList = email.split("@");
+		if(emailList[0].length() == 0 || emailList[1].length() == 0){ //Check if email is not like @binas or binas@ ...
+			return false;
+		}
+		if(emailList[0].charAt(emailList[0].length() - 1) == '.' || emailList[1].charAt(emailList[1].length() - 1) == '.'){  //Check if email is not like binas.@binas or binas@.binas ...
+			return false;
+		}
+		if(emailList[0].charAt(0) == '.' || emailList[1].charAt(0) == '.'){  //Check if email is not like binas.@binas or binas@.binas ...
+			return false;
+		}
+		if(!emailList[0].replace(".","").matches("^[a-zA-Z0-9]*$") || !emailList[1].replace(".","").matches("^[a-zA-Z0-9]*$")){  //Check if email is not like binas@b!na$ ...
+			return false;
+		}
+		if(emailList[0].contains("..") || emailList[1].contains("..")){ //Check if email is binas@binas..binas ...
+			return false;
+		}
+
+		return true;
+	}
 
 	public synchronized UserView activateUser(String email) throws EmailExists_Exception, InvalidEmail_Exception{
 		if(email == null){
 			ExceptionManager.invalidEmail(email);
 		} else {
-			Boolean isValidEmail = email.matches("^(.+)@(.+)$");
-			if(!isValidEmail){
+			if(!checkEmail(email)){
 				ExceptionManager.invalidEmail(email);
 			}
 			if(users.containsKey(email)){
@@ -79,7 +101,6 @@ public class BinasManager {
 		uv.setEmail(user.getEmail());
 		return uv;
 	}
-	
 
 	public void PopulateStations(String uddiUrl,String stationPrefix) {
 		Boolean hasMore = true;
@@ -127,17 +148,15 @@ public class BinasManager {
                 //Station is invalid
             }
         }
-
         for (StationView station : distances) {
             Stations.add(station);
             if (Stations.size() >= k) {
                 break;
             }
         }
-
         return Stations;
     }
-	
+
 	public int getUserCredit(String email) throws UserNotExists_Exception {
 		if(!validString(email)) ExceptionManager.userNotFound(email);
 		return getUserByEmail(email).getCredit();
@@ -145,25 +164,22 @@ public class BinasManager {
 
     public void getBina(String stationId, String email) throws AlreadyHasBina_Exception, InvalidStation_Exception, NoCredit_Exception, UserNotExists_Exception,NoBinaAvail_Exception {
 
-        StationClient station = getStation(stationId);
-        User user = getUserByEmail(email);
+		StationClient station = getStation(stationId);
+		User user = getUserByEmail(email);
 
-        if (user.getCredit() <= 0) {
-            ExceptionManager.noCreditException();
-        }
+		if (user.getCredit() <= 0) {
+			ExceptionManager.noCreditException();
+		}
 
-        if (user.hasBina()) {
-            ExceptionManager.alreadyHasBina();
-        }
+		if (user.hasBina()) {
+			ExceptionManager.alreadyHasBina();
+		}
 
-        try {
+		try {
 			station.getBina();
 		} catch (org.binas.station.ws.NoBinaAvail_Exception e) {
 			ExceptionManager.noBinaAvail();
 		}
-        user.setHasBina(true);
-        user.addBonus(-1);
-    }
 	
 	public void returnBina(String stationId,String email) throws InvalidStation_Exception, UserNotExists_Exception, NoBinaRented_Exception, FullStation_Exception {
 		
@@ -183,14 +199,16 @@ public class BinasManager {
 			ExceptionManager.fullStation();
 		}
 	}
-	
+
 	public synchronized void testClear() {
+
 		for (StationClient station : connectedStations.values()) {
 			station.testClear();
 		}
 		users = new HashMap<String,User>();
 	}
-	
+
+
 	public synchronized void usersInit(int userInitialPoints) throws BadInit_Exception {
 		if(userInitialPoints<=0) ExceptionManager.badInit();
 		String userEmail1 = "testing1@text.com";
@@ -203,7 +221,7 @@ public class BinasManager {
 		users.put(userEmail2,user2);
 		users.put(userEmail3,user3);
 	}
-	
+
 	public void stationInit(String stationId, int x, int y, int capacity, int returnPrize)throws BadInit_Exception{
 		try {
 			connectedStations.get(stationId).testInit(x, y, capacity, returnPrize);
@@ -211,7 +229,7 @@ public class BinasManager {
 			ExceptionManager.badInit();
 		}
 	}
-	
+
 	private boolean validString(String input) {
 		if(input==null) return false;
 		if(input.trim().equals("")) return false;
