@@ -7,12 +7,12 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class ReturnBinaIT extends BaseIT {
-	
-	public static final String STATION_ID = "T06_Station1";
-	public static final String STATION_ID2 = "T06_Station2";
-	public static final String EMAIL = "testing1@text.com";
-	public static final int USER_POINTS = 10;
-	public static final int CAPACITY = 10;
+
+	private static final String STATION_ID = "T06_Station1";
+	private static final String STATION_ID2 = "T06_Station2";
+	private static final String EMAIL = "testing1@text.com";
+	private static final int USER_POINTS = 10;
+	private static final int CAPACITY = 10;
 	
 	@Before
 	public void setUp() throws BadInit_Exception {

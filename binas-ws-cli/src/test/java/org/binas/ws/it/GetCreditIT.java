@@ -8,8 +8,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class GetCreditIT extends BaseIT {
-	public static final String USER_EMAIL = "testing1@text.com";
-	public static final int INITIAL_CREDIT = 10;
+	private static final String USER_EMAIL = "testing1@text.com";
+	private static final int INITIAL_CREDIT = 10;
 	
 	@Before
 	public void setUp() {

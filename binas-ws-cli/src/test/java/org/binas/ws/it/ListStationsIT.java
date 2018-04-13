@@ -8,7 +8,7 @@ import org.junit.Test;
 import java.util.List;
 
 public class ListStationsIT extends BaseIT {
-    public static final String[] stationIDs = {  "T06_Station1"
+    private static final String[] stationIDs = {  "T06_Station1"
                                                 ,"T06_Station2"
                                                 ,"T06_Station3"};
 

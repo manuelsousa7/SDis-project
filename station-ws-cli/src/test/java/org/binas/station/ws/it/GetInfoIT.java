@@ -35,14 +35,14 @@ public class GetInfoIT extends BaseIT {
 	@Test
 	public void goodStation() {
 		try {
-			client.testInit(300, 300, 20, 1000);
+			client.testInit(50, 60, 20, 1000);
 			StationView info = client.getInfo();
 			int actualCapacity = info.getCapacity();
 			int actualX = info.getCoordinate().getX();
 			int actualY = info.getCoordinate().getY();
 			Assert.assertEquals(20, actualCapacity);
-			Assert.assertEquals(300, actualX);
-			Assert.assertEquals(300, actualY);
+			Assert.assertEquals(50, actualX);
+			Assert.assertEquals(60, actualY);
 			
 		} catch (BadInit_Exception e) {
 			Assert.fail();

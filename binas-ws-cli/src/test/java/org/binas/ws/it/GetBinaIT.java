@@ -6,8 +6,8 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class GetBinaIT extends BaseIT {
-    public static final String USER_EMAIL = "testing1@text.com";
-    public static final String stationID = "T06_Station1";
+    private static final String USER_EMAIL = "testing1@text.com";
+    private static final String stationID = "T06_Station1";
 
     @Test
     public void success() {

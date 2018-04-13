@@ -8,8 +8,8 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class ActivateUserIT extends BaseIT {
-	public static final String VALID_EMAIL = "testing2@text.com";
-	public static final Integer INITIAL_USER_CREDIT = 10;
+	private static final String VALID_EMAIL = "testing2@text.com";
+	private static final Integer INITIAL_USER_CREDIT = 10;
 
 
 	@Test
