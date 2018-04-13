@@ -23,10 +23,10 @@ public class User {
     public String getEmail() {
         return email;
     }
-    public void setHasBina(boolean hasBina) {
+    public synchronized void setHasBina(boolean hasBina) {
     	this.hasBina = hasBina;
     }
-    public void addBonus(int bonus) {
+    public synchronized void addBonus(int bonus) {
     	this.credit.addAndGet(bonus);
     }
     public boolean hasBina() {
