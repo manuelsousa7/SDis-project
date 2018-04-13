@@ -151,10 +151,11 @@ public class BinasManager {
 	}
 
 	public int getUserCredit(String email) throws UserNotExists_Exception {
+		if(!validString(email)) ExceptionManager.userNotFound(email);
 		return getUserByEmail(email).getCredit();
 	}
 
-	public synchronized void getBina(String stationId, String email) throws AlreadyHasBina_Exception, InvalidStation_Exception, NoCredit_Exception, UserNotExists_Exception,NoBinaAvail_Exception {
+    public void getBina(String stationId, String email) throws AlreadyHasBina_Exception, InvalidStation_Exception, NoCredit_Exception, UserNotExists_Exception,NoBinaAvail_Exception {
 
 		StationClient station = getStation(stationId);
 		User user = getUserByEmail(email);
@@ -172,11 +173,12 @@ public class BinasManager {
 		} catch (org.binas.station.ws.NoBinaAvail_Exception e) {
 			ExceptionManager.noBinaAvail();
 		}
-		user.setHasBina(true);
-		user.addBonus(-1);
-	}
-
-	public synchronized void returnBina(String stationId,String email) throws InvalidStation_Exception, UserNotExists_Exception, NoBinaRented_Exception, FullStation_Exception {
+	
+	public void returnBina(String stationId,String email) throws InvalidStation_Exception, UserNotExists_Exception, NoBinaRented_Exception, FullStation_Exception {
+		
+		if(!validString(stationId)) ExceptionManager.stationNotFound(stationId);
+		if(!validString(email)) ExceptionManager.userNotFound(email);
+		
 		StationClient station = getStation(stationId);
 		User user = getUserByEmail(email);
 		if (!user.hasBina()) {
@@ -191,14 +193,16 @@ public class BinasManager {
 		}
 	}
 
-	public void testClear() {
+	public synchronized void testClear() {
+
 		for (StationClient station : connectedStations.values()) {
 			station.testClear();
 		}
 		users = new HashMap<String,User>();
 	}
 
-	public void usersInit(int userInitialPoints) throws BadInit_Exception {
+
+	public synchronized void usersInit(int userInitialPoints) throws BadInit_Exception {
 		if(userInitialPoints<=0) ExceptionManager.badInit();
 		String userEmail1 = "testing1@text.com";
 		String userEmail2 = "testing2@text.com";
@@ -219,6 +223,12 @@ public class BinasManager {
 		}
 	}
 
+	private boolean validString(String input) {
+		if(input==null) return false;
+		if(input.trim().equals("")) return false;
+		else return true;
+	}
+	
 	// TODO
 
 }
