@@ -101,22 +101,34 @@ public class BinasManager {
 
     public List<StationView> listStations(Integer k, CoordinatesView coordinates) {
         ArrayList<StationView> Stations = new ArrayList<StationView>();
-        SetMultimap<Float, StationView> map = MultimapBuilder.hashKeys().hashSetValues().build();
+        SortedSet<StationView> distances = new TreeSet<StationView>(new Comparator<StationView>() {
+			@Override
+			public int compare(StationView o1, StationView o2) {
+				CoordinatesView coord1 = o1.getCoordinate();
+				CoordinatesView coord2 = o2.getCoordinate();
+				float distanceX1 = Math.abs(coord1.getX() - coordinates.getX());
+				float distanceY1 = Math.abs(coord1.getY() - coordinates.getY());
+				float distanceX2 = Math.abs(coord2.getX() - coordinates.getX());
+				float distanceY2 = Math.abs(coord2.getY() - coordinates.getY());
+
+				float distance1 = (float)Math.sqrt(distanceX1*distanceX1 + distanceY1*distanceY1);
+				float distance2 = (float)Math.sqrt(distanceX2*distanceX2 + distanceY2*distanceY2);
+
+				if (distance1 == distance2) return 1;
+				if (distance1 > distance2) return 1;
+				return -1;
+			}
+		});
 
         for (String station : connectedStations.keySet()) {
             try {
-                CoordinatesView coord1 = getInfoStation(station).getCoordinate();
-                float DistanceX1 = coord1.getX() - coordinates.getX();
-                float DistanceY1 = coord1.getY() - coordinates.getY();
-
-                float Distance1 = (float)Math.sqrt(DistanceX1*DistanceX1 + DistanceY1*DistanceY1);
-                map.put(Distance1, getInfoStation(station));
+				distances.add(getInfoStation(station));
             } catch (InvalidStation_Exception ise) {
                 //Station is invalid
             }
         }
 
-        for (StationView station : map.values()) {
+        for (StationView station : distances) {
             Stations.add(station);
             if (Stations.size() >= k) {
                 break;

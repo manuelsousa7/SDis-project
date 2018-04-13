@@ -48,18 +48,16 @@ public class ListStationsIT extends BaseIT {
 
             List<StationView> station =  client.listStations(2, coord);
 
-            System.out.println();
-
             Assert.assertEquals(station.size(), 2);
-            Assert.assertEquals(station.get(0).getId(), stationIDs[0]);
-            Assert.assertEquals(station.get(1).getId(), stationIDs[1]);
+            Assert.assertEquals(station.get(0).getId(), stationIDs[1]);
+            Assert.assertEquals(station.get(1).getId(), stationIDs[0]);
         }
         catch (Exception e) {
             Assert.fail();
         }
     }
 
-    @Test
+   @Test
     public void yetAnotherSuccess() {
         try {
             client.testInitStation(stationIDs[0], 1, 1, 2, 5);
@@ -74,8 +72,8 @@ public class ListStationsIT extends BaseIT {
 
             Assert.assertEquals(3, station.size());
             Assert.assertEquals(station.get(0).getId(), stationIDs[1]);
-            Assert.assertEquals(station.get(1).getId(), stationIDs[0]);
-            Assert.assertEquals(station.get(2).getId(), stationIDs[2]);
+            Assert.assertEquals(station.get(1).getId(), stationIDs[2]);
+            Assert.assertEquals(station.get(2).getId(), stationIDs[0]);
         }
         catch (Exception e) {
             Assert.fail();
