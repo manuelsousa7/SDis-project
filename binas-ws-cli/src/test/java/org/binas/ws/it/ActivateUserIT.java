@@ -9,7 +9,7 @@ import org.junit.Test;
 public class ActivateUserIT extends BaseIT {
 	public static final String VALID_EMAIL = "testing2@text.com";
 	public static final Integer INITIAL_USER_CREDIT = 10;
-	
+
 
 	@Test
 	public void success() {
@@ -20,9 +20,9 @@ public class ActivateUserIT extends BaseIT {
 		} catch (Exception e) {
 			Assert.fail();
 		}
-		
+
 	}
-	
+
 	@Test(expected = InvalidEmail_Exception.class )
 	public void nullName() throws InvalidEmail_Exception {
 		try {
@@ -84,6 +84,15 @@ public class ActivateUserIT extends BaseIT {
 			client.activateUser("123123213.123.123.123.123.123312123312@1231232112312313231223.12123312.123312.342432344234234");
 		} catch (InvalidEmail_Exception e) {
 			throw e;
+		} catch (Exception e) {
+			Assert.fail();
+		}
+	}
+
+	@Test
+	public void validEmail6() {
+		try {
+			client.activateUser("a@b");
 		} catch (Exception e) {
 			Assert.fail();
 		}
@@ -230,6 +239,30 @@ public class ActivateUserIT extends BaseIT {
 	public void invalidEmail13() throws InvalidEmail_Exception {
 		try {
 			client.activateUser("a@a@a");
+		} catch (InvalidEmail_Exception e) {
+			throw e;
+		} catch (Exception e) {
+			Assert.fail();
+		}
+		Assert.fail();
+	}
+
+	@Test(expected = InvalidEmail_Exception.class )
+	public void invalidEmail14() throws InvalidEmail_Exception {
+		try {
+			client.activateUser(".");
+		} catch (InvalidEmail_Exception e) {
+			throw e;
+		} catch (Exception e) {
+			Assert.fail();
+		}
+		Assert.fail();
+	}
+
+	@Test(expected = InvalidEmail_Exception.class )
+	public void invalidEmail15() throws InvalidEmail_Exception {
+		try {
+			client.activateUser(" ");
 		} catch (InvalidEmail_Exception e) {
 			throw e;
 		} catch (Exception e) {
