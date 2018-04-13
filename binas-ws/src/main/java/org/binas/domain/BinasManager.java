@@ -173,6 +173,9 @@ public class BinasManager {
 		} catch (org.binas.station.ws.NoBinaAvail_Exception e) {
 			ExceptionManager.noBinaAvail();
 		}
+		user.setHasBina(true);
+		user.addBonus(-1);
+    }
 	
 	public void returnBina(String stationId,String email) throws InvalidStation_Exception, UserNotExists_Exception, NoBinaRented_Exception, FullStation_Exception {
 		
