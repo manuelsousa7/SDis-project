@@ -67,7 +67,19 @@ public class ReturnBinaIT extends BaseIT {
 	public void invalidUser() throws FullStation_Exception, InvalidStation_Exception, NoBinaRented_Exception, UserNotExists_Exception {
 		client.returnBina(STATION_ID, "invalid");
 	}
-		
+	@Test(expected = UserNotExists_Exception.class)
+	public void nullUser() throws FullStation_Exception, InvalidStation_Exception, NoBinaRented_Exception, UserNotExists_Exception {
+		client.returnBina(STATION_ID, null);
+	}
+	@Test(expected = InvalidStation_Exception.class)
+	public void invalidStation() throws FullStation_Exception, InvalidStation_Exception, NoBinaRented_Exception, UserNotExists_Exception {
+		client.returnBina("invalid",EMAIL);
+	}
+	@Test(expected = InvalidStation_Exception.class)
+	public void nullStation() throws FullStation_Exception, InvalidStation_Exception, NoBinaRented_Exception, UserNotExists_Exception {
+		client.returnBina(null,EMAIL);
+	}
+	
 	@After
 	public void tearDown() {
 		client.testClear();
