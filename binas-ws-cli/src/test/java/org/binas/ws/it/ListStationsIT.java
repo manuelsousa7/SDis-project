@@ -78,4 +78,8 @@ public class ListStationsIT extends BaseIT {
         }
     }
 
+    public void tearDown() {
+        client.testClear();
+    }
+
 }
