@@ -79,21 +79,28 @@ public class GetBinaIT extends BaseIT {
         }
     }
 
-    @Test
-    public void noBinaAvail() throws NoBinaAvail_Exception {
+    @Test(expected = NoBinaAvail_Exception.class)
+    public void noBinaAvail() throws NoBinaAvail_Exception{
         try {
             client.testInit(1);
-            try {
-                client.testInitStation(stationID, 5, 5, 0, 5);
-                client.rentBina(stationID, USER_EMAIL);
-            } catch (NoBinaAvail_Exception e) {
+            client.testInitStation(stationID, 5, 5, 0, 5);
+            client.rentBina(stationID, USER_EMAIL);
+        } catch (NoBinaAvail_Exception e) {
+            try{
                 Assert.assertTrue(client.getInfoStation(stationID).getAvailableBinas() == 0);
-                return;
+            } catch (InvalidStation_Exception is){
+                Assert.fail();
             }
+            throw e;
+        } catch (Exception e) {
             Assert.fail();
         }
-        catch (Exception e) {
-            Assert.fail();
-        }
+        Assert.fail();
+    }
+
+
+    @After
+    public void tearDown() {
+        client.testClear();
     }
 }
