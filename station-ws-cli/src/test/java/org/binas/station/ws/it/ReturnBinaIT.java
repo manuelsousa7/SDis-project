@@ -26,10 +26,11 @@ public class ReturnBinaIT extends BaseIT {
 		try {
 			client.getBina();
 			int bonus = client.returnBina();
+			StationView uv = client.getInfo();
 			Assert.assertEquals(bonus,STATION_BONUS);
-			Assert.assertEquals(client.getInfo().getTotalReturns(),1);
-			Assert.assertEquals(client.getInfo().getAvailableBinas(),CAPACITY);
-			Assert.assertEquals(client.getInfo().getTotalGets(),1);
+			Assert.assertEquals(uv.getTotalReturns(),1);
+			Assert.assertEquals(uv.getAvailableBinas(),CAPACITY);
+			Assert.assertEquals(uv.getTotalGets(),1);
 		} catch (Exception e) {
 			Assert.fail();
 		}
