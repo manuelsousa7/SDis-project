@@ -1,5 +1,6 @@
 package org.binas.station.ws.it;
 
+import org.binas.station.ws.BadInit_Exception;
 import org.binas.station.ws.NoBinaAvail_Exception;
 import org.binas.station.ws.NoSlotAvail_Exception;
 import org.binas.station.ws.StationView;
@@ -9,14 +10,8 @@ import org.junit.Test;
 
 public class getBinaMethodTest extends BaseIT {
 	
-	private int reserved = 0;
-	
 	@Test
 	public void success() {
-		
-		reserved = 1;
-		
-		//Getting info before getting Bina
 		StationView info = client.getInfo();
 		
 		try {
@@ -30,23 +25,10 @@ public class getBinaMethodTest extends BaseIT {
 		
 		
 	}
-	@Test
-	public void noBinasAvailable() {
-		StationView info = client.getInfo();
-		int availableBinas = info.getAvailableBinas();
-		reserved = 0;
-		availableBinas +=1;
-		while (availableBinas > 0) {
-			try {
-				client.getBina();
-				availableBinas--;
-				reserved ++;
-			} catch (NoBinaAvail_Exception e) { 
-				Assert.assertTrue(client.getInfo().getAvailableBinas()==0);
-				return;
-			}
-		}
-		Assert.fail();
+	@Test(expected = NoBinaAvail_Exception.class)
+	public void noBinasAvailable() throws BadInit_Exception, NoBinaAvail_Exception {
+		client.testInit(0, 0, 0, 10);
+		client.getBina();
 	}
 	@After
 	public void cleanReservations() {
