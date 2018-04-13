@@ -1,21 +1,23 @@
 package org.binas.domain;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 public class User {
 
     private String email;
     private boolean hasBina;
-    private int credit;
+    private AtomicInteger credit;
 
     public User(String email, boolean hasBina, int credit) {
         this.email = email;
         this.hasBina = hasBina;
-        this.credit = credit;
+        this.credit = new AtomicInteger(credit);
     }
 
     public User(String email,int credit){
         this.email = email;
         this.hasBina = false;
-        this.credit = credit;
+        this.credit = new AtomicInteger(credit);
     }
 
     public String getEmail() {
@@ -25,13 +27,13 @@ public class User {
     	this.hasBina = hasBina;
     }
     public void addBonus(int bonus) {
-    	this.credit += bonus;
+    	this.credit.addAndGet(bonus);
     }
     public boolean hasBina() {
         return hasBina;
     }
 
     public int getCredit() {
-        return credit;
+        return credit.get();
     }
 }
