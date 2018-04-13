@@ -1,5 +1,6 @@
 package org.binas.domain;
 
+import com.google.common.collect.*;
 import org.binas.exceptions.ExceptionManager;
 import org.binas.station.ws.NoSlotAvail_Exception;
 import org.binas.station.ws.cli.StationClient;
@@ -101,7 +102,6 @@ public class BinasManager {
 		return uv;
 	}
 
-
 	public void PopulateStations(String uddiUrl,String stationPrefix) {
 		Boolean hasMore = true;
 		int currentStation = 1;
@@ -120,35 +120,42 @@ public class BinasManager {
 		}
 	}
 
-	public List<StationView> listStations(Integer k, CoordinatesView coordinates) {
-		ArrayList<StationView> Stations = new ArrayList<StationView>();
-		SortedMap<Float, StationView> Distances = new TreeMap<>();
+    public List<StationView> listStations(Integer k, CoordinatesView coordinates) {
+        ArrayList<StationView> Stations = new ArrayList<StationView>();
+        SortedSet<StationView> distances = new TreeSet<StationView>(new Comparator<StationView>() {
+			@Override
+			public int compare(StationView o1, StationView o2) {
+				CoordinatesView coord1 = o1.getCoordinate();
+				CoordinatesView coord2 = o2.getCoordinate();
+				float distanceX1 = Math.abs(coord1.getX() - coordinates.getX());
+				float distanceY1 = Math.abs(coord1.getY() - coordinates.getY());
+				float distanceX2 = Math.abs(coord2.getX() - coordinates.getX());
+				float distanceY2 = Math.abs(coord2.getY() - coordinates.getY());
 
-		for (String station : connectedStations.keySet()) {
-			try {
-				StationView newInfo = getInfoStation(station);
-				CoordinatesView coord = newInfo.getCoordinate();
-				float DistanceX = coord.getX() - coordinates.getX();
-				float DistanceY = coord.getY() - coordinates.getY();
-				Distances.put(Math.abs((float)Math.sqrt(DistanceX*DistanceX + DistanceY*DistanceY)), newInfo);
-			} catch (InvalidStation_Exception ise) {
-				//Station is invalid
+				float distance1 = (float)Math.sqrt(distanceX1*distanceX1 + distanceY1*distanceY1);
+				float distance2 = (float)Math.sqrt(distanceX2*distanceX2 + distanceY2*distanceY2);
+
+				if (distance1 == distance2) return 1;
+				if (distance1 > distance2) return 1;
+				return -1;
 			}
-		}
+		});
 
-		int instanceCounter = 0;
-
-		for (Map.Entry<Float, StationView> distance : Distances.entrySet()) {
-			StationView newStation = distance.getValue();
-			Stations.add(newStation);
-			instanceCounter++;
-			if (instanceCounter >= k) {
-				break;
-			}
-		}
-
-		return Stations;
-	}
+        for (String station : connectedStations.keySet()) {
+            try {
+				distances.add(getInfoStation(station));
+            } catch (InvalidStation_Exception ise) {
+                //Station is invalid
+            }
+        }
+        for (StationView station : distances) {
+            Stations.add(station);
+            if (Stations.size() >= k) {
+                break;
+            }
+        }
+        return Stations;
+    }
 
 	public int getUserCredit(String email) throws UserNotExists_Exception {
 		if(!validString(email)) ExceptionManager.userNotFound(email);
