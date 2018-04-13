@@ -9,7 +9,7 @@ import org.junit.Test;
 public class PingIT extends BaseIT {
 
 	private static final String INPUT = "input";
-	
+
 	@Test
 	public void emptyInput() {
 		Assert.assertNotNull(client.testPing(""));

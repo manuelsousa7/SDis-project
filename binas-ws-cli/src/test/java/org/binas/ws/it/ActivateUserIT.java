@@ -38,7 +38,7 @@ public class ActivateUserIT extends BaseIT {
 
 
 	@Test
-	public void validEmail1()  {
+	public void validEmail()  {
 		try {
 			client.activateUser("teste@binas");
 		} catch (Exception e) {
@@ -47,7 +47,7 @@ public class ActivateUserIT extends BaseIT {
 	}
 
 	@Test
-	public void validEmail2() {
+	public void validEmailWithDotsBeforeAt() {
 		try {
 			client.activateUser("teste.teste@binas");
 		} catch (Exception e) {
@@ -57,7 +57,7 @@ public class ActivateUserIT extends BaseIT {
 
 
 	@Test
-	public void validEmail3() throws InvalidEmail_Exception {
+	public void validEmailWithDotsAfterAt() throws InvalidEmail_Exception {
 		try {
 			client.activateUser("teste@binas.binas");
 		} catch (InvalidEmail_Exception e) {
@@ -68,7 +68,7 @@ public class ActivateUserIT extends BaseIT {
 	}
 
 	@Test
-	public void validEmail4() throws InvalidEmail_Exception {
+	public void validEmailWithNumbers() throws InvalidEmail_Exception {
 		try {
 			client.activateUser("4te4ste1@bin4as.bi4nas4");
 		} catch (InvalidEmail_Exception e) {
@@ -80,7 +80,7 @@ public class ActivateUserIT extends BaseIT {
 
 
 	@Test
-	public void validEmail5() throws InvalidEmail_Exception {
+	public void validEmailOnlyNumbers() throws InvalidEmail_Exception {
 		try {
 			client.activateUser("123123213.123.123.123.123.123312123312@1231232112312313231223.12123312.123312.342432344234234");
 		} catch (InvalidEmail_Exception e) {
@@ -91,7 +91,7 @@ public class ActivateUserIT extends BaseIT {
 	}
 
 	@Test
-	public void validEmail6() {
+	public void oneCharacterBeforeAndAfterAt() {
 		try {
 			client.activateUser("a@b");
 		} catch (Exception e) {
@@ -100,7 +100,7 @@ public class ActivateUserIT extends BaseIT {
 	}
 
 	@Test(expected = InvalidEmail_Exception.class )
-	public void invalidEmail1() throws InvalidEmail_Exception {
+	public void validBeforeAtEmptyAfterAt() throws InvalidEmail_Exception {
 		try {
 			client.activateUser("teste@");
 		} catch (InvalidEmail_Exception e) {
@@ -111,9 +111,21 @@ public class ActivateUserIT extends BaseIT {
 		Assert.fail();
 	}
 
+	@Test(expected = InvalidEmail_Exception.class )
+	public void validAfterAtEmptyBeforeAt() throws InvalidEmail_Exception {
+		try {
+			client.activateUser("@teste");
+		} catch (InvalidEmail_Exception e) {
+			throw e;
+		} catch (Exception e) {
+			Assert.fail();
+		}
+		Assert.fail();
+	}
+
 
 	@Test(expected = InvalidEmail_Exception.class )
-	public void invalidEmail2() throws InvalidEmail_Exception {
+	public void invalidDotAfterAt() throws InvalidEmail_Exception {
 		try {
 			client.activateUser("teste@binas.");
 		} catch (InvalidEmail_Exception e) {
@@ -124,11 +136,10 @@ public class ActivateUserIT extends BaseIT {
 		Assert.fail();
 	}
 
-
 	@Test(expected = InvalidEmail_Exception.class )
-	public void invalidEmail3() throws InvalidEmail_Exception {
+	public void invalidDotAfterAt2() throws InvalidEmail_Exception {
 		try {
-			client.activateUser("teste.@binas");
+			client.activateUser("teste@.binas");
 		} catch (InvalidEmail_Exception e) {
 			throw e;
 		} catch (Exception e) {
@@ -139,7 +150,32 @@ public class ActivateUserIT extends BaseIT {
 
 
 	@Test(expected = InvalidEmail_Exception.class )
-	public void invalidEmail4() throws InvalidEmail_Exception {
+	public void invalidDotBeforeAt() throws InvalidEmail_Exception {
+		try {
+			client.activateUser("teste.@binas");
+		} catch (InvalidEmail_Exception e) {
+			throw e;
+		} catch (Exception e) {
+			Assert.fail();
+		}
+		Assert.fail();
+	}
+
+	@Test(expected = InvalidEmail_Exception.class )
+	public void invalidDotBeforeAt2() throws InvalidEmail_Exception {
+		try {
+			client.activateUser(".teste@binas");
+		} catch (InvalidEmail_Exception e) {
+			throw e;
+		} catch (Exception e) {
+			Assert.fail();
+		}
+		Assert.fail();
+	}
+
+
+	@Test(expected = InvalidEmail_Exception.class )
+	public void emailNoAt() throws InvalidEmail_Exception {
 		try {
 			client.activateUser("email");
 		} catch (InvalidEmail_Exception e) {
@@ -152,7 +188,7 @@ public class ActivateUserIT extends BaseIT {
 
 
 	@Test(expected = InvalidEmail_Exception.class )
-	public void invalidEmail5() throws InvalidEmail_Exception {
+	public void dotAfterAndBeforeAt() throws InvalidEmail_Exception {
 		try {
 			client.activateUser(".@.");
 		} catch (InvalidEmail_Exception e) {
@@ -164,9 +200,9 @@ public class ActivateUserIT extends BaseIT {
 	}
 
 	@Test(expected = InvalidEmail_Exception.class )
-	public void invalidEmail6() throws InvalidEmail_Exception {
+	public void invalidCharactersBeforeAt() throws InvalidEmail_Exception {
 		try {
-			client.activateUser("asdsadsad$sa@asdasdsadas.asdasds$adadas");
+			client.activateUser("asdsadsad$sa@asdasdsadas.asdasdsadadas");
 		} catch (InvalidEmail_Exception e) {
 			throw e;
 		} catch (Exception e) {
@@ -177,7 +213,20 @@ public class ActivateUserIT extends BaseIT {
 
 
 	@Test(expected = InvalidEmail_Exception.class )
-	public void invalidEmail7() throws InvalidEmail_Exception {
+	public void invalidCharactersAfterAt() throws InvalidEmail_Exception {
+		try {
+			client.activateUser("asdsadsadsa@asdasds$adas.asdasd$sadada");
+		} catch (InvalidEmail_Exception e) {
+			throw e;
+		} catch (Exception e) {
+			Assert.fail();
+		}
+		Assert.fail();
+	}
+
+
+	@Test(expected = InvalidEmail_Exception.class )
+	public void consecutiveDotsBeforeAt() throws InvalidEmail_Exception {
 		try {
 			client.activateUser("snjadknkasdsa..jkandsksa@asdasdasdasdsa.csadasdas");
 		} catch (InvalidEmail_Exception e) {
@@ -189,7 +238,19 @@ public class ActivateUserIT extends BaseIT {
 	}
 
 	@Test(expected = InvalidEmail_Exception.class )
-	public void invalidEmail8() throws InvalidEmail_Exception {
+	public void consecutiveDotsAfterAt() throws InvalidEmail_Exception {
+		try {
+			client.activateUser("snjadknkasdsajkandsksa@asdasdasdas..dsa.csadasdas");
+		} catch (InvalidEmail_Exception e) {
+			throw e;
+		} catch (Exception e) {
+			Assert.fail();
+		}
+		Assert.fail();
+	}
+
+	@Test(expected = InvalidEmail_Exception.class )
+	public void emptyString() throws InvalidEmail_Exception {
 		try {
 			client.activateUser("");
 		} catch (InvalidEmail_Exception e) {
@@ -201,31 +262,7 @@ public class ActivateUserIT extends BaseIT {
 	}
 
 	@Test(expected = InvalidEmail_Exception.class )
-	public void invalidEmail9() throws InvalidEmail_Exception {
-		try {
-			client.activateUser("@binas");
-		} catch (InvalidEmail_Exception e) {
-			throw e;
-		} catch (Exception e) {
-			Assert.fail();
-		}
-		Assert.fail();
-	}
-
-	@Test(expected = InvalidEmail_Exception.class )
-	public void invalidEmail10() throws InvalidEmail_Exception {
-		try {
-			client.activateUser("binas@");
-		} catch (InvalidEmail_Exception e) {
-			throw e;
-		} catch (Exception e) {
-			Assert.fail();
-		}
-		Assert.fail();
-	}
-
-	@Test(expected = InvalidEmail_Exception.class )
-	public void invalidEmail12() throws InvalidEmail_Exception {
+	public void at() throws InvalidEmail_Exception {
 		try {
 			client.activateUser("@");
 		} catch (InvalidEmail_Exception e) {
@@ -237,7 +274,7 @@ public class ActivateUserIT extends BaseIT {
 	}
 
 	@Test(expected = InvalidEmail_Exception.class )
-	public void invalidEmail13() throws InvalidEmail_Exception {
+	public void twoAts() throws InvalidEmail_Exception {
 		try {
 			client.activateUser("a@a@a");
 		} catch (InvalidEmail_Exception e) {
@@ -249,7 +286,7 @@ public class ActivateUserIT extends BaseIT {
 	}
 
 	@Test(expected = InvalidEmail_Exception.class )
-	public void invalidEmail14() throws InvalidEmail_Exception {
+	public void onlyDot() throws InvalidEmail_Exception {
 		try {
 			client.activateUser(".");
 		} catch (InvalidEmail_Exception e) {
@@ -261,7 +298,7 @@ public class ActivateUserIT extends BaseIT {
 	}
 
 	@Test(expected = InvalidEmail_Exception.class )
-	public void invalidEmail15() throws InvalidEmail_Exception {
+	public void space() throws InvalidEmail_Exception {
 		try {
 			client.activateUser(" ");
 		} catch (InvalidEmail_Exception e) {
