@@ -19,7 +19,7 @@ public class GetInfoStationIT extends BaseIT {
 	public void setUp() {
 		try {
 			client.testInit(10);
-			client.testInitStation(STATION_ID, 5, 10, CAPACITY, 1);
+			client.testInitStation(STATION_ID, COORDINATE_X, COORDINATE_Y, CAPACITY, 1);
 			this.st = client.getInfoStation(STATION_ID);
 		} catch (Exception e) {
 			e.printStackTrace();
