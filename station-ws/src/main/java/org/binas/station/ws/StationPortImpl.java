@@ -1,12 +1,12 @@
 package org.binas.station.ws;
 
-import javax.jws.WebService;
-
 import org.binas.station.domain.Coordinates;
 import org.binas.station.domain.Station;
 import org.binas.station.domain.exception.BadInitException;
 import org.binas.station.domain.exception.NoBinaAvailException;
 import org.binas.station.domain.exception.NoSlotAvailException;
+
+import javax.jws.WebService;
 
 /**
  * This class implements the Web Service port type (interface). The annotations

@@ -1,13 +1,6 @@
 package org.binas.ws.it;
 
-import org.binas.ws.AlreadyHasBina_Exception;
-import org.binas.ws.BadInit_Exception;
-import org.binas.ws.FullStation_Exception;
-import org.binas.ws.InvalidStation_Exception;
-import org.binas.ws.NoBinaAvail_Exception;
-import org.binas.ws.NoBinaRented_Exception;
-import org.binas.ws.NoCredit_Exception;
-import org.binas.ws.UserNotExists_Exception;
+import org.binas.ws.*;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;

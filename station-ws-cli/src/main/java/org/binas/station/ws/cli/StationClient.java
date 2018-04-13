@@ -1,18 +1,11 @@
 package org.binas.station.ws.cli;
 
-import java.util.Map;
-
-import javax.xml.ws.BindingProvider;
-
-import org.binas.station.ws.BadInit_Exception;
-import org.binas.station.ws.NoBinaAvail_Exception;
-import org.binas.station.ws.NoSlotAvail_Exception;
-import org.binas.station.ws.StationPortType;
-import org.binas.station.ws.StationService;
-import org.binas.station.ws.StationView;
-
+import org.binas.station.ws.*;
 import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINaming;
 import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINamingException;
+
+import javax.xml.ws.BindingProvider;
+import java.util.Map;
 
 import static javax.xml.ws.BindingProvider.ENDPOINT_ADDRESS_PROPERTY;
 

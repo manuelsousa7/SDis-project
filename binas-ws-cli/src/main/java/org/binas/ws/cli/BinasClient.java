@@ -1,12 +1,12 @@
 package org.binas.ws.cli;
 
 import org.binas.ws.*;
+import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINaming;
+import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINamingException;
 
 import javax.xml.ws.BindingProvider;
 import java.util.List;
 import java.util.Map;
-import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINaming;
-import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINamingException;
 
 import static javax.xml.ws.BindingProvider.ENDPOINT_ADDRESS_PROPERTY;
 

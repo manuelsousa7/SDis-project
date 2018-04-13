@@ -1,11 +1,11 @@
 package org.binas.ws.it;
 
-import java.io.IOException;
-import java.util.Properties;
-
 import org.binas.ws.cli.BinasClient;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+
+import java.io.IOException;
+import java.util.Properties;
 
 
 /*

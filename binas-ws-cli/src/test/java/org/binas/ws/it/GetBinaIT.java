@@ -3,7 +3,6 @@ package org.binas.ws.it;
 import org.binas.ws.*;
 import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
 public class GetBinaIT extends BaseIT {
@@ -66,7 +65,7 @@ public class GetBinaIT extends BaseIT {
     }
 
     @Test (expected = AlreadyHasBina_Exception.class)
-    public void alreadyRented() throws AlreadyHasBina_Exception, NoCredit_Exception {
+    public void alreadyRented() throws AlreadyHasBina_Exception {
         try {
             client.testInit(2);
             client.rentBina(stationID, USER_EMAIL);

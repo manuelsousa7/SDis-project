@@ -2,7 +2,6 @@ package org.binas.station.ws.it;
 
 import org.binas.station.ws.BadInit_Exception;
 import org.binas.station.ws.NoBinaAvail_Exception;
-import org.binas.station.ws.NoSlotAvail_Exception;
 import org.binas.station.ws.StationView;
 import org.junit.After;
 import org.junit.Assert;
