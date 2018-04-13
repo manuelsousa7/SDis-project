@@ -7,7 +7,7 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class getBinaMethodTest extends BaseIT {
+public class GetBinaMethodTest extends BaseIT {
 	
 	@Test
 	public void success() {

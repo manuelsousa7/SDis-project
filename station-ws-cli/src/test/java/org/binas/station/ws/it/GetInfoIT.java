@@ -6,7 +6,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 
-public class getInfoIT extends BaseIT {
+public class GetInfoIT extends BaseIT {
 	
 	@Test
 	public void emptyStation() {

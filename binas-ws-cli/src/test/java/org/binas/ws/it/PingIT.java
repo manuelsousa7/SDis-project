@@ -1,5 +1,6 @@
 package org.binas.ws.it;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 
@@ -8,14 +9,22 @@ import org.junit.Test;
  */
 public class PingIT extends BaseIT {
 
-    // tests
-    // assertEquals(expected, actual);
+    private static final String INPUT = "input";
 
-    // public String ping(String x)
+
+    @Test
+    public void emptyInput() {
+        Assert.assertNotNull(client.testPing(""));
+    }
+
+    @Test
+    public void nullInput() {
+        Assert.assertNotNull(client.testPing(null));
+    }
 
     @Test
     public void pingEmptyTest() {
-		// assertNotNull(binasClient.testPing("test"));
+        Assert.assertNotNull(client.testPing(INPUT));
     }
 
 }
