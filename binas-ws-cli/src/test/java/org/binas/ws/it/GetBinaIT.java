@@ -1,6 +1,7 @@
 package org.binas.ws.it;
 
 import org.binas.ws.*;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
