@@ -37,6 +37,13 @@
                 </xs:sequence>
             </xs:complexType>
 
+            <xs:complexType name="balanceView">
+                <xs:sequence>
+                    <xs:element name="newBalance" type="xs:int" />
+                    <xs:element name="balanceTag" type="xs:string" />
+                </xs:sequence>
+            </xs:complexType>
+
             <xs:complexType name="getInfo">
                 <xs:sequence />
             </xs:complexType>
@@ -70,6 +77,34 @@
                 </xs:sequence>
             </xs:complexType>
             <xs:element name="returnBinaResponse" type="tns:returnBinaResponse" />
+
+            <xs:complexType name="getBalance">
+                <xs:sequence>
+                    <xs:element name="email" type="xs:string" minOccurs="0" />
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="getBalance" type="tns:getBalance" />
+
+            <xs:complexType name="getBalanceResponse">
+                <xs:sequence>
+                    <xs:element name="balanceInfo" type="tns:balanceView" />
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="getBalanceResponse" type="tns:getBalanceResponse" />
+
+            <xs:complexType name="setBalance">
+                <xs:sequence>
+                    <xs:element name="email" type="xs:string" minOccurs="0" />
+                    <xs:element name="newBalance" type="xs:int" />
+                    <xs:element name="balanceTag" type="xs:string" />
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="setBalance" type="tns:setBalance" />
+
+            <xs:complexType name="setBalanceResponse">
+                <xs:sequence/>
+            </xs:complexType>
+            <xs:element name="setBalanceResponse" type="tns:setBalanceResponse" />
 
             <xs:complexType name="NoBinaAvail">
                 <xs:sequence>
@@ -162,6 +197,20 @@
         <part name="parameters" element="tns:returnBinaResponse" />
     </message>
 
+    <message name="getBalance">
+        <part name="parameters" element="tns:getBalance" />
+    </message>
+    <message name="getBalanceResponse">
+        <part name="parameters" element="tns:getBalanceResponse" />
+    </message>
+
+    <message name="setBalance">
+        <part name="parameters" element="tns:setBalance" />
+    </message>
+    <message name="setBalanceResponse">
+        <part name="parameters" element="tns:setBalanceResponse" />
+    </message>
+
     <message name="NoSlotAvail">
         <part name="fault" element="tns:NoSlotAvail" />
     </message>
@@ -222,6 +271,22 @@
                 message="tns:returnBinaResponse" />
             <fault message="tns:NoSlotAvail" name="NoSlotAvail"
                 wsam:Action="http://ws.station.binas.org/Station/returnBina/Fault/NoSlotAvail" />
+        </operation>
+
+        <operation name="getBalance">
+            <input wsam:Action="http://ws.station.binas.org/Station/getBalanceRequest"
+                   message="tns:getBalance" />
+            <output wsam:Action="http://ws.station.binas.org/Station/getBalanceResponse"
+                    message="tns:getBalanceResponse" />
+            <!-- TODO Fix exception!-->
+        </operation>
+
+        <operation name="setBalance">
+            <input wsam:Action="http://ws.station.binas.org/Station/setBalanceRequest"
+                   message="tns:setBalance" />
+            <output wsam:Action="http://ws.station.binas.org/Station/setBalanceResponse"
+                    message="tns:setBalanceResponse" />
+            <!-- TODO Fix exception!-->
         </operation>
 
         <!-- test control operations -->
@@ -289,6 +354,28 @@
             <fault name="NoSlotAvail">
                 <soap:fault name="NoSlotAvail" use="literal" />
             </fault>
+        </operation>
+
+        <operation name="getBalance">
+            <soap:operation soapAction="" />
+            <input>
+                <soap:body use="literal" />
+            </input>
+            <output>
+                <soap:body use="literal" />
+            </output>
+            <!-- TODO Fix exception!-->
+        </operation>
+
+        <operation name="setBalance">
+            <soap:operation soapAction="" />
+            <input>
+                <soap:body use="literal" />
+            </input>
+            <output>
+                <soap:body use="literal" />
+            </output>
+            <!-- TODO Fix exception!-->
         </operation>
 
         <!-- test control operations -->

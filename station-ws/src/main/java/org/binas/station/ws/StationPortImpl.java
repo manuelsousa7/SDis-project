@@ -73,6 +73,16 @@ public class StationPortImpl implements StationPortType {
 	}
 
 	@Override
+	public BalanceView getBalance(String email) /*throws ...*/ {
+		return null;
+	}
+
+	@Override
+	public void setBalance(String email, int newBalance, String balanceTag) /*throws ...*/ {
+		//TODO
+	}
+
+	@Override
 	public String testPing(String inputMessage) {
 		// If no input is received, return a default name.
 		if (inputMessage == null || inputMessage.trim().length() == 0)
