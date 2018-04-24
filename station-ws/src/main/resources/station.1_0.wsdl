@@ -119,6 +119,18 @@
                 </xs:sequence>
             </xs:complexType>
             <xs:element name="NoSlotAvail" type="tns:NoSlotAvail" />
+            <xs:complexType name="UserNotExists">
+                <xs:sequence>
+                    <xs:element name="message" type="xs:string" minOccurs="0" />
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="UserNotExists" type="tns:UserNotExists" />
+            <xs:complexType name="InvalidCredit">
+                <xs:sequence>
+                    <xs:element name="message" type="xs:string" minOccurs="0" />
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="InvalidCredit" type="tns:InvalidCredit" />
 
 
             <!-- test control operations data types -->
@@ -217,6 +229,12 @@
     <message name="NoBinaAvail">
         <part name="fault" element="tns:NoBinaAvail" />
     </message>
+    <message name="UserNotExists">
+        <part name="fault" element="tns:UserNotExists" />
+    </message>
+    <message name="InvalidCredit">
+        <part name="fault" element="tns:InvalidCredit" />
+    </message>
 
     <!-- test control messages -->
     <message name="test_ping">
@@ -278,7 +296,8 @@
                    message="tns:getBalance" />
             <output wsam:Action="http://ws.station.binas.org/Station/getBalanceResponse"
                     message="tns:getBalanceResponse" />
-            <!-- TODO Fix exception!-->
+            <fault message="tns:UserNotExists" name="UserNotExists"
+                   wsam:Action="http://ws.station.binas.org/Station/getBalance/Fault/UserNotExists" />
         </operation>
 
         <operation name="setBalance">
@@ -286,7 +305,10 @@
                    message="tns:setBalance" />
             <output wsam:Action="http://ws.station.binas.org/Station/setBalanceResponse"
                     message="tns:setBalanceResponse" />
-            <!-- TODO Fix exception!-->
+            <fault message="tns:UserNotExists" name="UserNotExists"
+                   wsam:Action="http://ws.station.binas.org/Station/setBalance/Fault/UserNotExists" />
+            <fault message="tns:InvalidCredit" name="InvalidCredit"
+                   wsam:Action="http://ws.station.binas.org/Station/setBalance/Fault/InvalidCredit" />
         </operation>
 
         <!-- test control operations -->
@@ -364,7 +386,9 @@
             <output>
                 <soap:body use="literal" />
             </output>
-            <!-- TODO Fix exception!-->
+            <fault name="UserNotExists">
+                <soap:fault name="UserNotExists" use="literal" />
+            </fault>
         </operation>
 
         <operation name="setBalance">
@@ -375,7 +399,12 @@
             <output>
                 <soap:body use="literal" />
             </output>
-            <!-- TODO Fix exception!-->
+            <fault name="UserNotExists">
+                <soap:fault name="UserNotExists" use="literal" />
+            </fault>
+            <fault name="InvalidCredit">
+                <soap:fault name="InvalidCredit" use="literal" />
+            </fault>
         </operation>
 
         <!-- test control operations -->
