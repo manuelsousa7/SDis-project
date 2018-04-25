@@ -79,7 +79,7 @@ public class StationPortImpl implements StationPortType {
 	}
 
 	@Override
-	public void setBalance(String email, int newBalance, String balanceTag) throws UserNotExists_Exception, InvalidCredit_Exception {
+	public void setBalance(String email, int newBalance, String balanceTag) throws InvalidCredit_Exception {
 		//TODO
 	}
 

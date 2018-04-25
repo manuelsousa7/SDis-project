@@ -305,8 +305,6 @@
                    message="tns:setBalance" />
             <output wsam:Action="http://ws.station.binas.org/Station/setBalanceResponse"
                     message="tns:setBalanceResponse" />
-            <fault message="tns:UserNotExists" name="UserNotExists"
-                   wsam:Action="http://ws.station.binas.org/Station/setBalance/Fault/UserNotExists" />
             <fault message="tns:InvalidCredit" name="InvalidCredit"
                    wsam:Action="http://ws.station.binas.org/Station/setBalance/Fault/InvalidCredit" />
         </operation>
@@ -399,9 +397,6 @@
             <output>
                 <soap:body use="literal" />
             </output>
-            <fault name="UserNotExists">
-                <soap:fault name="UserNotExists" use="literal" />
-            </fault>
             <fault name="InvalidCredit">
                 <soap:fault name="InvalidCredit" use="literal" />
             </fault>
