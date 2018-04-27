@@ -172,13 +172,13 @@ public class BinasManager {
 		StationClient station = getStation(stationId);
 		User user = getUserByEmail(email);
 		int userCredit = getBalance(email);
+		
+		if (user.hasBina()) {
+			ExceptionManager.alreadyHasBina();
+		}
 
 		if (userCredit <= 0) {
 			ExceptionManager.noCreditException();
-		}
-
-		if (user.hasBina()) {
-			ExceptionManager.alreadyHasBina();
 		}
 
 		try {
