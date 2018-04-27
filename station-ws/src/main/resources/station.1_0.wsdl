@@ -40,7 +40,7 @@
             <xs:complexType name="balanceView">
                 <xs:sequence>
                     <xs:element name="newBalance" type="xs:int" />
-                    <xs:element name="balanceTag" type="xs:string" />
+                    <xs:element name="timeStamp" type="xs:string" />
                 </xs:sequence>
             </xs:complexType>
 
