@@ -5,6 +5,7 @@ import org.binas.station.domain.Station;
 import org.binas.station.domain.exception.BadInitException;
 import org.binas.station.domain.exception.NoBinaAvailException;
 import org.binas.station.domain.exception.NoSlotAvailException;
+import org.omg.CORBA.DynAnyPackage.Invalid;
 
 import javax.jws.WebService;
 
@@ -70,6 +71,16 @@ public class StationPortImpl implements StationPortType {
 			throwNoSlotAvail("No slots available");
 		}
 		return 0;
+	}
+
+	@Override
+	public BalanceView getBalance(String email) throws UserNotExists_Exception {
+		return null;
+	}
+
+	@Override
+	public void setBalance(String email, int newBalance, String balanceTag) throws InvalidCredit_Exception {
+		//TODO
 	}
 
 	@Override

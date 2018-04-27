@@ -121,6 +121,16 @@ public class StationClient implements StationPortType {
 		return port.returnBina();
 	}
 
+	@Override
+	public BalanceView getBalance(String email) throws UserNotExists_Exception {
+		return port.getBalance(email);
+	}
+
+	@Override
+	public void setBalance(String email, int newBalance, String balanceTag) throws InvalidCredit_Exception {
+		port.setBalance(email, newBalance, balanceTag);
+	}
+
 	// test control operations ------------------------------------------------
 
 	@Override

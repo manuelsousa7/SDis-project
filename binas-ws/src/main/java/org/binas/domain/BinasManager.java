@@ -121,6 +121,7 @@ public class BinasManager {
 
     public List<StationView> listStations(Integer k, CoordinatesView coordinates) {
         ArrayList<StationView> Stations = new ArrayList<StationView>();
+        if (coordinates == null || k == 0) return Stations;
         SortedSet<StationView> distances = new TreeSet<StationView>(new Comparator<StationView>() {
 			@Override
 			public int compare(StationView o1, StationView o2) {
@@ -212,7 +213,7 @@ public class BinasManager {
 
 
 	public synchronized void usersInit(int userInitialPoints) throws BadInit_Exception {
-		if(userInitialPoints<=0) ExceptionManager.badInit();
+		if(userInitialPoints<0) ExceptionManager.badInit();
 		String userEmail1 = "testing1@text.com";
 		String userEmail2 = "testing2@text.com";
 		String userEmail3 = "testing3@text.com";
