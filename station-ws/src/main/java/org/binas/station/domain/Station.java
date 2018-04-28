@@ -3,11 +3,12 @@ package org.binas.station.domain;
 import org.binas.station.domain.exception.BadInitException;
 import org.binas.station.domain.exception.NoBinaAvailException;
 import org.binas.station.domain.exception.NoSlotAvailException;
-import org.binas.station.ws.BalanceView;
-import org.binas.station.ws.UserNotExists;
-import org.binas.station.ws.UserNotExists_Exception;
+import org.binas.station.ws.*;
+import org.omg.CORBA.DynAnyPackage.Invalid;
 
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -117,6 +118,41 @@ public class Station {
 		response.setNewBalance(credit);
 		response.setTimeStamp(lastWrite.toString());
 		
+		return response;
+	}
+
+
+	private  Timestamp stringToTimeStamp(String time){
+		try {
+			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSS");
+			Date parsedDate = dateFormat.parse(time);
+			Timestamp ts = new Timestamp(parsedDate.getTime());
+			return ts;
+		} catch (Exception e){
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	public synchronized BalanceView setBalance(String email, int newBalance, BalanceView balanceTag) throws InvalidCredit_Exception {
+		if(newBalance < 0){
+			InvalidCredit faultInfo = new InvalidCredit();
+			String message = "[ERROR] Invalid balance " + Integer.toString(newBalance);
+			throw new InvalidCredit_Exception(message,faultInfo);
+		}
+		Timestamp times = this.clientTimestamp.get(email);
+		if(times != null){
+			if(stringToTimeStamp(balanceTag.getTimeStamp()).after(times)){
+				this.clientTimestamp.put(email,times);
+			}
+		} else {
+				String nowDate = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSS").format(new Date());
+				this.clientCredits.put(email,newBalance);
+				this.clientTimestamp.put(email,stringToTimeStamp(nowDate));
+		}
+		BalanceView response = new BalanceView();
+		response.setNewBalance(this.clientCredits.get(email));
+		response.setTimeStamp(this.clientTimestamp.get(email).toString());
 		return response;
 	}
 
