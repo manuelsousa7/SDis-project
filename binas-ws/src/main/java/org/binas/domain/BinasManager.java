@@ -98,6 +98,7 @@ public class BinasManager {
 		}
 
 		User user = new User(email,10);
+		setBalance(email,10);
 		this.users.put(email,user);
 		UserView uv = new UserView();
 		uv.setHasBina(user.hasBina());
@@ -164,7 +165,7 @@ public class BinasManager {
 
 	public int getUserCredit(String email) throws UserNotExists_Exception {
 		if(!validString(email)) ExceptionManager.userNotFound(email);
-		return getUserByEmail(email).getCredit();
+		return getBalance(email);
 	}
 
     public void getBina(String stationId, String email) throws AlreadyHasBina_Exception, InvalidStation_Exception, NoCredit_Exception, UserNotExists_Exception,NoBinaAvail_Exception {
@@ -187,7 +188,8 @@ public class BinasManager {
 			ExceptionManager.noBinaAvail();
 		}
 		user.setHasBina(true);
-		user.addBonus(-1); //TODO Change to setBalance with Quorum
+		user.addBonus(-1); // TODO REMOVE IF NECESSARY
+		setBalance(email,userCredit-1); //TODO Optimizations guy should take care of this
     }
 	
 	public void returnBina(String stationId,String email) throws InvalidStation_Exception, UserNotExists_Exception, NoBinaRented_Exception, FullStation_Exception {
@@ -203,6 +205,7 @@ public class BinasManager {
 		try {
 			int bonus = station.returnBina();
 			user.addBonus(bonus);
+			setBalance(email,getBalance(email) + bonus); //TODO Optimizations guy should take care of this
 			user.setHasBina(false);
 		} catch (NoSlotAvail_Exception e) {
 			ExceptionManager.fullStation();
@@ -224,8 +227,11 @@ public class BinasManager {
 		String userEmail2 = "testing2@text.com";
 		String userEmail3 = "testing3@text.com";
 		User user1 = new User(userEmail1,userInitialPoints);
+		setBalance(userEmail1,userInitialPoints);
 		User user2 = new User(userEmail2,userInitialPoints);
+		setBalance(userEmail2,userInitialPoints);
 		User user3 = new User(userEmail3,userInitialPoints);
+		setBalance(userEmail3,userInitialPoints);
 		users.put(userEmail1, user1);
 		users.put(userEmail2,user2);
 		users.put(userEmail3,user3);
@@ -248,7 +254,7 @@ public class BinasManager {
 	
 	//This method consults all the stations(replicas) and chooses the most up-to-date copy of the user's credit
 	public synchronized int getBalance(String email)throws UserNotExists_Exception,StationsUnavailableException{
-		
+
 		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSS");
 		Timestamp mostUpToDate = null;
 		Integer credit = -1;
@@ -288,7 +294,26 @@ public class BinasManager {
 		
 		return credit;
 	}
-	
-	// TODO
+
+	public synchronized void setBalance(String email,int newBalance)throws StationsUnavailableException{
+		Integer nStations = connectedStations.values().size();
+		Integer errorCount = 0;
+
+		for(StationClient station : connectedStations.values()) {
+			try {
+				String nowDate = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSS").format(new Date());
+				BalanceView bv = new BalanceView();
+				bv.setTimeStamp(nowDate);
+				bv.setNewBalance(newBalance);
+				station.setBalance(email,newBalance,bv);
+			} catch(Exception e) {
+				errorCount+=1;
+				if(errorCount >= nStations/2 +1) {
+					//should NEVER happen, but just in case it does
+					throw new StationsUnavailableException("[ERROR] Not enough stations for Quorum Consensus.");
+				}
+			}
+		}
+	}
 
 }
