@@ -1,10 +1,15 @@
 package org.binas.domain;
 
 import org.binas.exceptions.ExceptionManager;
+import org.binas.exceptions.StationsUnavailableException;
+import org.binas.station.ws.BalanceView;
 import org.binas.station.ws.NoSlotAvail_Exception;
 import org.binas.station.ws.cli.StationClient;
 import org.binas.ws.*;
 
+import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class BinasManager {
@@ -166,13 +171,14 @@ public class BinasManager {
 
 		StationClient station = getStation(stationId);
 		User user = getUserByEmail(email);
-
-		if (user.getCredit() <= 0) {
-			ExceptionManager.noCreditException();
-		}
-
+		int userCredit = getBalance(email);
+		
 		if (user.hasBina()) {
 			ExceptionManager.alreadyHasBina();
+		}
+
+		if (userCredit <= 0) {
+			ExceptionManager.noCreditException();
 		}
 
 		try {
@@ -181,7 +187,7 @@ public class BinasManager {
 			ExceptionManager.noBinaAvail();
 		}
 		user.setHasBina(true);
-		user.addBonus(-1);
+		user.addBonus(-1); //TODO Change to setBalance with Quorum
     }
 	
 	public void returnBina(String stationId,String email) throws InvalidStation_Exception, UserNotExists_Exception, NoBinaRented_Exception, FullStation_Exception {
@@ -237,6 +243,50 @@ public class BinasManager {
 		if(input==null) return false;
 		if(input.trim().equals("")) return false;
 		else return true;
+	}
+	
+	
+	//This method consults all the stations(replicas) and chooses the most up-to-date copy of the user's credit
+	public synchronized int getBalance(String email)throws UserNotExists_Exception,StationsUnavailableException{
+		
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSS");
+		Timestamp mostUpToDate = null;
+		Integer credit = -1;
+		Integer nStations = connectedStations.values().size();
+		Integer exceptionCount = 0;
+		Integer errorCount = 0;
+		
+		for(StationClient station : connectedStations.values()) {
+			try {
+				
+				BalanceView read = station.getBalance(email);
+				Date parsedDate = dateFormat.parse(read.getTimeStamp());
+				Timestamp readTimestamp = new Timestamp(parsedDate.getTime());
+				
+				if(mostUpToDate == null || readTimestamp.after(mostUpToDate)) {
+					//Choosing the most recent copy
+					credit = read.getNewBalance();
+					mostUpToDate = readTimestamp;
+				}
+				
+			} catch (org.binas.station.ws.UserNotExists_Exception e) {
+				exceptionCount+=1;
+				if (exceptionCount >= (nStations/2 +1)) {
+					//Only if it does not exist in the majority of the stations
+					ExceptionManager.userNotFound(email);
+				}
+				continue;
+			}
+			catch(Exception e) {
+				errorCount+=1;
+				if(errorCount >= nStations/2 +1) {
+					//should NEVER happen, but just in case it does
+					throw new StationsUnavailableException("[ERROR] Not enough stations for Quorum Consensus.");
+				}
+			}
+		}
+		
+		return credit;
 	}
 	
 	// TODO

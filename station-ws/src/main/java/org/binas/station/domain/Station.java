@@ -3,7 +3,12 @@ package org.binas.station.domain;
 import org.binas.station.domain.exception.BadInitException;
 import org.binas.station.domain.exception.NoBinaAvailException;
 import org.binas.station.domain.exception.NoSlotAvailException;
+import org.binas.station.ws.BalanceView;
+import org.binas.station.ws.UserNotExists;
+import org.binas.station.ws.UserNotExists_Exception;
 
+import java.sql.Timestamp;
+import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /** Domain Root. */
@@ -13,6 +18,12 @@ public class Station {
 	private static final Coordinates DEFAULT_COORDINATES = new Coordinates(5, 5);
 	private static final int DEFAULT_MAX_CAPACITY = 20;
 	private static final int DEFAULT_BONUS = 0;
+	
+	/**HashMap that holds the info on the user's credits */
+	private HashMap<String,Integer> clientCredits =  new HashMap<String,Integer>();
+	/**HashMap holding the timesTamp of the last write to the client's credit*/
+	private HashMap<String,Timestamp> clientTimestamp =  new HashMap<String,Timestamp>();
+	
 	
 	/** Station identifier. */
 	private String id;
@@ -90,6 +101,23 @@ public class Station {
 			throw new NoBinaAvailException();
 		freeDocks.incrementAndGet();
 		totalGets.incrementAndGet();
+	}
+	
+	public synchronized BalanceView getBalance(String email) throws UserNotExists_Exception{
+		
+		Integer credit = this.clientCredits.get(email);
+		if(credit==null) {
+			UserNotExists faultInfo = new UserNotExists();
+			String message = "[ERROR] No records found of user: "+email;
+			throw new UserNotExists_Exception(email, faultInfo);
+		}
+		Timestamp lastWrite = this.clientTimestamp.get(email);
+		
+		BalanceView response = new BalanceView();
+		response.setNewBalance(credit);
+		response.setTimeStamp(lastWrite.toString());
+		
+		return response;
 	}
 
  	// Getters -------------------------------------------------------------
