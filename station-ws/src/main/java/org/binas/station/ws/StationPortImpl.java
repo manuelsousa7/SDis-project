@@ -5,7 +5,6 @@ import org.binas.station.domain.Station;
 import org.binas.station.domain.exception.BadInitException;
 import org.binas.station.domain.exception.NoBinaAvailException;
 import org.binas.station.domain.exception.NoSlotAvailException;
-import org.omg.CORBA.DynAnyPackage.Invalid;
 
 import javax.jws.WebService;
 
@@ -79,8 +78,8 @@ public class StationPortImpl implements StationPortType {
 	}
 
 	@Override
-	public BalanceView setBalance(String email, int newBalance, BalanceView balanceTag) throws InvalidCredit_Exception {
-		return Station.getInstance().setBalance(email,newBalance,balanceTag);
+	public BalanceView setBalance(String email, BalanceView balanceTag) throws InvalidCredit_Exception {
+		return Station.getInstance().setBalance(email,balanceTag);
 	}
 
 	@Override

@@ -4,7 +4,6 @@ import org.binas.station.domain.exception.BadInitException;
 import org.binas.station.domain.exception.NoBinaAvailException;
 import org.binas.station.domain.exception.NoSlotAvailException;
 import org.binas.station.ws.*;
-import org.omg.CORBA.DynAnyPackage.Invalid;
 
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
@@ -134,10 +133,10 @@ public class Station {
 		return null;
 	}
 
-	public synchronized BalanceView setBalance(String email, int newBalance, BalanceView balanceTag) throws InvalidCredit_Exception {
-		if(newBalance < 0){
+	public synchronized BalanceView setBalance(String email, BalanceView balanceTag) throws InvalidCredit_Exception {
+		if(balanceTag.getNewBalance() < 0){
 			InvalidCredit faultInfo = new InvalidCredit();
-			String message = "[ERROR] Invalid balance " + Integer.toString(newBalance);
+			String message = "[ERROR] Invalid balance " + Integer.toString(balanceTag.getNewBalance());
 			throw new InvalidCredit_Exception(message,faultInfo);
 		}
 		Timestamp times = this.clientTimestamp.get(email);
@@ -147,7 +146,7 @@ public class Station {
 			}
 		} else {
 				String nowDate = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSS").format(new Date());
-				this.clientCredits.put(email,newBalance);
+				this.clientCredits.put(email,balanceTag.getNewBalance());
 				this.clientTimestamp.put(email,stringToTimeStamp(nowDate));
 		}
 		BalanceView response = new BalanceView();

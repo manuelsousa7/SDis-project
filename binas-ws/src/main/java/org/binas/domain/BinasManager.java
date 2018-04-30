@@ -305,7 +305,7 @@ public class BinasManager {
 				BalanceView bv = new BalanceView();
 				bv.setTimeStamp(nowDate);
 				bv.setNewBalance(newBalance);
-				station.setBalance(email,newBalance,bv);
+				station.setBalance(email,bv);
 			} catch(Exception e) {
 				errorCount+=1;
 				if(errorCount >= nStations/2 +1) {
