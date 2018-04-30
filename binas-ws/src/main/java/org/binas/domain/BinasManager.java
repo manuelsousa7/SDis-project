@@ -178,14 +178,8 @@ public class BinasManager {
 		User user = getUserByEmail(email);
 
 		//Check if credits stored in cache
-        int userCredit = -1;
 		Integer savedCredits = cachedCredits.get(email);
-		if (savedCredits != null) {
-            userCredit = savedCredits.intValue();
-        }
-        else {
-            userCredit = getBalance(email);
-        }
+        int userCredit = savedCredits != null ? savedCredits.intValue() : getBalance(email);
 
 		if (user.hasBina()) {
 			ExceptionManager.alreadyHasBina();
@@ -204,6 +198,10 @@ public class BinasManager {
 
         //Save new credit in cache
         try {
+            //Search cachedTimestamps for least up-to-date user balance
+            while (cachedCredits.size() >= 6) {
+                removeOutdatedFromCache();
+            }
             cachedCredits.put(email, userCredit-1);
             cachedTimestamps.put(email, new Timestamp((new Date()).getTime()));
         } catch (Exception e) {
@@ -229,17 +227,15 @@ public class BinasManager {
 			user.addBonus(bonus);
 
 			//Look for this user's credits in cache
-			int credits = -1;
             Integer savedCredits = cachedCredits.get(email);
-            if (savedCredits != null) {
-                credits = savedCredits.intValue() + bonus;
-            }
-            else {
-                credits = getBalance(email) + bonus;
-            }
+            int credits = savedCredits != null ? savedCredits.intValue() + bonus : getBalance(email) + bonus;
 
             //Save new credit in cache
             try {
+                //Search cachedTimestamps for least up-to-date user balance
+                while (cachedCredits.size() >= 6) {
+                    removeOutdatedFromCache();
+                }
                 cachedCredits.put(email, credits);
                 cachedTimestamps.put(email, new Timestamp((new Date()).getTime()));
             } catch (Exception e) {
@@ -341,16 +337,7 @@ public class BinasManager {
 
         //Search cachedTimestamps for least up-to-date user balance
         while (cachedCredits.size() >= 6) {
-            Timestamp oldest = null;
-            String toRemove = null;
-            for (Map.Entry<String, Timestamp> entry: cachedTimestamps.entrySet()) {
-                if (oldest == null || oldest.before(entry.getValue())) {
-                    oldest = entry.getValue();
-                    toRemove = entry.getKey();
-                }
-            }
-            cachedCredits.remove(toRemove);
-            cachedTimestamps.remove(toRemove);
+            removeOutdatedFromCache();
         }
         cachedCredits.put(email, credit);
         cachedTimestamps.put(email, mostUpToDate);
@@ -378,5 +365,18 @@ public class BinasManager {
 			}
 		}
 	}
+
+	private void removeOutdatedFromCache() {
+        Timestamp oldest = null;
+        String toRemove = null;
+        for (Map.Entry<String, Timestamp> entry: cachedTimestamps.entrySet()) {
+            if (oldest == null || oldest.before(entry.getValue())) {
+                oldest = entry.getValue();
+                toRemove = entry.getKey();
+            }
+        }
+        cachedCredits.remove(toRemove);
+        cachedTimestamps.remove(toRemove);
+    }
 
 }
