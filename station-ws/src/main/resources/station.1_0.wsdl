@@ -95,14 +95,15 @@
             <xs:complexType name="setBalance">
                 <xs:sequence>
                     <xs:element name="email" type="xs:string" minOccurs="0" />
-                    <xs:element name="newBalance" type="xs:int" />
-                    <xs:element name="balanceTag" type="xs:string" />
+                    <xs:element name="balanceTag" type="tns:balanceView" />
                 </xs:sequence>
             </xs:complexType>
             <xs:element name="setBalance" type="tns:setBalance" />
 
             <xs:complexType name="setBalanceResponse">
-                <xs:sequence/>
+                <xs:sequence>
+                    <xs:element name="balanceInfo" type="tns:balanceView" />
+                </xs:sequence>
             </xs:complexType>
             <xs:element name="setBalanceResponse" type="tns:setBalanceResponse" />
 
