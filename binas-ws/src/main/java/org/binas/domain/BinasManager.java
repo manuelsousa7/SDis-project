@@ -10,12 +10,16 @@ import org.binas.ws.*;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.*;
 
 public class BinasManager {
 
 	private HashMap<String, StationClient> connectedStations = new HashMap<String, StationClient>();
 	private HashMap<String, User> users = new HashMap<String,User>();
+
+    private HashMap<String,Integer> cachedCredits =  new HashMap<String,Integer>();
+    private HashMap<String,Timestamp> cachedTimestamps =  new HashMap<String,Timestamp>();
 
 	private BinasManager() {
 	}
@@ -172,8 +176,17 @@ public class BinasManager {
 
 		StationClient station = getStation(stationId);
 		User user = getUserByEmail(email);
-		int userCredit = getBalance(email);
-		
+
+		//Check if credits stored in cache
+        int userCredit = -1;
+		Integer savedCredits = cachedCredits.get(email);
+		if (savedCredits != null) {
+            userCredit = savedCredits.intValue();
+        }
+        else {
+            userCredit = getBalance(email);
+        }
+
 		if (user.hasBina()) {
 			ExceptionManager.alreadyHasBina();
 		}
@@ -188,8 +201,17 @@ public class BinasManager {
 			ExceptionManager.noBinaAvail();
 		}
 		user.setHasBina(true);
-		user.addBonus(-1); // TODO REMOVE IF NECESSARY
-		setBalance(email,userCredit-1); //TODO Optimizations guy should take care of this
+
+        //Save new credit in cache
+        try {
+            cachedCredits.put(email, userCredit-1);
+            cachedTimestamps.put(email, new Timestamp((new Date()).getTime()));
+        } catch (Exception e) {
+            //TODO: Verify this
+            throw new StationsUnavailableException("[ERROR] Couldn't parse date");
+        }
+
+		setBalance(email,userCredit-1);
     }
 	
 	public void returnBina(String stationId,String email) throws InvalidStation_Exception, UserNotExists_Exception, NoBinaRented_Exception, FullStation_Exception {
@@ -205,7 +227,27 @@ public class BinasManager {
 		try {
 			int bonus = station.returnBina();
 			user.addBonus(bonus);
-			setBalance(email,getBalance(email) + bonus); //TODO Optimizations guy should take care of this
+
+			//Look for this user's credits in cache
+			int credits = -1;
+            Integer savedCredits = cachedCredits.get(email);
+            if (savedCredits != null) {
+                credits = savedCredits.intValue() + bonus;
+            }
+            else {
+                credits = getBalance(email) + bonus;
+            }
+
+            //Save new credit in cache
+            try {
+                cachedCredits.put(email, credits);
+                cachedTimestamps.put(email, new Timestamp((new Date()).getTime()));
+            } catch (Exception e) {
+                //TODO: Verify this
+                throw new StationsUnavailableException("[ERROR] Couldn't parse date");
+            }
+
+			setBalance(email, credits);
 			user.setHasBina(false);
 		} catch (NoSlotAvail_Exception e) {
 			ExceptionManager.fullStation();
@@ -261,6 +303,11 @@ public class BinasManager {
 		Integer nStations = connectedStations.values().size();
 		Integer exceptionCount = 0;
 		Integer errorCount = 0;
+
+        Integer savedCredits = cachedCredits.get(email);
+        if (savedCredits != null) {
+            return savedCredits.intValue();
+        }
 		
 		for(StationClient station : connectedStations.values()) {
 			try {
@@ -291,6 +338,22 @@ public class BinasManager {
 				}
 			}
 		}
+
+        //Search cachedTimestamps for least up-to-date user balance
+        while (cachedCredits.size() >= 6) {
+            Timestamp oldest = null;
+            String toRemove = null;
+            for (Map.Entry<String, Timestamp> entry: cachedTimestamps.entrySet()) {
+                if (oldest == null || oldest.before(entry.getValue())) {
+                    oldest = entry.getValue();
+                    toRemove = entry.getKey();
+                }
+            }
+            cachedCredits.remove(toRemove);
+            cachedTimestamps.remove(toRemove);
+        }
+        cachedCredits.put(email, credit);
+        cachedTimestamps.put(email, mostUpToDate);
 		
 		return credit;
 	}
