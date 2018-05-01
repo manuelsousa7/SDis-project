@@ -78,6 +78,8 @@ public class BinasManager {
 	}
 
 	private Boolean checkEmail(String email){
+        if (email == null) return false;
+
 		if(email.split("@").length != 2){ //Check if email contains only 1 @
 			return false;
 		}
@@ -180,7 +182,7 @@ public class BinasManager {
     }
 
 	public int getUserCredit(String email) throws UserNotExists_Exception {
-		if(!validString(email)) ExceptionManager.userNotFound(email);
+		if(!checkEmail(email)) ExceptionManager.userNotFound(email);
 		return getBalance(email);
 	}
 
@@ -191,7 +193,7 @@ public class BinasManager {
 
 		//Check if credits stored in cache
 		Integer savedCredits = cachedCredits.get(email);
-        int userCredit = savedCredits != null ? savedCredits.intValue() : getBalance(email);
+        int userCredit = savedCredits != null ? savedCredits : getBalance(email);
 
 		if (user.hasBina()) {
 			ExceptionManager.alreadyHasBina();
@@ -207,20 +209,6 @@ public class BinasManager {
 			ExceptionManager.noBinaAvail();
 		}
 		user.setHasBina(true);
-
-        //Save new credit in cache
-        try {
-            //Search cachedTimestamps for least up-to-date user balance
-            while (cachedCredits.size() >= 6) {
-                removeOutdatedFromCache();
-            }
-            cachedCredits.put(email, userCredit-1);
-            cachedTimestamps.put(email, new Timestamp((new Date()).getTime()));
-        } catch (Exception e) {
-            //TODO: Verify this
-            throw new StationsUnavailableException("[ERROR] Couldn't parse date");
-        }
-
 		setBalance(email,userCredit-1);
     }
 	
@@ -240,20 +228,7 @@ public class BinasManager {
 
 			//Look for this user's credits in cache
             Integer savedCredits = cachedCredits.get(email);
-            int credits = savedCredits != null ? savedCredits.intValue() + bonus : getBalance(email) + bonus;
-
-            //Save new credit in cache
-            try {
-                //Search cachedTimestamps for least up-to-date user balance
-                while (cachedCredits.size() >= 6) {
-                    removeOutdatedFromCache();
-                }
-                cachedCredits.put(email, credits);
-                cachedTimestamps.put(email, new Timestamp((new Date()).getTime()));
-            } catch (Exception e) {
-                //TODO: Verify this
-                throw new StationsUnavailableException("[ERROR] Couldn't parse date");
-            }
+            int credits = savedCredits != null ? savedCredits + bonus : getBalance(email) + bonus;
 
 			setBalance(email, credits);
 			user.setHasBina(false);
@@ -302,9 +277,7 @@ public class BinasManager {
 	}
 
 	private boolean validString(String input) {
-		if(input==null) return false;
-		if(input.trim().equals("")) return false;
-		else return true;
+		return !(input==null || input.trim().equals(""));
 	}
 
 	
@@ -318,7 +291,7 @@ public class BinasManager {
 
         Integer savedCredits = cachedCredits.get(email);
         if (savedCredits != null) {
-            return savedCredits.intValue();
+            return savedCredits;
         }
 
         AsyncHandler<GetBalanceResponse> handler = new AsyncHandler<GetBalanceResponse>() {
@@ -347,21 +320,10 @@ public class BinasManager {
                 }
             }
         };
-		
+
 		for(StationClient station : connectedStations.values()) {
 			try {
                 station.getBalanceAsync(email, handler);
-                /*
-				BalanceView read = station.getBalance(email);
-				Date parsedDate = dateFormat.parse(read.getTimeStamp());
-				Timestamp readTimestamp = new Timestamp(parsedDate.getTime());
-
-				if(mostUpToDate == null || readTimestamp.after(mostUpToDate)) {
-					//Choosing the most recent copy
-					credit = read.getNewBalance();
-					mostUpToDate = readTimestamp;
-				}
-				*/
 			}
 			catch(Exception e) {
 				errorCount+=1;
@@ -381,28 +343,54 @@ public class BinasManager {
                     ExceptionManager.userNotFound(email);
                 }
 
-                System.out.print("."); // do something usefull while waiting...
+                System.out.print(".");
                 System.out.flush();
             }
         } catch (InterruptedException ie) {
-            ie.printStackTrace();
+            System.out.println("Caught interrupted exception.");
+            System.out.print("Cause: ");
+            System.out.println(ie.getCause());
         }
 
-        System.out.println("|"); System.out.println("|");
+        System.out.println("");
 
-        //Search cachedTimestamps for least up-to-date user balance
-        while (cachedCredits.size() >= 6) {
-            removeOutdatedFromCache();
-        }
-        cachedCredits.put(email, credit);
-        cachedTimestamps.put(email, mostUpToDate);
-		
+        updateCache(email);
+
 		return credit;
 	}
 
 	public synchronized void setBalance(String email,int newBalance)throws StationsUnavailableException{
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSS");
 		Integer nStations = connectedStations.values().size();
 		Integer errorCount = 0;
+
+        AsyncHandler<SetBalanceResponse> handler = new AsyncHandler<SetBalanceResponse>() {
+            @Override
+            public void handleResponse(Response<SetBalanceResponse> response) {
+                try {
+                    System.out.println();
+                    System.out.println("SetBalance call result arrived!");
+                    finished++;
+                    Date parsedDate = dateFormat.parse(response.get().getBalanceInfo().getTimeStamp());
+                    Timestamp readTimestamp = new Timestamp(parsedDate.getTime());
+                    if (mostUpToDate == null || readTimestamp.after(mostUpToDate)) {
+                        credit = response.get().getBalanceInfo().getNewBalance();
+                        mostUpToDate = readTimestamp;
+                    }
+                } catch (ExecutionException ie) {
+                    System.out.println("Caught execution exception.");
+                    System.out.print("Cause: ");
+                    System.out.println(ie.getCause());
+                } catch (InterruptedException ie) {
+                    System.out.println("Caught interrupted exception.");
+                    System.out.println(ie.getCause());
+                    exceptionCount+=1;
+                } catch (ParseException pe) {
+                    pe.printStackTrace();
+                }
+            }
+        };
 
 		for(StationClient station : connectedStations.values()) {
 			try {
@@ -410,7 +398,7 @@ public class BinasManager {
 				BalanceView bv = new BalanceView();
 				bv.setTimeStamp(nowDate);
 				bv.setNewBalance(newBalance);
-                Response<SetBalanceResponse> balanceResponse = station.setBalanceAsync(email,bv);
+                station.setBalanceAsync(email,bv, handler);
 			} catch(Exception e) {
 				errorCount+=1;
 				if(errorCount >= nStations/2 +1) {
@@ -419,19 +407,38 @@ public class BinasManager {
 				}
 			}
 		}
+
+        try {
+            while (finished < (nStations/2 +1)) {
+                Thread.sleep(50);
+                System.out.print(".");
+                System.out.flush();
+            }
+        } catch (InterruptedException ie) {
+            System.out.println("Caught interrupted exception.");
+            System.out.print("Cause: ");
+            System.out.println(ie.getCause());
+        }
+
+        updateCache(email);
 	}
 
-	private void removeOutdatedFromCache() {
-        Timestamp oldest = null;
-        String toRemove = null;
-        for (Map.Entry<String, Timestamp> entry: cachedTimestamps.entrySet()) {
-            if (oldest == null || oldest.before(entry.getValue())) {
-                oldest = entry.getValue();
-                toRemove = entry.getKey();
+	private void updateCache(String email) {
+
+        while (cachedCredits.size() >= 6) {
+            Timestamp oldest = null;
+            String toRemove = null;
+            for (Map.Entry<String, Timestamp> entry: cachedTimestamps.entrySet()) {
+                if (oldest == null || oldest.before(entry.getValue())) {
+                    oldest = entry.getValue();
+                    toRemove = entry.getKey();
+                }
             }
+            cachedCredits.remove(toRemove);
+            cachedTimestamps.remove(toRemove);
         }
-        cachedCredits.remove(toRemove);
-        cachedTimestamps.remove(toRemove);
+        cachedCredits.put(email, credit);
+        cachedTimestamps.put(email, mostUpToDate);
     }
 
 }
