@@ -51,7 +51,7 @@ public class GetBinaIT extends BaseIT {
     @Test (expected = NoCredit_Exception.class)
     public void noCredit() throws NoCredit_Exception {
         try {
-            client.testInit(1);
+            client.testInit(0);
             client.rentBina(stationID, USER_EMAIL);
             client.returnBina(stationID, USER_EMAIL);
             client.rentBina(stationID, USER_EMAIL);
