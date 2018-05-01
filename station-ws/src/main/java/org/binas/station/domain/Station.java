@@ -76,7 +76,9 @@ public class Station {
  		maxCapacity = DEFAULT_MAX_CAPACITY;
  		bonus = DEFAULT_BONUS;
 		coordinates = DEFAULT_COORDINATES;
- 		
+		clientCredits =  new HashMap<String,Integer>();
+		clientTimestamp =  new HashMap<String,Timestamp>();
+		
 		totalGets.set(0);
 		totalReturns.set(0);
 	}
