@@ -4,8 +4,12 @@ import org.binas.station.ws.*;
 import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINaming;
 import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINamingException;
 
+import javax.xml.ws.AsyncHandler;
 import javax.xml.ws.BindingProvider;
+import javax.xml.ws.Response;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 import static javax.xml.ws.BindingProvider.ENDPOINT_ADDRESS_PROPERTY;
 
@@ -107,45 +111,126 @@ public class StationClient implements StationPortType {
 
 	// remote invocation methods ----------------------------------------------
 
-	@Override
+    @Override
+    public Response<GetInfoResponse> getInfoAsync() {
+        return port.getInfoAsync();
+    }
+
+    @Override
+    public Future<?> getInfoAsync(AsyncHandler<GetInfoResponse> asyncHandler) {
+        return port.getInfoAsync(asyncHandler);
+    }
+
+    @Override
 	public StationView getInfo() {
 		return port.getInfo();
 	}
-	@Override
+
+    @Override
+    public Response<GetBinaResponse> getBinaAsync() {
+        return getBinaAsync();
+    }
+
+    @Override
+    public Future<?> getBinaAsync(AsyncHandler<GetBinaResponse> asyncHandler) {
+        return port.getBinaAsync(asyncHandler);
+    }
+
+    @Override
 	public void getBina() throws NoBinaAvail_Exception {
 		port.getBina();
 	}
-	
-	@Override
+
+    @Override
+    public Response<ReturnBinaResponse> returnBinaAsync() {
+        return port.returnBinaAsync();
+    }
+
+    @Override
+    public Future<?> returnBinaAsync(AsyncHandler<ReturnBinaResponse> asyncHandler) {
+        return port.returnBinaAsync(asyncHandler);
+    }
+
+    @Override
 	public int returnBina() throws NoSlotAvail_Exception {
 		return port.returnBina();
 	}
 
-	@Override
+    @Override
+    public Response<GetBalanceResponse> getBalanceAsync(String email) {
+        return port.getBalanceAsync(email);
+    }
+
+    @Override
+    public Future<?> getBalanceAsync(String email, AsyncHandler<GetBalanceResponse> asyncHandler) {
+        return port.getBalanceAsync(email, asyncHandler);
+    }
+
+    @Override
 	public BalanceView getBalance(String email) throws UserNotExists_Exception {
 		return port.getBalance(email);
 	}
 
-	@Override
+    @Override
+    public Response<SetBalanceResponse> setBalanceAsync(String email, BalanceView balanceTag) {
+        return setBalanceAsync(email, balanceTag);
+    }
+
+    @Override
+    public Future<?> setBalanceAsync(String email, BalanceView balanceTag, AsyncHandler<SetBalanceResponse> asyncHandler) {
+        return port.setBalanceAsync(email, balanceTag, asyncHandler);
+    }
+
+    @Override
 	public BalanceView setBalance(String email, BalanceView balanceTag) throws InvalidCredit_Exception {
 		return port.setBalance(email, balanceTag);
 	}
 
-	// test control operations ------------------------------------------------
+    @Override
+    public Response<TestPingResponse> testPingAsync(String inputMessage) {
+        return port.testPingAsync(inputMessage);
+    }
+
+    @Override
+    public Future<?> testPingAsync(String inputMessage, AsyncHandler<TestPingResponse> asyncHandler) {
+        return port.testPingAsync(inputMessage, asyncHandler);
+    }
+
+    // test control operations ------------------------------------------------
 
 	@Override
 	public String testPing(String inputMessage) {
 		return port.testPing(inputMessage);
 	}
-	
-	@Override
+
+    @Override
+    public Response<TestClearResponse> testClearAsync() {
+        return port.testClearAsync();
+    }
+
+    @Override
+    public Future<?> testClearAsync(AsyncHandler<TestClearResponse> asyncHandler) {
+        return port.testClearAsync(asyncHandler);
+    }
+
+    @Override
 	public void testClear() {
 		port.testClear();
 	}
-	@Override
+
+    @Override
+    public Response<TestInitResponse> testInitAsync(int x, int y, int capacity, int returnPrize) {
+        return port.testInitAsync(x, y, capacity, returnPrize);
+    }
+
+    @Override
+    public Future<?> testInitAsync(int x, int y, int capacity, int returnPrize, AsyncHandler<TestInitResponse> asyncHandler) {
+        return port.testInitAsync(x, y, capacity, returnPrize, asyncHandler);
+    }
+
+    @Override
 	public void testInit(int x, int y, int capacity, int returnPrize) throws
 	BadInit_Exception {
 			port.testInit(x, y, capacity, returnPrize);
 	}
-
 }

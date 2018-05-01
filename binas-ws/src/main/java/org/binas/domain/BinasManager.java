@@ -3,15 +3,19 @@ package org.binas.domain;
 import org.binas.exceptions.ExceptionManager;
 import org.binas.exceptions.StationsUnavailableException;
 import org.binas.station.ws.BalanceView;
+import org.binas.station.ws.GetBalanceResponse;
 import org.binas.station.ws.NoSlotAvail_Exception;
 import org.binas.station.ws.cli.StationClient;
 import org.binas.ws.*;
 
+import javax.xml.ws.AsyncHandler;
+import javax.xml.ws.Response;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 
 public class BinasManager {
 
@@ -21,7 +25,14 @@ public class BinasManager {
     private HashMap<String,Integer> cachedCredits =  new HashMap<String,Integer>();
     private HashMap<String,Timestamp> cachedTimestamps =  new HashMap<String,Timestamp>();
 
-	private BinasManager() {
+    static int finished = 0;
+    static Integer exceptionCount = 0;
+
+    static Timestamp mostUpToDate = null;
+    static Integer credit = -1;
+
+
+    private BinasManager() {
 	}
 
 	private static class SingletonHolder {
@@ -288,43 +299,62 @@ public class BinasManager {
 		if(input.trim().equals("")) return false;
 		else return true;
 	}
-	
+
 	
 	//This method consults all the stations(replicas) and chooses the most up-to-date copy of the user's credit
 	public synchronized int getBalance(String email)throws UserNotExists_Exception,StationsUnavailableException{
 
 		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSS");
-		Timestamp mostUpToDate = null;
-		Integer credit = -1;
 		Integer nStations = connectedStations.values().size();
-		Integer exceptionCount = 0;
 		Integer errorCount = 0;
+        finished = 0;
 
         Integer savedCredits = cachedCredits.get(email);
         if (savedCredits != null) {
             return savedCredits.intValue();
         }
+
+        AsyncHandler<GetBalanceResponse> handler = new AsyncHandler<GetBalanceResponse>() {
+            @Override
+            public void handleResponse(Response<GetBalanceResponse> response) {
+                try {
+                    System.out.println();
+                    System.out.println("Getbalance call result arrived!");
+                    finished++;
+                    Date parsedDate = dateFormat.parse(response.get().getBalanceInfo().getTimeStamp());
+                    Timestamp readTimestamp = new Timestamp(parsedDate.getTime());
+                    if(mostUpToDate == null || readTimestamp.after(mostUpToDate)) {
+                        credit = response.get().getBalanceInfo().getNewBalance();
+                        mostUpToDate = readTimestamp;
+                    }
+                } catch (InterruptedException e) {
+                    System.out.println("Caught interrupted exception.");
+                    System.out.print("Cause: ");
+                    System.out.println(e.getCause());
+                } catch (ExecutionException e) {
+                    System.out.println("Caught execution exception.");
+                    System.out.println(e.getCause());
+                    exceptionCount+=1;
+                } catch (ParseException pe) {
+                    pe.printStackTrace();
+                }
+            }
+        };
 		
 		for(StationClient station : connectedStations.values()) {
 			try {
-				
+                station.getBalanceAsync(email, handler);
+                /*
 				BalanceView read = station.getBalance(email);
 				Date parsedDate = dateFormat.parse(read.getTimeStamp());
 				Timestamp readTimestamp = new Timestamp(parsedDate.getTime());
-				
+
 				if(mostUpToDate == null || readTimestamp.after(mostUpToDate)) {
 					//Choosing the most recent copy
 					credit = read.getNewBalance();
 					mostUpToDate = readTimestamp;
 				}
-				
-			} catch (org.binas.station.ws.UserNotExists_Exception e) {
-				exceptionCount+=1;
-				if (exceptionCount >= (nStations/2 +1)) {
-					//Only if it does not exist in the majority of the stations
-					ExceptionManager.userNotFound(email);
-				}
-				continue;
+				*/
 			}
 			catch(Exception e) {
 				errorCount+=1;
@@ -334,6 +364,24 @@ public class BinasManager {
 				}
 			}
 		}
+
+		try {
+            while (finished < (nStations/2 +1)) {
+                Thread.sleep(50);
+
+                if (exceptionCount >= (nStations/2 +1)) {
+                    //Only if it does not exist in the majority of the stations
+                    ExceptionManager.userNotFound(email);
+                }
+
+                System.out.print("."); // do something usefull while waiting...
+                System.out.flush();
+            }
+        } catch (InterruptedException ie) {
+            ie.printStackTrace();
+        }
+
+        System.out.println("|"); System.out.println("|");
 
         //Search cachedTimestamps for least up-to-date user balance
         while (cachedCredits.size() >= 6) {
@@ -356,6 +404,7 @@ public class BinasManager {
 				bv.setTimeStamp(nowDate);
 				bv.setNewBalance(newBalance);
 				station.setBalance(email,bv);
+                //station.setBalanceAsync(email,bv);
 			} catch(Exception e) {
 				errorCount+=1;
 				if(errorCount >= nStations/2 +1) {
