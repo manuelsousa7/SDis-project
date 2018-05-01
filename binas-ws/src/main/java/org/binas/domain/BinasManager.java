@@ -5,6 +5,7 @@ import org.binas.exceptions.StationsUnavailableException;
 import org.binas.station.ws.BalanceView;
 import org.binas.station.ws.GetBalanceResponse;
 import org.binas.station.ws.NoSlotAvail_Exception;
+import org.binas.station.ws.SetBalanceResponse;
 import org.binas.station.ws.cli.StationClient;
 import org.binas.ws.*;
 
@@ -267,8 +268,14 @@ public class BinasManager {
 			station.testClear();
 		}
 		users = new HashMap<String,User>();
-	}
+        cachedCredits =  new HashMap<String,Integer>();
+        cachedTimestamps =  new HashMap<String,Timestamp>();
 
+        finished = 0;
+        exceptionCount = 0;
+        mostUpToDate = null;
+        credit = -1;
+	}
 
 	public synchronized void usersInit(int userInitialPoints) throws BadInit_Exception {
 		if(userInitialPoints<0) ExceptionManager.badInit();
@@ -403,8 +410,7 @@ public class BinasManager {
 				BalanceView bv = new BalanceView();
 				bv.setTimeStamp(nowDate);
 				bv.setNewBalance(newBalance);
-				station.setBalance(email,bv);
-                //station.setBalanceAsync(email,bv);
+                Response<SetBalanceResponse> balanceResponse = station.setBalanceAsync(email,bv);
 			} catch(Exception e) {
 				errorCount+=1;
 				if(errorCount >= nStations/2 +1) {

@@ -173,7 +173,7 @@ public class StationClient implements StationPortType {
 
     @Override
     public Response<SetBalanceResponse> setBalanceAsync(String email, BalanceView balanceTag) {
-        return setBalanceAsync(email, balanceTag);
+        return port.setBalanceAsync(email, balanceTag);
     }
 
     @Override
