@@ -73,7 +73,7 @@ public class StationPortImpl implements StationPortType {
 	}
 
 	@Override
-	public BalanceView getBalance(String email) throws UserNotExists_Exception {
+	public BalanceView getBalance(String email) throws UserNotExists_Exception,InvalidEmail_Exception {
 		return Station.getInstance().getBalance(email);
 	}
 
