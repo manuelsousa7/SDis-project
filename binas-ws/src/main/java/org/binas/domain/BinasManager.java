@@ -299,7 +299,7 @@ public class BinasManager {
             @Override
             public void handleResponse(Response<GetBalanceResponse> response) {
                 try {
-                    System.out.println("Getbalance call result arrived!");
+                    System.out.println("GetBalance call result arrived!");
 					//Increment number of responses
                     finished_g++;
 
@@ -311,11 +311,11 @@ public class BinasManager {
                         mostUpToDate_g = readTimestamp;
                     }
                 } catch (InterruptedException e) {
-                    System.out.println("Caught interrupted exception.");
+					System.out.println("Caught interrupted exception.");
                     System.out.print("Cause: ");
                     System.out.println(e.getCause());
                 } catch (ExecutionException e) {
-                    System.out.println("Caught execution exception.");
+					System.out.println("Caught execution exception");
                     System.out.println(e.getCause());
                     exceptionCount_g+=1;
                 } catch (ParseException pe) {
@@ -351,7 +351,7 @@ public class BinasManager {
                 System.out.flush();
             }
         } catch (InterruptedException ie) {
-            System.out.println("Caught interrupted exception.");
+			System.out.println("Caught interrupted exception.");
             System.out.print("Cause: ");
             System.out.println(ie.getCause());
         }
@@ -388,16 +388,18 @@ public class BinasManager {
                     Timestamp readTimestamp = new Timestamp(parsedDate.getTime());
 					//Check if the newly read Timestamp is the most recent, if so, update credit and Timestamp
                     if (mostUpToDate_s == null || readTimestamp.after(mostUpToDate_s)) {
-                        credit_s = response.get().getBalanceInfo().getNewBalance();
+                    	credit_s = response.get().getBalanceInfo().getNewBalance();
                         mostUpToDate_s = readTimestamp;
                     }
                 } catch (ExecutionException ie) {
                     System.out.println("Caught execution exception.");
                     System.out.print("Cause: ");
                     System.out.println(ie.getCause());
+					System.out.flush();
                 } catch (InterruptedException ie) {
                     System.out.println("Caught interrupted exception.");
                     System.out.println(ie.getCause());
+					System.out.flush();
                     exceptionCount_s+=1;
                 } catch (ParseException pe) {
                     pe.printStackTrace();
@@ -416,6 +418,7 @@ public class BinasManager {
 				bv.setTimeStamp(nowDate);
 				bv.setNewBalance(newBalance);
                 station.setBalanceAsync(email,bv, handler);
+                System.out.println("CALL TO: " + station.getInfo().getId());
 			} catch(Exception e) {
 				errorCount_s+=1;
 				if(errorCount_s >= nStations/2 + uneven) {
@@ -428,7 +431,7 @@ public class BinasManager {
         try {
             while (finished_s < (nStations/2 +1)) {
                 Thread.sleep(50);
-                System.out.print(".");
+                System.out.println(".");
                 System.out.flush();
             }
         } catch (InterruptedException ie) {

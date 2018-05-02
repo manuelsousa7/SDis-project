@@ -178,7 +178,9 @@ public class Station {
 		Timestamp times = this.clientTimestamp.get(email);
 		if(times != null){
 			if(stringToTimeStamp(balanceTag.getTimeStamp()).after(times)){
-				this.clientTimestamp.put(email,times);
+				String nowDate = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSS").format(new Date());
+				this.clientCredits.put(email,balanceTag.getNewBalance());
+				this.clientTimestamp.put(email,stringToTimeStamp(nowDate));
 			}
 		} else {
 				String nowDate = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSS").format(new Date());
@@ -188,6 +190,10 @@ public class Station {
 		BalanceView response = new BalanceView();
 		response.setNewBalance(this.clientCredits.get(email));
 		response.setTimeStamp(this.clientTimestamp.get(email).toString());
+
+		System.out.println("Input: " + balanceTag.getTimeStamp() + " - " + balanceTag.getNewBalance());
+		System.out.println("Response: " + response.getTimeStamp() + " - " + response.getNewBalance());
+
 		return response;
 	}
 
