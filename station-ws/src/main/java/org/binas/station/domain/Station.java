@@ -178,14 +178,12 @@ public class Station {
 		Timestamp times = this.clientTimestamp.get(email);
 		if(times != null){
 			if(stringToTimeStamp(balanceTag.getTimeStamp()).after(times)){
-				String nowDate = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSS").format(new Date());
 				this.clientCredits.put(email,balanceTag.getNewBalance());
-				this.clientTimestamp.put(email,stringToTimeStamp(nowDate));
+				this.clientTimestamp.put(email,stringToTimeStamp(balanceTag.getTimeStamp()));
 			}
 		} else {
-				String nowDate = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSS").format(new Date());
 				this.clientCredits.put(email,balanceTag.getNewBalance());
-				this.clientTimestamp.put(email,stringToTimeStamp(nowDate));
+				this.clientTimestamp.put(email,stringToTimeStamp(balanceTag.getTimeStamp()));
 		}
 		BalanceView response = new BalanceView();
 		response.setNewBalance(this.clientCredits.get(email));
