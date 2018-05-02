@@ -160,7 +160,13 @@ public class Station {
 	}
 
 
-	public synchronized BalanceView setBalance(String email, BalanceView balanceTag) throws InvalidCredit_Exception,InvalidEmail_Exception {
+	public synchronized BalanceView setBalance(String email, BalanceView balanceTag) throws InvalidCredit_Exception,InvalidEmail_Exception,UserNotExists_Exception {
+		Integer credit = this.clientCredits.get(email);
+		if(credit==null) {
+			UserNotExists faultInfo = new UserNotExists();
+			String message = "[ERROR] No records found of user: "+email;
+			throw new UserNotExists_Exception(email, faultInfo);
+		}
 		if(balanceTag.getNewBalance() < 0){
 			InvalidCredit faultInfo = new InvalidCredit();
 			String message = "[ERROR] Invalid balance " + Integer.toString(balanceTag.getNewBalance());

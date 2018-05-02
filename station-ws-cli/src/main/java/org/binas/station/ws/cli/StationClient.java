@@ -127,7 +127,7 @@ public class StationClient implements StationPortType {
 	}
 
 	@Override
-	public BalanceView setBalance(String email, BalanceView balanceTag) throws InvalidCredit_Exception {
+	public BalanceView setBalance(String email, BalanceView balanceTag) throws InvalidCredit_Exception,InvalidEmail_Exception,UserNotExists_Exception {
 		return port.setBalance(email, balanceTag);
 	}
 

@@ -320,6 +320,8 @@
                    wsam:Action="http://ws.station.binas.org/Station/setBalance/Fault/InvalidCredit" />
             <fault message="tns:InvalidEmail" name="InvalidEmail"
                    wsam:Action="http://ws.station.binas.org/Station/setBalance/Fault/InvalidEmail" />
+            <fault message="tns:UserNotExists" name="UserNotExists"
+                   wsam:Action="http://ws.station.binas.org/Station/setBalance/Fault/UserNotExists" />
         </operation>
 
         <!-- test control operations -->
@@ -415,6 +417,9 @@
             </fault>
             <fault name="InvalidEmail">
                 <soap:fault name="InvalidEmail" use="literal" />
+            </fault>
+            <fault name="UserNotExists">
+                <soap:fault name="UserNotExists" use="literal" />
             </fault>
         </operation>
 
