@@ -122,6 +122,30 @@ public class Station {
 		return response;
 	}
 
+	private Boolean checkEmail(String email){
+		if(email.split("@").length != 2){ //Check if email contains only 1 @
+			return false;
+		}
+		String[] emailList = email.split("@");
+		if(emailList[0].length() == 0 || emailList[1].length() == 0){ //Check if email is not like @binas or binas@ ...
+			return false;
+		}
+		if(emailList[0].charAt(emailList[0].length() - 1) == '.' || emailList[1].charAt(emailList[1].length() - 1) == '.'){  //Check if email is not like binas.@binas or binas@.binas ...
+			return false;
+		}
+		if(emailList[0].charAt(0) == '.' || emailList[1].charAt(0) == '.'){  //Check if email is not like binas.@binas or binas@.binas ...
+			return false;
+		}
+		if(!emailList[0].replace(".","").matches("^[a-zA-Z0-9]*$") || !emailList[1].replace(".","").matches("^[a-zA-Z0-9]*$")){  //Check if email is not like binas@b!na$ ...
+			return false;
+		}
+		if(emailList[0].contains("..") || emailList[1].contains("..")){ //Check if email is binas@binas..binas ...
+			return false;
+		}
+
+		return true;
+	}
+
 
 	private  Timestamp stringToTimeStamp(String time){
 		try {
@@ -135,11 +159,17 @@ public class Station {
 		return null;
 	}
 
-	public synchronized BalanceView setBalance(String email, BalanceView balanceTag) throws InvalidCredit_Exception {
+
+	public synchronized BalanceView setBalance(String email, BalanceView balanceTag) throws InvalidCredit_Exception,InvalidEmail_Exception {
 		if(balanceTag.getNewBalance() < 0){
 			InvalidCredit faultInfo = new InvalidCredit();
 			String message = "[ERROR] Invalid balance " + Integer.toString(balanceTag.getNewBalance());
 			throw new InvalidCredit_Exception(message,faultInfo);
+		}
+		if(email == null || !checkEmail(email)){
+			InvalidEmail faultInfo = new InvalidEmail();
+			String message = "[ERROR] Invalid email " + email;
+			throw new InvalidEmail_Exception(message, faultInfo);
 		}
 		Timestamp times = this.clientTimestamp.get(email);
 		if(times != null){
