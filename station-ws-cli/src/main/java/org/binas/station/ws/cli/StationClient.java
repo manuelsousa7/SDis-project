@@ -100,8 +100,7 @@ public class StationClient implements StationPortType {
 			BindingProvider bindingProvider = (BindingProvider) port;
 			Map<String, Object> requestContext = bindingProvider.getRequestContext();
 			requestContext.put(ENDPOINT_ADDRESS_PROPERTY, wsURL);
-		}
-		else {
+		} else {
 			System.out.println("Setting endpoint address ...");
 			BindingProvider bindingProvider = (BindingProvider) port;
 			Map<String, Object> requestContext = bindingProvider.getRequestContext();
@@ -182,7 +181,7 @@ public class StationClient implements StationPortType {
     }
 
     @Override
-	public BalanceView setBalance(String email, BalanceView balanceTag) throws InvalidCredit_Exception, UserNotExists_Exception, InvalidEmail_Exception {
+	public BalanceView setBalance(String email, BalanceView balanceTag) throws InvalidCredit_Exception,InvalidEmail_Exception {
 		return port.setBalance(email, balanceTag);
 	}
 
