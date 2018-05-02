@@ -26,7 +26,8 @@ public class BinasManager {
     private HashMap<String,Integer> cachedCredits =  new HashMap<String,Integer>();
     private HashMap<String,Timestamp> cachedTimestamps =  new HashMap<String,Timestamp>();
 
-	static int finished_g = 0;
+	static int starting = 10;
+    static int finished_g = 0;
 	static Integer exceptionCount_g = 0;
 	static Integer errorCount_g = 0;
 	static Timestamp mostUpToDate_g = null;
@@ -121,8 +122,8 @@ public class BinasManager {
 			}
 		}
 
-		User user = new User(email,10);
-		setBalance(email,10);
+		User user = new User(email,starting);
+		setBalance(email,starting);
 		this.users.put(email,user);
 		UserView uv = new UserView();
 		uv.setHasBina(user.hasBina());
@@ -248,6 +249,7 @@ public class BinasManager {
 
 	public synchronized void usersInit(int userInitialPoints) throws BadInit_Exception {
 		if(userInitialPoints<0) ExceptionManager.badInit();
+		starting = userInitialPoints;
 		String userEmail1 = "testing1@text.com";
 		String userEmail2 = "testing2@text.com";
 		String userEmail3 = "testing3@text.com";

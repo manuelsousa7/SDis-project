@@ -36,16 +36,21 @@ public class BinasClientApp {
 
         client.activateUser("t06@tecnico.ulisboa.pt");
         client.rentBina("T06_Station1","t06@tecnico.ulisboa.pt");
+        System.out.println("I Rented a bina :) !!");
         client.returnBina("T06_Station1","t06@tecnico.ulisboa.pt");
-        System.out.println("sleeping 15 seconds....");
+        System.out.println("I Returned a bina :( !!");
+        System.out.println("sleeping 15 seconds.... [PLEASE  TURN OFF STATION NUMBER 3]");
         Thread.sleep(15000); //15 seconds to shutdown T06_Station3 (-Dws.i=3)
         System.out.println("I am awake again!");
         client.rentBina("T06_Station1","t06@tecnico.ulisboa.pt");
+        System.out.println("I Rented a bina :) !!");
         client.returnBina("T06_Station1","t06@tecnico.ulisboa.pt");
-        System.out.println("sleeping 20 seconds....");
+        System.out.println("I Returned a bina :( !!");
+        System.out.println("sleeping 20 seconds.... [PLEASE TURN ON STATION NUMBER 3]");
         Thread.sleep(20000); //20 seconds to revive T06_Station3 (-Dws.i=3)
         System.out.println("I am awake again!");
         client.rentBina("T06_Station1","t06@tecnico.ulisboa.pt");
+        System.out.println("I Rented a bina :) !!");
 
 
 		 /*System.out.println("Invoke ping()...");
