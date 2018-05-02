@@ -195,10 +195,17 @@ public class BinasManager {
 
     public void getBina(String stationId, String email) throws AlreadyHasBina_Exception, InvalidStation_Exception, NoCredit_Exception, UserNotExists_Exception,NoBinaAvail_Exception {
 
+    	int userCredit = -1;
 		StationClient station = getStation(stationId);
-		User user = getUserByEmail(email);
-
-        int userCredit = getBalance(email);
+		User user = null;
+		try {
+			user = getUserByEmail(email);
+		}catch(UserNotExists_Exception e) {
+			userCredit = getBalance(email);
+			user = new User(email, userCredit);
+		}
+		
+        if(userCredit == -1) userCredit = getBalance(email);
 
 		if (user.hasBina()) {
 			ExceptionManager.alreadyHasBina();
@@ -222,15 +229,24 @@ public class BinasManager {
 		if(!validString(stationId)) ExceptionManager.stationNotFound(stationId);
 		if(!validString(email)) ExceptionManager.userNotFound(email);
 		
+		int credit = -1;
 		StationClient station = getStation(stationId);
-		User user = getUserByEmail(email);
+		User user = null;
+		try {
+			user = getUserByEmail(email);
+		}catch(UserNotExists_Exception e) {
+			credit = getBalance(email);
+			user = new User(email, credit);
+		}
+		
 		if (!user.hasBina()) {
 			ExceptionManager.noBinaRented();
 		}
 		try {
 			int bonus = station.returnBina();
 			user.addBonus(bonus);
-			setBalance(email, getBalance(email) + bonus);
+			if(credit==-1) credit = getBalance(email); // Just to guarantee that there is no unnecessary contact with the stations
+			setBalance(email, credit + bonus);
 			user.setHasBina(false);
 		} catch (NoSlotAvail_Exception e) {
 			ExceptionManager.fullStation();
