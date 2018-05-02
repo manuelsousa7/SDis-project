@@ -309,6 +309,8 @@
                     message="tns:getBalanceResponse" />
             <fault message="tns:UserNotExists" name="UserNotExists"
                    wsam:Action="http://ws.station.binas.org/Station/getBalance/Fault/UserNotExists" />
+            <fault message="tns:InvalidEmail" name="InvalidEmail"
+                   wsam:Action="http://ws.station.binas.org/Station/setBalance/Fault/InvalidEmail" />
         </operation>
 
         <operation name="setBalance">
@@ -401,6 +403,9 @@
             </output>
             <fault name="UserNotExists">
                 <soap:fault name="UserNotExists" use="literal" />
+            </fault>
+            <fault name="InvalidEmail">
+                <soap:fault name="InvalidEmail" use="literal" />
             </fault>
         </operation>
 

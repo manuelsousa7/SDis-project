@@ -105,13 +105,17 @@ public class Station {
 		totalGets.incrementAndGet();
 	}
 	
-	public synchronized BalanceView getBalance(String email) throws UserNotExists_Exception{
-		
+	public synchronized BalanceView getBalance(String email) throws UserNotExists_Exception,InvalidEmail_Exception{
+		if(email == null || !checkEmail(email)){
+			InvalidEmail faultInfo = new InvalidEmail();
+			String message = "[ERROR] Invalid email " + email;
+			throw new InvalidEmail_Exception(message, faultInfo);
+		}
 		Integer credit = this.clientCredits.get(email);
 		if(credit==null) {
 			UserNotExists faultInfo = new UserNotExists();
 			String message = "[ERROR] No records found of user: "+email;
-			throw new UserNotExists_Exception(email, faultInfo);
+			throw new UserNotExists_Exception(message, faultInfo);
 		}
 		Timestamp lastWrite = this.clientTimestamp.get(email);
 		
@@ -165,7 +169,7 @@ public class Station {
 		if(credit==null) {
 			UserNotExists faultInfo = new UserNotExists();
 			String message = "[ERROR] No records found of user: "+email;
-			throw new UserNotExists_Exception(email, faultInfo);
+			throw new UserNotExists_Exception(message, faultInfo);
 		}
 		if(balanceTag.getNewBalance() < 0){
 			InvalidCredit faultInfo = new InvalidCredit();
