@@ -9,7 +9,6 @@ infer-out
 *.iml
 .idea
 .DS_Store
-*.pdf
 
 
 # Compiled class file
