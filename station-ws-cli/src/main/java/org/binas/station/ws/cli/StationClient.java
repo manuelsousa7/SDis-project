@@ -167,7 +167,7 @@ public class StationClient implements StationPortType {
     }
 
     @Override
-	public BalanceView getBalance(String email) throws UserNotExists_Exception {
+	public BalanceView getBalance(String email) throws UserNotExists_Exception, InvalidEmail_Exception {
 		return port.getBalance(email);
 	}
 
@@ -182,7 +182,7 @@ public class StationClient implements StationPortType {
     }
 
     @Override
-	public BalanceView setBalance(String email, BalanceView balanceTag) throws InvalidCredit_Exception {
+	public BalanceView setBalance(String email, BalanceView balanceTag) throws InvalidCredit_Exception, UserNotExists_Exception, InvalidEmail_Exception {
 		return port.setBalance(email, balanceTag);
 	}
 

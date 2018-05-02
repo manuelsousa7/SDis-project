@@ -73,12 +73,12 @@ public class StationPortImpl implements StationPortType {
 	}
 
 	@Override
-	public BalanceView getBalance(String email) throws UserNotExists_Exception {
+	public BalanceView getBalance(String email) throws UserNotExists_Exception,InvalidEmail_Exception {
 		return Station.getInstance().getBalance(email);
 	}
 
 	@Override
-	public BalanceView setBalance(String email, BalanceView balanceTag) throws InvalidCredit_Exception {
+	public BalanceView setBalance(String email, BalanceView balanceTag) throws InvalidCredit_Exception,InvalidEmail_Exception,UserNotExists_Exception {
 		return Station.getInstance().setBalance(email,balanceTag);
 	}
 

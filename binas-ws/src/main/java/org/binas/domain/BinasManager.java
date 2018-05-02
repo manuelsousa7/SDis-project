@@ -244,11 +244,6 @@ public class BinasManager {
 		users = new HashMap<String,User>();
         cachedCredits =  new HashMap<String,Integer>();
         cachedTimestamps =  new HashMap<String,Timestamp>();
-
-        finished = 0;
-        exceptionCount = 0;
-        mostUpToDate = null;
-        credit = -1;
 	}
 
 	public synchronized void usersInit(int userInitialPoints) throws BadInit_Exception {
@@ -329,14 +324,16 @@ public class BinasManager {
             }
         };
 
-        //Call async getBalance method for each station
+		//Indicates whether the number of stations is uneven
+		int uneven = nStations%2 != 0 ? 1 : 0;
+
+		//Call async getBalance method for each station
 		for(StationClient station : connectedStations.values()) {
 			try {
                 station.getBalanceAsync(email, handler);
 			}
 			catch(Exception e) {
-				errorCount_g+=1;
-				if(errorCount_g >= nStations/2 +1) {
+				if(errorCount_s >= nStations/2 + uneven) {
 					//should NEVER happen, but just in case it does
 					throw new StationsUnavailableException("[ERROR] Not enough stations for Quorum Consensus.");
 				}
@@ -347,12 +344,9 @@ public class BinasManager {
 		try {
             while (finished_g < (nStations/2 +1)) {
                 Thread.sleep(50);
-
-                if (exceptionCount_g >= (nStations/2 +1)) {
-                    //Only if it does not exist in the majority of the stations
-                    ExceptionManager.userNotFound(email);
-                }
-
+				if(exceptionCount_g >= nStations/2 + uneven) {
+					ExceptionManager.userNotFound(email);
+				}
                 System.out.print(".");
                 System.out.flush();
             }
@@ -411,6 +405,9 @@ public class BinasManager {
             }
         };
 
+        //Indicates whether the number of stations is uneven
+		int uneven = nStations%2 != 0 ? 1 : 0;
+
 		//Call async setBalance method for each station
 		for(StationClient station : connectedStations.values()) {
 			try {
@@ -421,7 +418,7 @@ public class BinasManager {
                 station.setBalanceAsync(email,bv, handler);
 			} catch(Exception e) {
 				errorCount_s+=1;
-				if(errorCount_s >= nStations/2 + 1) {
+				if(errorCount_s >= nStations/2 + uneven) {
 					//should NEVER happen, but just in case it does
 					throw new StationsUnavailableException("[ERROR] Not enough stations for Quorum Consensus.");
 				}
