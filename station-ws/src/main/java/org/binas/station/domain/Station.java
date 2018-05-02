@@ -177,11 +177,11 @@ public class Station {
 		}
 		Timestamp times = this.clientTimestamp.get(email);
 		if(times != null){
-			if(stringToTimeStamp(balanceTag.getTimeStamp()).after(times)){
+			if(stringToTimeStamp(balanceTag.getTimeStamp()).after(times)){ //update if timestamp received in the tag is more recent then the record stored in the station
 				this.clientCredits.put(email,balanceTag.getNewBalance());
 				this.clientTimestamp.put(email,stringToTimeStamp(balanceTag.getTimeStamp()));
 			}
-		} else {
+		} else { // if station do not have any record for that user
 				this.clientCredits.put(email,balanceTag.getNewBalance());
 				this.clientTimestamp.put(email,stringToTimeStamp(balanceTag.getTimeStamp()));
 		}
