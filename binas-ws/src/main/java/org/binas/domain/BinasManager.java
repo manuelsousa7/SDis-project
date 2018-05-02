@@ -238,7 +238,7 @@ public class BinasManager {
 		}catch(UserNotExists_Exception e) {
 			credit = getBalance(email);
 			user = new User(email, credit);
-			this.users.put(email,user); //this will never happen because data is not persisted
+			this.users.put(email,user); //this will never happen because data is not persisted so users cannot return BINAs that they rented before a simulated binas-ws crashed
 		}
 		
 		if (!user.hasBina()) {

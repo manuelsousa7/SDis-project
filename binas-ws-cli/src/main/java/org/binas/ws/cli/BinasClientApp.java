@@ -60,11 +60,8 @@ public class BinasClientApp {
         System.out.println("I Rented a bina :) !!");
         client.returnBina("T06_Station1","t06@tecnico.ulisboa.pt");
         System.out.println("I Returned a bina :( !!");
-
-
-
-
-
+        System.out.println("\n\nHappy End :) :) :) !!");
+        
 		 /*System.out.println("Invoke ping()...");
 		 String result = client.testPing("client");
 		 System.out.print(result);*/
