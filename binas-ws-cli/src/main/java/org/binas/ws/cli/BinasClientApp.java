@@ -34,8 +34,19 @@ public class BinasClientApp {
             client = new BinasClient(uddiURL, wsName);
         }
 
-        // the following remote invocations are just basic examples
-        // the actual tests are made using JUnit
+        client.activateUser("t06@tecnico.ulisboa.pt");
+        client.rentBina("T06_Station1","t06@tecnico.ulisboa.pt");
+        client.returnBina("T06_Station1","t06@tecnico.ulisboa.pt");
+        System.out.println("sleeping 15 seconds....");
+        Thread.sleep(15000); //15 seconds to shutdown T06_Station3 (-Dws.i=3)
+        System.out.println("I am awake again!");
+        client.rentBina("T06_Station1","t06@tecnico.ulisboa.pt");
+        client.returnBina("T06_Station1","t06@tecnico.ulisboa.pt");
+        System.out.println("sleeping 20 seconds....");
+        Thread.sleep(20000); //20 seconds to revive T06_Station3 (-Dws.i=3)
+        System.out.println("I am awake again!");
+        client.rentBina("T06_Station1","t06@tecnico.ulisboa.pt");
+
 
 		 /*System.out.println("Invoke ping()...");
 		 String result = client.testPing("client");
