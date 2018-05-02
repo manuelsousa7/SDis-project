@@ -203,6 +203,7 @@ public class BinasManager {
 		}catch(UserNotExists_Exception e) {
 			userCredit = getBalance(email);
 			user = new User(email, userCredit);
+			this.users.put(email,user);
 		}
 		
         if(userCredit == -1) userCredit = getBalance(email);
@@ -237,6 +238,7 @@ public class BinasManager {
 		}catch(UserNotExists_Exception e) {
 			credit = getBalance(email);
 			user = new User(email, credit);
+			this.users.put(email,user); //this will never happen because data is not persisted
 		}
 		
 		if (!user.hasBina()) {
