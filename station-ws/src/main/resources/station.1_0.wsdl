@@ -133,6 +133,13 @@
             </xs:complexType>
             <xs:element name="InvalidCredit" type="tns:InvalidCredit" />
 
+            <xs:complexType name="InvalidEmail">
+                <xs:sequence>
+                    <xs:element name="message" type="xs:string" minOccurs="0" />
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="InvalidEmail" type="tns:InvalidEmail" />
+
 
             <!-- test control operations data types -->
 
@@ -236,6 +243,9 @@
     <message name="InvalidCredit">
         <part name="fault" element="tns:InvalidCredit" />
     </message>
+    <message name="InvalidEmail">
+        <part name="fault" element="tns:InvalidEmail" />
+    </message>
 
     <!-- test control messages -->
     <message name="test_ping">
@@ -308,6 +318,10 @@
                     message="tns:setBalanceResponse" />
             <fault message="tns:InvalidCredit" name="InvalidCredit"
                    wsam:Action="http://ws.station.binas.org/Station/setBalance/Fault/InvalidCredit" />
+            <fault message="tns:InvalidEmail" name="InvalidEmail"
+                   wsam:Action="http://ws.station.binas.org/Station/setBalance/Fault/InvalidEmail" />
+            <fault message="tns:UserNotExists" name="UserNotExists"
+                   wsam:Action="http://ws.station.binas.org/Station/setBalance/Fault/UserNotExists" />
         </operation>
 
         <!-- test control operations -->
@@ -400,6 +414,12 @@
             </output>
             <fault name="InvalidCredit">
                 <soap:fault name="InvalidCredit" use="literal" />
+            </fault>
+            <fault name="InvalidEmail">
+                <soap:fault name="InvalidEmail" use="literal" />
+            </fault>
+            <fault name="UserNotExists">
+                <soap:fault name="UserNotExists" use="literal" />
             </fault>
         </operation>
 
