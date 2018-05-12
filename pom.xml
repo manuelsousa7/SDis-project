@@ -12,7 +12,7 @@
 		<!-- specify modules to include in the build reactor -->
 		<module>station-ws</module>
 		<module>station-ws-cli</module>
-
+		<module>kerby-experiment</module>
 		<module>binas-ws</module>
 		<module>binas-ws-cli</module>
 	</modules>
