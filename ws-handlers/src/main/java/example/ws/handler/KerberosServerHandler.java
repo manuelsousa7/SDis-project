@@ -11,6 +11,8 @@ public class KerberosServerHandler implements SOAPHandler<SOAPMessageContext> {
 
     /** Date formatter used for outputting time stamp in ISO 8601 format. */
     //private static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
+    String kerby = "http://sec.sd.rnl.tecnico.ulisboa.pt:8888/kerby";
+    String serverPw = "xm7bhuSz";
 
     //
     // Handler interface implementation
@@ -57,30 +59,10 @@ public class KerberosServerHandler implements SOAPHandler<SOAPMessageContext> {
      * writeTo() method can throw SOAPException or IOException.
      */
     private void logSOAPMessage(SOAPMessageContext smc, PrintStream out) {
-        /*
         Boolean outbound = (Boolean) smc.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
+        if (!outbound) {
 
-        // print current time stamp
-        Date now = new Date();
-        out.print(dateFormat.format(now));
-        // print SOAP message direction
-        out.println(" " + (outbound ? "OUT" : "IN") + "bound SOAP message:");
-
-        // print SOAP message contents
-        SOAPMessage message = smc.getMessage();
-        try {
-            message.writeTo(out);
-            // print a newline after message
-            out.println();
-
-        } catch (SOAPException se) {
-            out.print("Ignoring SOAPException in handler: ");
-            out.println(se);
-        } catch (IOException ioe) {
-            out.print("Ignoring IOException in handler: ");
-            out.println(ioe);
         }
-        */
     }
 
 }

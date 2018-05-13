@@ -1,5 +1,6 @@
 package org.binas.ws.cli;
 
+import example.ws.handler.KerberosClientHandler;
 import org.binas.ws.*;
 import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINaming;
 import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINamingException;
@@ -127,6 +128,8 @@ public class BinasClient implements BinasPortType {
     @Override
     public UserView activateUser(String email) throws EmailExists_Exception,
             InvalidEmail_Exception {
+        BindingProvider bindingProvider = (BindingProvider) port;
+        bindingProvider.getRequestContext().put(KerberosClientHandler.userEmail, email);
         return port.activateUser(email);
     }
 

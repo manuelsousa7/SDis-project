@@ -1,16 +1,30 @@
 package example.ws.handler;
 
 import javax.xml.namespace.QName;
+import javax.xml.soap.*;
 import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPHandler;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintStream;
+import java.security.Key;
+import java.security.SecureRandom;
+import java.util.Date;
+import java.util.Properties;
 import java.util.Set;
 
 public class KerberosClientHandler  implements SOAPHandler<SOAPMessageContext> {
 
     /** Date formatter used for outputting time stamp in ISO 8601 format. */
     //private static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
+    String kerby = "http://sec.sd.rnl.tecnico.ulisboa.pt:8888/kerby";
+    String client = "alice@T06.binas.org";
+    String clientPw = "ySudhFL";
+    String server = "binas@T06.binas.org";
+
+    public static final String userEmail = "invalid@email";
+    public static final String keyAndTicket = "client.session.ticket.property";
 
     //
     // Handler interface implementation
@@ -57,30 +71,71 @@ public class KerberosClientHandler  implements SOAPHandler<SOAPMessageContext> {
      * writeTo() method can throw SOAPException or IOException.
      */
     private void logSOAPMessage(SOAPMessageContext smc, PrintStream out) {
-        /*
+
         Boolean outbound = (Boolean) smc.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
+        if (outbound) {
+            // outbound message
+            try {
+                // get SOAP envelope
+                SOAPMessage msg = smc.getMessage();
+                SOAPPart sp = msg.getSOAPPart();
+                SOAPEnvelope se = sp.getEnvelope();
 
-        // print current time stamp
-        Date now = new Date();
-        out.print(dateFormat.format(now));
-        // print SOAP message direction
-        out.println(" " + (outbound ? "OUT" : "IN") + "bound SOAP message:");
+                // add header
+                SOAPHeader sh = se.getHeader();
+                if (sh == null)
+                    sh = se.addHeader();
 
-        // print SOAP message contents
-        SOAPMessage message = smc.getMessage();
-        try {
-            message.writeTo(out);
-            // print a newline after message
-            out.println();
+                // add header element (name, namespace prefix, namespace)
+                Name name = se.createName("myHeader", "d", "http://demo");
+                SOAPHeaderElement element = sh.addHeaderElement(name);
 
-        } catch (SOAPException se) {
-            out.print("Ignoring SOAPException in handler: ");
-            out.println(se);
-        } catch (IOException ioe) {
-            out.print("Ignoring IOException in handler: ");
-            out.println(ioe);
+                System.out.println("[INFO] Kerby Url: " + kerby);
+                System.out.println("[INFO] Client email: " + client);
+                System.out.println("[INFO] Server Url: " + server);
+                System.out.println();
+
+                // load configuration properties
+                try {
+                    InputStream inputStream = KerbyExperiment.class.getClassLoader().getResourceAsStream("config.properties");
+                    // variant for non-static methods:
+                    // InputStream inputStream = getClass().getClassLoader().getResourceAsStream("config.properties");
+
+                    Properties properties = new Properties();
+                    properties.load(inputStream);
+
+                    System.out.printf("Loaded %d properties%n", properties.size());
+
+                } catch (IOException e) {
+                    System.out.printf("Failed to load configuration: %s%n", e);
+                }
+
+                KerbyClient cli = new KerbyClient(kerby);
+                System.out.println("[CLIENT-INFO] Connection to Kerby Successfull");
+
+                System.out.println("[CLIENT-INFO] Requesting ticket from Kerby");
+                SecureRandom randomGenerator = new SecureRandom();
+                SessionKeyAndTicketView view = cli.requestTicket(client, server, randomGenerator.nextLong(), 30);
+
+                System.out.println("[CLIENT-INFO] Generating Kc from client password");
+                Key kc = SecurityHelper.generateKeyFromPassword(clientPw);
+
+                CipheredView cipheredSessionKey = view.getSessionKey();
+                CipheredView cipheredTicket = view.getTicket();
+
+                System.out.println("[CLIENT-INFO] Obtaining sessionKey and Kcs using Kc");
+                SessionKey sessionKey = new SessionKey(cipheredSessionKey, kc);
+                Key clientServerKey = sessionKey.getKeyXY();
+
+                System.out.println("[CLIENT-INFO] Generating auth ciphered with Kcs");
+                Date timeRequest = new Date();
+                Auth auth = new Auth(client, timeRequest);
+                CipheredView cipheredAuth = auth.cipher(clientServerKey);
+
+                smc.put(keyAndTicket, view);
+            } catch (SOAPException e) {
+                System.out.printf("Failed to add SOAP header because of %s%n", e);
+            }
         }
-        */
     }
-
 }
