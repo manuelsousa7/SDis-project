@@ -2,6 +2,7 @@ package org.binas.ws;
 
 import org.binas.domain.BinasManager;
 
+import javax.jws.HandlerChain;
 import javax.jws.WebService;
 import java.util.List;
 
@@ -11,6 +12,7 @@ name ="BinasWebService",
 portName = "BinasPort",
 targetNamespace="http://ws.binas.org/",
 serviceName = "BinasService" )
+@HandlerChain(file = "/binas-ws_handler-chain.xml")
 public class BinasPortImpl implements BinasPortType {
 	/**
 	 * The Endpoint manager controls the Web Service instance during its whole
