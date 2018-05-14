@@ -25,6 +25,8 @@ public class KerberosClientHandler  implements SOAPHandler<SOAPMessageContext> {
 
     public static final String userEmail = "invalid@email";
     public static final String keyAndTicket = "client.session.ticket.property";
+    public static final String ticketCiphered = "client.ciphered.ticket.property";
+    public static final String authCiphered = "client.ciphered.auth.property";
 
     //
     // Handler interface implementation
@@ -133,9 +135,14 @@ public class KerberosClientHandler  implements SOAPHandler<SOAPMessageContext> {
                 CipheredView cipheredAuth = auth.cipher(clientServerKey);
 
                 smc.put(keyAndTicket, view);
+                smc.put(ticketCiphered, cipheredTicket);
+                smc.put(authCiphered, cipheredAuth);
             } catch (SOAPException e) {
                 System.out.printf("Failed to add SOAP header because of %s%n", e);
             }
+        }
+        else {
+            //TODO: ?
         }
     }
 }
