@@ -23,10 +23,16 @@ public class KerberosClientHandler  implements SOAPHandler<SOAPMessageContext> {
     String clientPw = "ySudhFL";
     String server = "binas@T06.binas.org";
 
+    public static final String CLIENT_HEADER = "client";
+    public static final String CLIENT_NS = "urn:client";
+    public static final String TICKET_HEADER = "clientTicket";
+    public static final String TICKET_NS = "urn:ticket";
+    public static final String AUTH_HEADER = "clientAuth";
+    public static final String AUTH_NS = "urn:autn";
+
+    public static final String TOKEN = "client-handler";
+
     public static final String userEmail = "invalid@email";
-    public static final String keyAndTicket = "client.session.ticket.property";
-    public static final String ticketCiphered = "client.ciphered.ticket.property";
-    public static final String authCiphered = "client.ciphered.auth.property";
 
     //
     // Handler interface implementation
@@ -72,45 +78,12 @@ public class KerberosClientHandler  implements SOAPHandler<SOAPMessageContext> {
      * outgoing or incoming message. Write the SOAP message to the print stream. The
      * writeTo() method can throw SOAPException or IOException.
      */
-    private void logSOAPMessage(SOAPMessageContext smc, PrintStream out) {
+    public boolean handleMessage(SOAPMessageContext smc) {
 
         Boolean outbound = (Boolean) smc.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
         if (outbound) {
             // outbound message
             try {
-                // get SOAP envelope
-                SOAPMessage msg = smc.getMessage();
-                SOAPPart sp = msg.getSOAPPart();
-                SOAPEnvelope se = sp.getEnvelope();
-
-                // add header
-                SOAPHeader sh = se.getHeader();
-                if (sh == null)
-                    sh = se.addHeader();
-
-                // add header element (name, namespace prefix, namespace)
-                Name name = se.createName("myHeader", "d", "http://demo");
-                SOAPHeaderElement element = sh.addHeaderElement(name);
-
-                System.out.println("[INFO] Kerby Url: " + kerby);
-                System.out.println("[INFO] Client email: " + client);
-                System.out.println("[INFO] Server Url: " + server);
-                System.out.println();
-
-                // load configuration properties
-                try {
-                    InputStream inputStream = KerbyExperiment.class.getClassLoader().getResourceAsStream("config.properties");
-                    // variant for non-static methods:
-                    // InputStream inputStream = getClass().getClassLoader().getResourceAsStream("config.properties");
-
-                    Properties properties = new Properties();
-                    properties.load(inputStream);
-
-                    System.out.printf("Loaded %d properties%n", properties.size());
-
-                } catch (IOException e) {
-                    System.out.printf("Failed to load configuration: %s%n", e);
-                }
 
                 KerbyClient cli = new KerbyClient(kerby);
                 System.out.println("[CLIENT-INFO] Connection to Kerby Successfull");
@@ -134,9 +107,52 @@ public class KerberosClientHandler  implements SOAPHandler<SOAPMessageContext> {
                 Auth auth = new Auth(client, timeRequest);
                 CipheredView cipheredAuth = auth.cipher(clientServerKey);
 
-                smc.put(keyAndTicket, view);
-                smc.put(ticketCiphered, cipheredTicket);
-                smc.put(authCiphered, cipheredAuth);
+                // get SOAP envelope
+                SOAPMessage msg = smc.getMessage();
+                SOAPPart sp = msg.getSOAPPart();
+                SOAPEnvelope se = sp.getEnvelope();
+
+                // add header
+                SOAPHeader sh = se.getHeader();
+                if (sh == null) {
+                    sh = se.addHeader();
+                }
+
+                // add header element (name, namespace prefix, namespace)
+                Name clientName = se.createName(CLIENT_HEADER, "e", CLIENT_NS);
+                SOAPHeaderElement element = sh.addHeaderElement(clientName);
+
+                // *** #3 ***
+                // add header element value
+                Node ticketNode = CipherClerk.CipherToXMLNode(cipheredTicket, "clientTicket");
+                Name ticketName = se.createName(TICKET_HEADER, "e", TICKET_NS);
+                element.add
+                element.addAttribute(ticketName, ticketNode.getValue());
+
+                Node authNode = CipherClerk.CipherToXMLNode(cipheredAuth, "clientAuth");
+                Name authName = se.createName(AUTH_HEADER, "e", AUTH_NS);
+                element.addAttribute(authName, authNode.getValue());
+
+                System.out.println("[INFO] Kerby Url: " + kerby);
+                System.out.println("[INFO] Client email: " + client);
+                System.out.println("[INFO] Server Url: " + server);
+                System.out.println();
+
+                // load configuration properties
+                try {
+                    InputStream inputStream = KerbyExperiment.class.getClassLoader().getResourceAsStream("config.properties");
+                    // variant for non-static methods:
+                    // InputStream inputStream = getClass().getClassLoader().getResourceAsStream("config.properties");
+
+                    Properties properties = new Properties();
+                    properties.load(inputStream);
+
+                    System.out.printf("Loaded %d properties%n", properties.size());
+
+                } catch (IOException e) {
+                    System.out.printf("Failed to load configuration: %s%n", e);
+                }
+
             } catch (SOAPException e) {
                 System.out.printf("Failed to add SOAP header because of %s%n", e);
             }
