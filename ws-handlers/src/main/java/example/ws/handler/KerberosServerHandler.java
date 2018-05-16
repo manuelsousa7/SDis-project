@@ -29,10 +29,6 @@ public class KerberosServerHandler implements SOAPHandler<SOAPMessageContext> {
     public static final String AUTH_HEADER = "clientAuthHeader";
     public static final String AUTH_NS = "urn:autn";
 
-    public Key clientServerKey = null;
-
-    public Map<String, Key> clientServerKeys;
-
     /**
      * Gets the header blocks that can be processed by this Handler instance. If
      * null, processes all.
@@ -70,6 +66,27 @@ public class KerberosServerHandler implements SOAPHandler<SOAPMessageContext> {
         Boolean outbound = (Boolean) smc.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
         if (outbound) {
             try {
+                SOAPMessage msg = smc.getMessage();
+                SOAPPart sp = msg.getSOAPPart();
+                SOAPEnvelope se = sp.getEnvelope();
+                SOAPBody sb = se.getBody();
+
+                // check header
+                if (sb == null) {
+                    System.out.println("Body not found.");
+                    return true;
+                }
+
+                NodeList nodes = sb.getChildNodes();
+                CipherClerk clerk = new CipherClerk();
+                CipheredView cipheredTicket = clerk.cipherFromXMLNode(nodes.item(0));
+                CipheredView cipheredAuth = clerk.cipherFromXMLNode(nodes.item(1));
+
+                Key ks = SecurityHelper.generateKeyFromPassword(serverPw);
+                Ticket ticket = new Ticket(cipheredTicket, ks);
+
+                Key clientServerKey = ticket.getKeyXY();
+
                 System.out.println("[SERVER-INFO] Generating and encrypting Treq with Kcs");
                 if (clientServerKey == null) {
                     System.out.println("clientServerKey is invalid!");
@@ -79,30 +96,10 @@ public class KerberosServerHandler implements SOAPHandler<SOAPMessageContext> {
                 Auth responseAuth = new Auth(server, Tresp);
                 CipheredView cipheredResponse = responseAuth.cipher(clientServerKey);
 
-                // get SOAP envelope
-                SOAPMessage msg = smc.getMessage();
-                SOAPPart sp = msg.getSOAPPart();
-                SOAPEnvelope se = sp.getEnvelope();
-                SOAPHeader sh = se.getHeader();
-                SOAPBody sb = se.getBody();
-
-                if (sh == null) {
-                    sh = se.addHeader();
-                }
-                if (sb == null) {
-                    sb = se.addBody();
-                }
-
-                // add header element (name, namespace prefix, namespace)
-                Name clientName = se.createName(SERVER_HEADER, "e", SERVER_NS);
-                SOAPHeaderElement headerElement = sh.addHeaderElement(clientName);
-                SOAPBodyElement bodyElement = sb.addBodyElement(clientName);
-
-                // add ticket and auth values
-                CipherClerk clerk = new CipherClerk();
-                org.w3c.dom.Node authNode = clerk.cipherToXMLNode(cipheredResponse, "serverAuth");
-                Name authName = se.createName(AUTH_HEADER, "e", AUTH_NS);
-                bodyElement.addAttribute(authName, authNode.getNodeValue());
+            } catch (NoSuchAlgorithmException e) {
+                System.out.printf("No such algorithm %s%n", e);
+            } catch (InvalidKeySpecException e) {
+                System.out.printf("Invalid key specification %s%n", e);
             } catch (JAXBException e) {
                 System.out.printf("Received JAXB exception %s%n", e);
             } catch (KerbyException e) {
@@ -138,8 +135,7 @@ public class KerberosServerHandler implements SOAPHandler<SOAPMessageContext> {
                 Ticket ticket = new Ticket(cipheredTicket, ks);
 
                 System.out.println("[SERVER-INFO] Obtaining Kcs from ticket");
-                clientServerKeys.put(ticket.getX(), ticket.getKeyXY());
-                //clientServerKey = ticket.getKeyXY();
+                Key clientServerKey = ticket.getKeyXY();
 
                 System.out.println("[SERVER-INFO] Decripting auth using Kcs");
                 Auth recievedAuth = new Auth(cipheredAuth, clientServerKey);
