@@ -1,5 +1,6 @@
 package example.ws.handler;
 
+import javax.xml.bind.JAXBException;
 import javax.xml.namespace.QName;
 import javax.xml.soap.*;
 import javax.xml.ws.handler.MessageContext;
@@ -9,10 +10,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.security.Key;
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.security.spec.InvalidKeySpecException;
 import java.util.Date;
 import java.util.Properties;
 import java.util.Set;
+
+import pt.ulisboa.tecnico.sdis.kerby.*;
+import pt.ulisboa.tecnico.sdis.kerby.cli.KerbyClient;
+import pt.ulisboa.tecnico.sdis.kerby.cli.KerbyClientException;
 
 public class KerberosClientHandler  implements SOAPHandler<SOAPMessageContext> {
 
@@ -47,15 +54,7 @@ public class KerberosClientHandler  implements SOAPHandler<SOAPMessageContext> {
         return null;
     }
 
-    /**
-     * The handleMessage method is invoked for normal processing of inbound and
-     * outbound messages.
-     */
-    @Override
-    public boolean handleMessage(SOAPMessageContext smc) {
-        logSOAPMessage(smc, System.out);
-        return true;
-    }
+    private void logSOAPMessage(SOAPMessageContext smc, PrintStream out) {}
 
     /** The handleFault method is invoked for fault message processing. */
     @Override
@@ -78,13 +77,13 @@ public class KerberosClientHandler  implements SOAPHandler<SOAPMessageContext> {
      * outgoing or incoming message. Write the SOAP message to the print stream. The
      * writeTo() method can throw SOAPException or IOException.
      */
+    @Override
     public boolean handleMessage(SOAPMessageContext smc) {
 
         Boolean outbound = (Boolean) smc.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
         if (outbound) {
             // outbound message
             try {
-
                 KerbyClient cli = new KerbyClient(kerby);
                 System.out.println("[CLIENT-INFO] Connection to Kerby Successfull");
 
@@ -122,39 +121,36 @@ public class KerberosClientHandler  implements SOAPHandler<SOAPMessageContext> {
                 Name clientName = se.createName(CLIENT_HEADER, "e", CLIENT_NS);
                 SOAPHeaderElement element = sh.addHeaderElement(clientName);
 
-                // *** #3 ***
-                // add header element value
-                Node ticketNode = CipherClerk.CipherToXMLNode(cipheredTicket, "clientTicket");
+                // add ticket and auth values
+                CipherClerk clerk = new CipherClerk();
+                org.w3c.dom.Node ticketNode = clerk.cipherToXMLNode(cipheredTicket, "clientTicket");
                 Name ticketName = se.createName(TICKET_HEADER, "e", TICKET_NS);
-                element.add
-                element.addAttribute(ticketName, ticketNode.getValue());
+                element.addAttribute(ticketName, ticketNode.getNodeValue());
 
-                Node authNode = CipherClerk.CipherToXMLNode(cipheredAuth, "clientAuth");
+                org.w3c.dom.Node authNode = clerk.cipherToXMLNode(cipheredAuth, "clientAuth");
                 Name authName = se.createName(AUTH_HEADER, "e", AUTH_NS);
-                element.addAttribute(authName, authNode.getValue());
+                element.addAttribute(authName, authNode.getNodeValue());
 
                 System.out.println("[INFO] Kerby Url: " + kerby);
                 System.out.println("[INFO] Client email: " + client);
                 System.out.println("[INFO] Server Url: " + server);
                 System.out.println();
 
-                // load configuration properties
-                try {
-                    InputStream inputStream = KerbyExperiment.class.getClassLoader().getResourceAsStream("config.properties");
-                    // variant for non-static methods:
-                    // InputStream inputStream = getClass().getClassLoader().getResourceAsStream("config.properties");
-
-                    Properties properties = new Properties();
-                    properties.load(inputStream);
-
-                    System.out.printf("Loaded %d properties%n", properties.size());
-
-                } catch (IOException e) {
-                    System.out.printf("Failed to load configuration: %s%n", e);
-                }
-
+                return true;
+            } catch (BadTicketRequest_Exception e) {
+                System.out.printf("Bad ticket %s%n", e);
+            } catch (NoSuchAlgorithmException e) {
+                System.out.printf("No such algorithm %s%n", e);
+            } catch (InvalidKeySpecException e) {
+                System.out.printf("Invalid key specification %s%n", e);
+            } catch (JAXBException e) {
+                System.out.printf("JAXB Exception %s%n", e);
+            } catch (KerbyClientException e) {
+                System.out.printf("Received kerby client exception %s%n", e);
+            } catch (KerbyException e) {
+                System.out.printf("Received kerby exception %s%n", e);
             } catch (SOAPException e) {
-                System.out.printf("Failed to add SOAP header because of %s%n", e);
+                System.out.printf("Failed to get SOAP header because of %s%n", e);
             }
         }
         else {

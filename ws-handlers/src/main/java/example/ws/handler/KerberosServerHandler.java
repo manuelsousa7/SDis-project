@@ -7,9 +7,13 @@ import javax.xml.ws.handler.soap.SOAPHandler;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 import java.io.PrintStream;
 import java.security.Key;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.Set;
+
+import pt.ulisboa.tecnico.sdis.kerby.*;
 
 public class KerberosServerHandler implements SOAPHandler<SOAPMessageContext> {
 
@@ -33,15 +37,7 @@ public class KerberosServerHandler implements SOAPHandler<SOAPMessageContext> {
         return null;
     }
 
-    /**
-     * The handleMessage method is invoked for normal processing of inbound and
-     * outbound messages.
-     */
-    @Override
-    public boolean handleMessage(SOAPMessageContext smc) {
-        logSOAPMessage(smc, System.out);
-        return true;
-    }
+    private void logSOAPMessage(SOAPMessageContext smc, PrintStream out) {}
 
     /** The handleFault method is invoked for fault message processing. */
     @Override
@@ -64,6 +60,7 @@ public class KerberosServerHandler implements SOAPHandler<SOAPMessageContext> {
      * outgoing or incoming message. Write the SOAP message to the print stream. The
      * writeTo() method can throw SOAPException or IOException.
      */
+    @Override
     public boolean handleMessage(SOAPMessageContext smc) {
         Boolean outbound = (Boolean) smc.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
         if (outbound) {
@@ -88,8 +85,9 @@ public class KerberosServerHandler implements SOAPHandler<SOAPMessageContext> {
                 Name authName = se.createName(AUTH_HEADER, "e", AUTH_NS);
                 String authValue = sh.getAttributeValue(authName);
 
-                CipheredView cipheredTicket = CipherClerk.CipherFromXMLNode(ticketValue);
-                CipheredView cipheredAuth = CipherClerk.CipherFromXMLNode(authValue);
+                CipherClerk clerk = new CipherClerk();
+                CipheredView cipheredTicket = clerk.cipherBuild(ticketValue);
+                CipheredView cipheredAuth = clerk.cipherFromXMLNode(authValue);
 
                 System.out.println("[SERVER-INFO] Generating Ks from server password");
                 Key ks = SecurityHelper.generateKeyFromPassword(serverPw);
@@ -130,6 +128,12 @@ public class KerberosServerHandler implements SOAPHandler<SOAPMessageContext> {
 
                 return true;
 
+            } catch (NoSuchAlgorithmException e) {
+                System.out.printf("No such algorithm %s%n", e);
+            } catch (InvalidKeySpecException e) {
+                System.out.printf("Invalid key specification %s%n", e);
+            } catch (KerbyException e) {
+                System.out.printf("Received kerby exception %s%n", e);
             } catch (SOAPException e) {
                 System.out.printf("Failed to get SOAP header because of %s%n", e);
             }
