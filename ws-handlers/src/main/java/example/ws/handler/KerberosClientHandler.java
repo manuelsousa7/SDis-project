@@ -24,20 +24,18 @@ import pt.ulisboa.tecnico.sdis.kerby.cli.KerbyClientException;
 public class KerberosClientHandler  implements SOAPHandler<SOAPMessageContext> {
 
     /** Date formatter used for outputting time stamp in ISO 8601 format. */
-    //private static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
     String kerby = "http://sec.sd.rnl.tecnico.ulisboa.pt:8888/kerby";
     String client = "alice@T06.binas.org";
     String clientPw = "ySudhFL";
     String server = "binas@T06.binas.org";
 
-    public static final String CLIENT_HEADER = "client";
+    public static final String CLIENT_HEADER = "clientHeader";
     public static final String CLIENT_NS = "urn:client";
-    public static final String TICKET_HEADER = "clientTicket";
+    public static final String CLIENT_BODY = "clientBody";
+    public static final String TICKET_HEADER = "clientTicketHeader";
     public static final String TICKET_NS = "urn:ticket";
-    public static final String AUTH_HEADER = "clientAuth";
+    public static final String AUTH_HEADER = "clientAuthHeader";
     public static final String AUTH_NS = "urn:autn";
-
-    public static final String TOKEN = "client-handler";
 
     public static final String userEmail = "invalid@email";
 
@@ -105,37 +103,39 @@ public class KerberosClientHandler  implements SOAPHandler<SOAPMessageContext> {
                 Auth auth = new Auth(client, timeRequest);
                 CipheredView cipheredAuth = auth.cipher(clientServerKey);
 
-                // get SOAP envelope
-                SOAPMessage msg = smc.getMessage();
-                SOAPPart sp = msg.getSOAPPart();
-                SOAPEnvelope se = sp.getEnvelope();
+                //----------------------------------------------------------------------
 
-                // add header
+                SOAPEnvelope se = smc.getMessage().getSOAPPart().getEnvelope();
+                SOAPHeader sh = se.getHeader();
                 SOAPBody sb = se.getBody();
+
+                if (sh == null) {
+                    sh = se.addHeader();
+                }
                 if (sb == null) {
                     sb = se.addBody();
                 }
 
-                // add header element (name, namespace prefix, namespace)
-                Name clientName = se.createName(CLIENT_HEADER, "e", CLIENT_NS);
-                SOAPBodyElement element = sb.addBodyElement(clientName);
+                Name clientHeaderName = se.createName(CLIENT_HEADER, "e", CLIENT_NS);
+                sh.addHeaderElement(clientHeaderName);
+                Name clientBodyName = se.createName(CLIENT_BODY, "e", CLIENT_NS);
+                SOAPBodyElement bodyElement = sb.addBodyElement(clientBodyName);
 
                 // add ticket and auth values
                 CipherClerk clerk = new CipherClerk();
                 org.w3c.dom.Node ticketNode = clerk.cipherToXMLNode(cipheredTicket, "clientTicket");
                 Name ticketName = se.createName(TICKET_HEADER, "e", TICKET_NS);
-                element.addAttribute(ticketName, ticketNode.getNodeValue());
+                bodyElement.addAttribute(ticketName, ticketNode.getNodeValue());
 
                 org.w3c.dom.Node authNode = clerk.cipherToXMLNode(cipheredAuth, client);
                 Name authName = se.createName(AUTH_HEADER, "e", AUTH_NS);
-                element.addAttribute(authName, authNode.getNodeValue());
+                bodyElement.addAttribute(authName, authNode.getNodeValue());
 
                 System.out.println("[INFO] Kerby Url: " + kerby);
                 System.out.println("[INFO] Client email: " + client);
                 System.out.println("[INFO] Server Url: " + server);
                 System.out.println();
 
-                return true;
             } catch (BadTicketRequest_Exception e) {
                 System.out.printf("Bad ticket %s%n", e);
             } catch (NoSuchAlgorithmException e) {
@@ -151,13 +151,10 @@ public class KerberosClientHandler  implements SOAPHandler<SOAPMessageContext> {
             } catch (SOAPException e) {
                 System.out.printf("Failed to get SOAP header because of %s%n", e);
             }
-            finally {
-                return false;
-            }
         }
         else {
             //TODO: ?
-            return true;
         }
+        return true;
     }
 }

@@ -21,17 +21,12 @@ import pt.ulisboa.tecnico.sdis.kerby.*;
 public class KerberosServerHandler implements SOAPHandler<SOAPMessageContext> {
 
     /** Date formatter used for outputting time stamp in ISO 8601 format. */
-    //private static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
     String server = "binas@T06.binas.org";
     String serverPw = "xm7bhuSz";
 
-    public static final String CLIENT_HEADER = "client";
-    public static final String CLIENT_NS = "urn:client";
-    public static final String SERVER_HEADER = "client";
+    public static final String SERVER_HEADER = "clientHeader";
     public static final String SERVER_NS = "urn:client";
-    public static final String TICKET_HEADER = "clientTicket";
-    public static final String TICKET_NS = "urn:ticket";
-    public static final String AUTH_HEADER = "clientAuth";
+    public static final String AUTH_HEADER = "clientAuthHeader";
     public static final String AUTH_NS = "urn:autn";
 
     public Key clientServerKey = null;
@@ -78,6 +73,7 @@ public class KerberosServerHandler implements SOAPHandler<SOAPMessageContext> {
                 System.out.println("[SERVER-INFO] Generating and encrypting Treq with Kcs");
                 if (clientServerKey == null) {
                     System.out.println("clientServerKey is invalid!");
+                    return true;
                 }
                 Date Tresp = new Date();
                 Auth responseAuth = new Auth(server, Tresp);
@@ -87,28 +83,32 @@ public class KerberosServerHandler implements SOAPHandler<SOAPMessageContext> {
                 SOAPMessage msg = smc.getMessage();
                 SOAPPart sp = msg.getSOAPPart();
                 SOAPEnvelope se = sp.getEnvelope();
-
-                // add header
+                SOAPHeader sh = se.getHeader();
                 SOAPBody sb = se.getBody();
+
+                if (sh == null) {
+                    sh = se.addHeader();
+                }
                 if (sb == null) {
                     sb = se.addBody();
                 }
 
                 // add header element (name, namespace prefix, namespace)
                 Name clientName = se.createName(SERVER_HEADER, "e", SERVER_NS);
-                SOAPBodyElement element = sb.addBodyElement(clientName);
+                SOAPHeaderElement headerElement = sh.addHeaderElement(clientName);
+                SOAPBodyElement bodyElement = sb.addBodyElement(clientName);
 
                 // add ticket and auth values
                 CipherClerk clerk = new CipherClerk();
                 org.w3c.dom.Node authNode = clerk.cipherToXMLNode(cipheredResponse, "serverAuth");
                 Name authName = se.createName(AUTH_HEADER, "e", AUTH_NS);
-                element.addAttribute(authName, authNode.getNodeValue());
-
-                return true;
+                bodyElement.addAttribute(authName, authNode.getNodeValue());
+            } catch (JAXBException e) {
+                System.out.printf("Received JAXB exception %s%n", e);
+            } catch (KerbyException e) {
+                System.out.printf("Received kerby exception %s%n", e);
             } catch (SOAPException e) {
                 System.out.printf("Failed to get SOAP header because of %s%n", e);
-            } finally {
-                return false;
             }
         }
         else {
@@ -157,13 +157,10 @@ public class KerberosServerHandler implements SOAPHandler<SOAPMessageContext> {
                     System.out.println("[SERVER-INFO] Recieved 'Request from client'");
                 }else {
                     System.out.println("[SERVER-ERROR] Invalid Auth");
-                    System.out.println("[INFO] ------------------------------------------------------------------------");
-                    System.out.println("[SERVER-END] Experiment with Kerberos server-side processing END");
-                    System.out.println("[INFO] ------------------------------------------------------------------------");
                     System.out.println();
+                    return true;
                 }
 
-                return true;
 
             } catch (JAXBException e) {
                 System.out.printf("JAXB Exception %s%n", e);
@@ -175,10 +172,9 @@ public class KerberosServerHandler implements SOAPHandler<SOAPMessageContext> {
                 System.out.printf("Received kerby exception %s%n", e);
             } catch (SOAPException e) {
                 System.out.printf("Failed to get SOAP header because of %s%n", e);
-            } finally {
-                return false;
             }
         }
+        return true;
     }
 
 }

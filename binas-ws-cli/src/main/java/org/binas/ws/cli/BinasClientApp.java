@@ -34,6 +34,8 @@ public class BinasClientApp {
             client = new BinasClient(uddiURL, wsName);
         }
         System.out.println("F2 TEST INIT !!");
+
+        /*
         client.activateUser("t06@tecnico.ulisboa.pt");
         client.rentBina("T06_Station1","t06@tecnico.ulisboa.pt");
         System.out.println("I Rented a bina :) !!");
@@ -61,10 +63,11 @@ public class BinasClientApp {
         client.returnBina("T06_Station1","t06@tecnico.ulisboa.pt");
         System.out.println("I Returned a bina :( !!");
         System.out.println("\n\nHappy End :) :) :) !!");
+        */
 
-		 /*System.out.println("Invoke ping()...");
-		 String result = client.testPing("client");
-		 System.out.print(result);*/
+        System.out.println("Invoke ping()...");
+        String result = client.testPing("client");
+        System.out.print(result);
         
 	 }
 }
