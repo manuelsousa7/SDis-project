@@ -12,6 +12,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 
 import org.w3c.dom.NodeList;
@@ -21,14 +22,21 @@ public class KerberosServerHandler implements SOAPHandler<SOAPMessageContext> {
 
     /** Date formatter used for outputting time stamp in ISO 8601 format. */
     //private static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
+    String server = "binas@T06.binas.org";
     String serverPw = "xm7bhuSz";
 
     public static final String CLIENT_HEADER = "client";
     public static final String CLIENT_NS = "urn:client";
+    public static final String SERVER_HEADER = "client";
+    public static final String SERVER_NS = "urn:client";
     public static final String TICKET_HEADER = "clientTicket";
     public static final String TICKET_NS = "urn:ticket";
     public static final String AUTH_HEADER = "clientAuth";
     public static final String AUTH_NS = "urn:autn";
+
+    public Key clientServerKey = null;
+
+    public Map<String, Key> clientServerKeys;
 
     /**
      * Gets the header blocks that can be processed by this Handler instance. If
@@ -66,25 +74,62 @@ public class KerberosServerHandler implements SOAPHandler<SOAPMessageContext> {
     public boolean handleMessage(SOAPMessageContext smc) {
         Boolean outbound = (Boolean) smc.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
         if (outbound) {
-            return true;
+            try {
+                System.out.println("[SERVER-INFO] Generating and encrypting Treq with Kcs");
+                if (clientServerKey == null) {
+                    System.out.println("clientServerKey is invalid!");
+                }
+                Date Tresp = new Date();
+                Auth responseAuth = new Auth(server, Tresp);
+                CipheredView cipheredResponse = responseAuth.cipher(clientServerKey);
+
+                // get SOAP envelope
+                SOAPMessage msg = smc.getMessage();
+                SOAPPart sp = msg.getSOAPPart();
+                SOAPEnvelope se = sp.getEnvelope();
+
+                // add header
+                SOAPBody sb = se.getBody();
+                if (sb == null) {
+                    sb = se.addBody();
+                }
+
+                // add header element (name, namespace prefix, namespace)
+                Name clientName = se.createName(SERVER_HEADER, "e", SERVER_NS);
+                SOAPBodyElement element = sb.addBodyElement(clientName);
+
+                // add ticket and auth values
+                CipherClerk clerk = new CipherClerk();
+                org.w3c.dom.Node authNode = clerk.cipherToXMLNode(cipheredResponse, "serverAuth");
+                Name authName = se.createName(AUTH_HEADER, "e", AUTH_NS);
+                element.addAttribute(authName, authNode.getNodeValue());
+
+                return true;
+            } catch (SOAPException e) {
+                System.out.printf("Failed to get SOAP header because of %s%n", e);
+            } finally {
+                return false;
+            }
         }
         else {
             try {
                 SOAPMessage msg = smc.getMessage();
                 SOAPPart sp = msg.getSOAPPart();
                 SOAPEnvelope se = sp.getEnvelope();
-                SOAPHeader sh = se.getHeader();
+                SOAPBody sb = se.getBody();
 
                 // check header
-                if (sh == null) {
-                    System.out.println("Header not found.");
+                if (sb == null) {
+                    System.out.println("Body not found.");
                     return true;
                 }
 
-                NodeList nodes = sh.getChildNodes();
+                NodeList nodes = sb.getChildNodes();
                 CipherClerk clerk = new CipherClerk();
                 CipheredView cipheredTicket = clerk.cipherFromXMLNode(nodes.item(0));
                 CipheredView cipheredAuth = clerk.cipherFromXMLNode(nodes.item(1));
+                String clientName = nodes.item(1).getNodeName();
+                System.out.println("[SERVER-INFO] Receiving request from " + clientName);
 
                 System.out.println("[SERVER-INFO] Generating Ks from server password");
                 Key ks = SecurityHelper.generateKeyFromPassword(serverPw);
@@ -93,7 +138,8 @@ public class KerberosServerHandler implements SOAPHandler<SOAPMessageContext> {
                 Ticket ticket = new Ticket(cipheredTicket, ks);
 
                 System.out.println("[SERVER-INFO] Obtaining Kcs from ticket");
-                Key clientServerKey = ticket.getKeyXY();
+                clientServerKeys.put(ticket.getX(), ticket.getKeyXY());
+                //clientServerKey = ticket.getKeyXY();
 
                 System.out.println("[SERVER-INFO] Decripting auth using Kcs");
                 Auth recievedAuth = new Auth(cipheredAuth, clientServerKey);
@@ -106,7 +152,7 @@ public class KerberosServerHandler implements SOAPHandler<SOAPMessageContext> {
                 String authClient = recievedAuth.getX();
 
                 if((requestDate.before(validityEnd) || requestDate.after(validityStart))
-                        && ticketClient.equals(authClient)  ) {
+                    && ticketClient.equals(authClient) && authClient.equals(clientName)) {
                     System.out.println("[SERVER-INFO] Valid Auth from client: " + authClient);
                     System.out.println("[SERVER-INFO] Recieved 'Request from client'");
                 }else {
@@ -115,13 +161,7 @@ public class KerberosServerHandler implements SOAPHandler<SOAPMessageContext> {
                     System.out.println("[SERVER-END] Experiment with Kerberos server-side processing END");
                     System.out.println("[INFO] ------------------------------------------------------------------------");
                     System.out.println();
-                    return true;
                 }
-
-                System.out.println("[SERVER-INFO] Generating and encrypting Treq with Kcs");
-                Date Tresp = new Date();
-                Auth responseAuth = new Auth("", Tresp);
-                CipheredView cipheredResponse = recievedAuth.cipher(clientServerKey);
 
                 return true;
 

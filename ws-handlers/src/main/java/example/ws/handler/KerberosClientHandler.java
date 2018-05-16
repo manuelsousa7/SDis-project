@@ -82,7 +82,6 @@ public class KerberosClientHandler  implements SOAPHandler<SOAPMessageContext> {
 
         Boolean outbound = (Boolean) smc.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
         if (outbound) {
-            // outbound message
             try {
                 KerbyClient cli = new KerbyClient(kerby);
                 System.out.println("[CLIENT-INFO] Connection to Kerby Successfull");
@@ -112,14 +111,14 @@ public class KerberosClientHandler  implements SOAPHandler<SOAPMessageContext> {
                 SOAPEnvelope se = sp.getEnvelope();
 
                 // add header
-                SOAPHeader sh = se.getHeader();
-                if (sh == null) {
-                    sh = se.addHeader();
+                SOAPBody sb = se.getBody();
+                if (sb == null) {
+                    sb = se.addBody();
                 }
 
                 // add header element (name, namespace prefix, namespace)
                 Name clientName = se.createName(CLIENT_HEADER, "e", CLIENT_NS);
-                SOAPHeaderElement element = sh.addHeaderElement(clientName);
+                SOAPBodyElement element = sb.addBodyElement(clientName);
 
                 // add ticket and auth values
                 CipherClerk clerk = new CipherClerk();
@@ -127,7 +126,7 @@ public class KerberosClientHandler  implements SOAPHandler<SOAPMessageContext> {
                 Name ticketName = se.createName(TICKET_HEADER, "e", TICKET_NS);
                 element.addAttribute(ticketName, ticketNode.getNodeValue());
 
-                org.w3c.dom.Node authNode = clerk.cipherToXMLNode(cipheredAuth, "clientAuth");
+                org.w3c.dom.Node authNode = clerk.cipherToXMLNode(cipheredAuth, client);
                 Name authName = se.createName(AUTH_HEADER, "e", AUTH_NS);
                 element.addAttribute(authName, authNode.getNodeValue());
 
