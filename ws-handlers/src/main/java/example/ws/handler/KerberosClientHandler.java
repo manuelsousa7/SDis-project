@@ -152,9 +152,13 @@ public class KerberosClientHandler  implements SOAPHandler<SOAPMessageContext> {
             } catch (SOAPException e) {
                 System.out.printf("Failed to get SOAP header because of %s%n", e);
             }
+            finally {
+                return false;
+            }
         }
         else {
             //TODO: ?
+            return true;
         }
     }
 }

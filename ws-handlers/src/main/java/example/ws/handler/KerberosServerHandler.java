@@ -1,5 +1,6 @@
 package example.ws.handler;
 
+import javax.xml.bind.JAXBException;
 import javax.xml.namespace.QName;
 import javax.xml.soap.*;
 import javax.xml.ws.handler.MessageContext;
@@ -13,6 +14,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.Set;
 
+import org.w3c.dom.NodeList;
 import pt.ulisboa.tecnico.sdis.kerby.*;
 
 public class KerberosServerHandler implements SOAPHandler<SOAPMessageContext> {
@@ -64,7 +66,7 @@ public class KerberosServerHandler implements SOAPHandler<SOAPMessageContext> {
     public boolean handleMessage(SOAPMessageContext smc) {
         Boolean outbound = (Boolean) smc.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
         if (outbound) {
-
+            return true;
         }
         else {
             try {
@@ -79,15 +81,10 @@ public class KerberosServerHandler implements SOAPHandler<SOAPMessageContext> {
                     return true;
                 }
 
-                Name ticketName = se.createName(TICKET_HEADER, "e", TICKET_NS);
-                String ticketValue = sh.getAttributeValue(ticketName);
-
-                Name authName = se.createName(AUTH_HEADER, "e", AUTH_NS);
-                String authValue = sh.getAttributeValue(authName);
-
+                NodeList nodes = sh.getChildNodes();
                 CipherClerk clerk = new CipherClerk();
-                CipheredView cipheredTicket = clerk.cipherBuild(ticketValue);
-                CipheredView cipheredAuth = clerk.cipherFromXMLNode(authValue);
+                CipheredView cipheredTicket = clerk.cipherFromXMLNode(nodes.item(0));
+                CipheredView cipheredAuth = clerk.cipherFromXMLNode(nodes.item(1));
 
                 System.out.println("[SERVER-INFO] Generating Ks from server password");
                 Key ks = SecurityHelper.generateKeyFromPassword(serverPw);
@@ -128,6 +125,8 @@ public class KerberosServerHandler implements SOAPHandler<SOAPMessageContext> {
 
                 return true;
 
+            } catch (JAXBException e) {
+                System.out.printf("JAXB Exception %s%n", e);
             } catch (NoSuchAlgorithmException e) {
                 System.out.printf("No such algorithm %s%n", e);
             } catch (InvalidKeySpecException e) {
@@ -136,6 +135,8 @@ public class KerberosServerHandler implements SOAPHandler<SOAPMessageContext> {
                 System.out.printf("Received kerby exception %s%n", e);
             } catch (SOAPException e) {
                 System.out.printf("Failed to get SOAP header because of %s%n", e);
+            } finally {
+                return false;
             }
         }
     }
