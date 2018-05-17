@@ -30,18 +30,15 @@ public class KerberosClientHandler  implements SOAPHandler<SOAPMessageContext> {
     String server = "binas@T06.binas.org";
 
     public static final String CLIENT_HEADER = "clientHeader";
-    public static final String CLIENT_NS = "urn:client";
+    public static final String CLIENT_HEADER_NS = "http://clientHeader.com";
     public static final String CLIENT_BODY = "clientBody";
+    public static final String CLIENT_BODY_NS = "http://clientBody.com";
     public static final String TICKET_HEADER = "clientTicketHeader";
-    public static final String TICKET_NS = "urn:ticket";
+    public static final String TICKET_NS = "http://ticket.com";
     public static final String AUTH_HEADER = "clientAuthHeader";
-    public static final String AUTH_NS = "urn:autn";
+    public static final String AUTH_NS = "http://auth.com";
 
-    public static final String userEmail = "invalid@email";
-
-    //
-    // Handler interface implementation
-    //
+    //public static final String userEmail = "invalid@email";
 
     /**
      * Gets the header blocks that can be processed by this Handler instance. If
@@ -116,9 +113,9 @@ public class KerberosClientHandler  implements SOAPHandler<SOAPMessageContext> {
                     sb = se.addBody();
                 }
 
-                Name clientHeaderName = se.createName(CLIENT_HEADER, "e", CLIENT_NS);
+                Name clientHeaderName = se.createName(CLIENT_HEADER, "e", CLIENT_HEADER_NS);
                 sh.addHeaderElement(clientHeaderName);
-                Name clientBodyName = se.createName(CLIENT_BODY, "e", CLIENT_NS);
+                Name clientBodyName = se.createName(CLIENT_BODY, "e", CLIENT_BODY_NS);
                 SOAPBodyElement bodyElement = sb.addBodyElement(clientBodyName);
 
                 // add ticket and auth values
