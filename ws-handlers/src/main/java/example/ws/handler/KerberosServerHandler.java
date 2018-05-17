@@ -103,9 +103,15 @@ public class KerberosServerHandler implements SOAPHandler<SOAPMessageContext> {
                 SOAPPart sp = msg.getSOAPPart();
                 SOAPEnvelope se = sp.getEnvelope();
                 SOAPHeader sh = se.getHeader();
+                SOAPBody sb = se.getBody();
 
                 // check header
                 if (sh == null) {
+                    System.out.println("Body not found.");
+                    return true;
+                }
+
+                if (sb == null) {
                     System.out.println("Body not found.");
                     return true;
                 }

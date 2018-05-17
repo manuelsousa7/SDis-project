@@ -43,7 +43,7 @@ public class KerberosClientHandler  implements SOAPHandler<SOAPMessageContext> {
     public static final String AUTH_HEADER = "clientAuthHeader";
     public static final String AUTH_NS = "http://auth.com";
 
-    public static final String userEmail = "invalid@email";
+    public static String userEmail = "invalid@email";
 
     /**
      * Gets the header blocks that can be processed by this Handler instance. If
