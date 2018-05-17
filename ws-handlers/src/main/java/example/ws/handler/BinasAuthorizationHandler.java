@@ -68,19 +68,23 @@ public class BinasAuthorizationHandler implements SOAPHandler<SOAPMessageContext
                 SOAPMessage msg = smc.getMessage();
                 SOAPPart sp = msg.getSOAPPart();
                 SOAPEnvelope se = sp.getEnvelope();
+                SOAPHeader sh = se.getHeader();
                 SOAPBody sb = se.getBody();
 
-                // check header
+                if (sh == null) {
+                    System.out.println("Header not found.");
+                    return true;
+                }
                 if (sb == null) {
                     System.out.println("Body not found.");
                     return true;
                 }
 
-                NodeList nodes = sb.getChildNodes();
+                NodeList nodes = sh.getChildNodes();
                 CipherClerk clerk = new CipherClerk();
                 CipheredView cipheredTicket = clerk.cipherFromXMLNode(nodes.item(0));
                 CipheredView cipheredAuth = clerk.cipherFromXMLNode(nodes.item(1));
-                String clientName = nodes.item(1).getNodeName();
+                String clientName = sb.getChildNodes().item(0).getTextContent();
                 System.out.println("[SERVER-VALIDATION] Receiving request from " + clientName);
 
                 System.out.println("[SERVER-VALIDATION] Generating Ks from server password");
