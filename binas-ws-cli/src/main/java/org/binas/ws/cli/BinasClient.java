@@ -129,7 +129,6 @@ public class BinasClient implements BinasPortType {
     public UserView activateUser(String email) throws EmailExists_Exception,
             InvalidEmail_Exception {
         BindingProvider bindingProvider = (BindingProvider) port;
-        bindingProvider.getRequestContext().put(KerberosClientHandler.userEmail, email);
         return port.activateUser(email);
     }
 

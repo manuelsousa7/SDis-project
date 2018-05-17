@@ -107,7 +107,7 @@ public class BinasAuthorizationHandler implements SOAPHandler<SOAPMessageContext
                 }else {
                     System.out.println("[SERVER-VALIDATION-ERROR] Invalid Auth");
                     System.out.println();
-                    return false;
+                    throw new RuntimeException();
                 }
 
 

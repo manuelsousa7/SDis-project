@@ -20,6 +20,7 @@ import java.util.Set;
 import pt.ulisboa.tecnico.sdis.kerby.*;
 import pt.ulisboa.tecnico.sdis.kerby.cli.KerbyClient;
 import pt.ulisboa.tecnico.sdis.kerby.cli.KerbyClientException;
+import static javax.xml.bind.DatatypeConverter.printBase64Binary;
 
 public class KerberosClientHandler  implements SOAPHandler<SOAPMessageContext> {
 
@@ -91,6 +92,8 @@ public class KerberosClientHandler  implements SOAPHandler<SOAPMessageContext> {
                 CipheredView cipheredSessionKey = view.getSessionKey();
                 CipheredView cipheredTicket = view.getTicket();
 
+                Ticket ticket = new Ticket(cipheredTicket, kc);
+
                 System.out.println("[CLIENT-INFO] Obtaining sessionKey and Kcs using Kc");
                 SessionKey sessionKey = new SessionKey(cipheredSessionKey, kc);
                 Key clientServerKey = sessionKey.getKeyXY();
@@ -104,29 +107,23 @@ public class KerberosClientHandler  implements SOAPHandler<SOAPMessageContext> {
 
                 SOAPEnvelope se = smc.getMessage().getSOAPPart().getEnvelope();
                 SOAPHeader sh = se.getHeader();
-                SOAPBody sb = se.getBody();
 
                 if (sh == null) {
                     sh = se.addHeader();
                 }
-                if (sb == null) {
-                    sb = se.addBody();
-                }
 
-                Name clientHeaderName = se.createName(CLIENT_HEADER, "e", CLIENT_HEADER_NS);
-                sh.addHeaderElement(clientHeaderName);
-                Name clientBodyName = se.createName(CLIENT_BODY, "e", CLIENT_BODY_NS);
-                SOAPBodyElement bodyElement = sb.addBodyElement(clientBodyName);
+                Name clientName = se.createName(CLIENT_HEADER, "e", CLIENT_HEADER_NS);
+                SOAPHeaderElement headerElement = sh.addHeaderElement(clientName);
 
                 // add ticket and auth values
                 CipherClerk clerk = new CipherClerk();
-                org.w3c.dom.Node ticketNode = clerk.cipherToXMLNode(cipheredTicket, "clientTicket");
-                Name ticketName = se.createName(TICKET_HEADER, "e", TICKET_NS);
-                bodyElement.addAttribute(ticketName, ticketNode.getNodeValue());
+                byte[] ticketBytes = clerk.cipherToXMLBytes(cipheredTicket, client);
+                String cipherTicketText = printBase64Binary(ticketBytes);
+                headerElement.addTextNode(cipherTicketText);
 
-                org.w3c.dom.Node authNode = clerk.cipherToXMLNode(cipheredAuth, client);
-                Name authName = se.createName(AUTH_HEADER, "e", AUTH_NS);
-                bodyElement.addAttribute(authName, authNode.getNodeValue());
+                byte[] authBytes = clerk.cipherToXMLBytes(cipheredAuth, client);
+                String cipherAuthText = printBase64Binary(authBytes);
+                headerElement.addTextNode(cipherAuthText);
 
                 System.out.println("[INFO] Kerby Url: " + kerby);
                 System.out.println("[INFO] Client email: " + client);

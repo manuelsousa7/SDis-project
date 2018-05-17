@@ -17,6 +17,7 @@ import java.util.Set;
 
 import org.w3c.dom.NodeList;
 import pt.ulisboa.tecnico.sdis.kerby.*;
+import static javax.xml.bind.DatatypeConverter.parseBase64Binary;
 
 public class KerberosServerHandler implements SOAPHandler<SOAPMessageContext> {
 
@@ -24,6 +25,8 @@ public class KerberosServerHandler implements SOAPHandler<SOAPMessageContext> {
     String server = "binas@T06.binas.org";
     String serverPw = "xm7bhuSz";
 
+    public static final String CLIENT_HEADER = "clientHeader";
+    public static final String CLIENT_HEADER_NS = "http://clientHeader.com";
     public static final String SERVER_HEADER = "clientHeader";
     public static final String SERVER_NS = "http://clientHeader.com";
     public static final String AUTH_HEADER = "http://clientAuthHeader.com";
@@ -69,18 +72,36 @@ public class KerberosServerHandler implements SOAPHandler<SOAPMessageContext> {
                 SOAPMessage msg = smc.getMessage();
                 SOAPPart sp = msg.getSOAPPart();
                 SOAPEnvelope se = sp.getEnvelope();
-                SOAPBody sb = se.getBody();
+                SOAPHeader sh = se.getHeader();
 
                 // check header
-                if (sb == null) {
-                    System.out.println("Body not found.");
+                if (sh == null) {
+                    System.out.println("Header not found.");
                     return true;
                 }
 
-                NodeList nodes = sb.getChildNodes();
+                Name clientName = se.createName(CLIENT_HEADER, "e", CLIENT_HEADER_NS);
+                Iterator it = sh.getChildElements(clientName);
+                if (!it.hasNext()) {
+                    System.out.printf("Header element %s not found.%n", CLIENT_HEADER);
+                    return true;
+                }
+                SOAPElement ticketElement = (SOAPElement) it.next();
+                if (!it.hasNext()) {
+                    System.out.printf("Header element %s not found.%n", CLIENT_HEADER);
+                    return true;
+                }
+                SOAPElement authElement = (SOAPElement) it.next();
+
+                String ticketValue = ticketElement.getValue();
+                String authValue = authElement.getValue();
+
+                byte[] ticketBytes = parseBase64Binary(ticketValue);
+                byte[] authBytes = parseBase64Binary(authValue);
+
                 CipherClerk clerk = new CipherClerk();
-                CipheredView cipheredTicket = clerk.cipherFromXMLNode(nodes.item(0));
-                CipheredView cipheredAuth = clerk.cipherFromXMLNode(nodes.item(1));
+                CipheredView cipheredTicket = clerk.cipherBuild(ticketBytes);
+                //CipheredView cipheredAuth = clerk.cipherBuild(authBytes);
 
                 Key ks = SecurityHelper.generateKeyFromPassword(serverPw);
                 Ticket ticket = new Ticket(cipheredTicket, ks);
@@ -100,8 +121,6 @@ public class KerberosServerHandler implements SOAPHandler<SOAPMessageContext> {
                 System.out.printf("No such algorithm %s%n", e);
             } catch (InvalidKeySpecException e) {
                 System.out.printf("Invalid key specification %s%n", e);
-            } catch (JAXBException e) {
-                System.out.printf("Received JAXB exception %s%n", e);
             } catch (KerbyException e) {
                 System.out.printf("Received kerby exception %s%n", e);
             } catch (SOAPException e) {
@@ -113,19 +132,37 @@ public class KerberosServerHandler implements SOAPHandler<SOAPMessageContext> {
                 SOAPMessage msg = smc.getMessage();
                 SOAPPart sp = msg.getSOAPPart();
                 SOAPEnvelope se = sp.getEnvelope();
-                SOAPBody sb = se.getBody();
+                SOAPHeader sh = se.getHeader();
 
                 // check header
-                if (sb == null) {
+                if (sh == null) {
                     System.out.println("Body not found.");
                     return true;
                 }
 
-                NodeList nodes = sb.getChildNodes();
+                Name clientName = se.createName(CLIENT_HEADER, "e", CLIENT_HEADER_NS);
+                Iterator it = sh.getChildElements(clientName);
+                if (!it.hasNext()) {
+                    System.out.printf("Ticket element %s not found.%n", CLIENT_HEADER);
+                    return true;
+                }
+                SOAPElement ticketElement = (SOAPElement) it.next();
+                if (!it.hasNext()) {
+                    System.out.printf("Auth element %s not found.%n", CLIENT_HEADER);
+                    return true;
+                }
+                SOAPElement authElement = (SOAPElement) it.next();
+
+                String ticketValue = ticketElement.getValue();
+                String authValue = authElement.getValue();
+
+                byte[] ticketBytes = parseBase64Binary(ticketValue);
+                byte[] authBytes = parseBase64Binary(authValue);
+
                 CipherClerk clerk = new CipherClerk();
-                CipheredView cipheredTicket = clerk.cipherFromXMLNode(nodes.item(0));
-                CipheredView cipheredAuth = clerk.cipherFromXMLNode(nodes.item(1));
-                String clientName = nodes.item(1).getNodeName();
+                CipheredView cipheredTicket = clerk.cipherBuild(ticketBytes);
+                CipheredView cipheredAuth = clerk.cipherBuild(authBytes);
+                //TODO: String clientName = nodes.item(1).getNodeName();
                 System.out.println("[SERVER-INFO] Receiving request from " + clientName);
 
                 System.out.println("[SERVER-INFO] Generating Ks from server password");
@@ -137,8 +174,6 @@ public class KerberosServerHandler implements SOAPHandler<SOAPMessageContext> {
                 System.out.println("[SERVER-INFO] Decripting auth using Kcs");
                 Auth recievedAuth = new Auth(cipheredAuth, ticket.getKeyXY());
 
-            } catch (JAXBException e) {
-                System.out.printf("JAXB Exception %s%n", e);
             } catch (NoSuchAlgorithmException e) {
                 System.out.printf("No such algorithm %s%n", e);
             } catch (InvalidKeySpecException e) {
