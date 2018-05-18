@@ -85,7 +85,7 @@ public class MACHandlerServer implements SOAPHandler<SOAPMessageContext> {
             }
         } else {
             try{
-                kcs = (Key) smc.get("kcs");
+                kcs = (Key) smc.get("kcs"); //get Kcs
                 if (kcs == null) {
                     System.out.println("clientServerKey is invalid!");
                     return true;
@@ -112,13 +112,13 @@ public class MACHandlerServer implements SOAPHandler<SOAPMessageContext> {
                     String bodySoap = sb.getTextContent();
 
                     SecurityMagic sm = new SecurityMagic(bodySoap,kcs);
-                    if(!sm.getMAC64().equals(macB64Soap)){
+                    if(!sm.getMAC64().equals(macB64Soap)){ //Compare if HMACs are equal. if not, the message was changed and there is a security issue
                         System.out.println("MAC Verification: UNSUCESS!");
                         System.out.println("Expected MAC: " + sm.getMAC64());
-                        System.out.println("MAC Received: " + macB64Soap);
+                        System.out.println("Received MAC: " + macB64Soap);
                         throw new SecurityMagicException("You have been hacked");
                     } else {
-                        System.out.println("MAC Verification: SUCESS!");
+                        System.out.println("MAC Verification: SUCCESS!");
                     }
                 }
             }catch (SecurityMagicException sme) {
