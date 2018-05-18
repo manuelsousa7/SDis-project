@@ -26,7 +26,13 @@ public class SecurityMagicTest {
     }
 
     @Test
-    public void testEvilChange(){
+    public void successMACCheck(){
+        byte[] asd =  sm.getMAC();
+        assertTrue(sm.checkMAC(asd));
+    }
+
+    @Test
+    public void testEvilMACChange(){
         byte[] asd =  sm.getMAC();
         assertTrue(sm.checkMAC(asd));
         asd[0] = 12;
