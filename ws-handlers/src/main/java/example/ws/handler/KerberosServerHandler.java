@@ -88,9 +88,12 @@ public class KerberosServerHandler implements SOAPHandler<SOAPMessageContext> {
                     System.out.println("clientServerKey is invalid!");
                     return true;
                 }
+
+                //Create new authentication with client's TimeRequest
                 Auth responseAuth = new Auth(server, treqDate);
                 CipheredView cipheredResponse = responseAuth.cipher(clientServerKey);
 
+                //Send new authentication in SOAP Header
                 Name ticketName = se.createName(TREQ_HEADER, "e", TREQ_HEADER_NS);
                 SOAPHeaderElement ticketElement = sh.addHeaderElement(ticketName);
 
@@ -112,17 +115,16 @@ public class KerberosServerHandler implements SOAPHandler<SOAPMessageContext> {
                 SOAPHeader sh = se.getHeader();
                 SOAPBody sb = se.getBody();
 
-                // check header
                 if (sh == null) {
                     System.out.println("Header not found.");
                     return true;
                 }
-
                 if (sb == null) {
                     System.out.println("Body not found.");
                     return true;
                 }
 
+                //Get ticket element from header
                 Name ticketName = se.createName(TICKET_HEADER, "e", TICKET_NS);
                 Iterator it = sh.getChildElements(ticketName);
                 if (!it.hasNext()) {
@@ -131,6 +133,7 @@ public class KerberosServerHandler implements SOAPHandler<SOAPMessageContext> {
                 }
                 SOAPElement ticketElement = (SOAPElement) it.next();
 
+                //Get authentication element from header
                 Name authName = se.createName(AUTH_HEADER, "e", AUTH_NS);
                 it = sh.getChildElements(authName);
                 if (!it.hasNext()) {
@@ -139,16 +142,20 @@ public class KerberosServerHandler implements SOAPHandler<SOAPMessageContext> {
                 }
                 SOAPElement authElement = (SOAPElement) it.next();
 
+                //Get string value of ticket and authentication
                 String ticketValue = ticketElement.getValue();
                 String authValue = authElement.getValue();
 
+                //Convert both to array of bytes
                 byte[] ticketBytes = parseBase64Binary(ticketValue);
                 byte[] authBytes = parseBase64Binary(authValue);
 
+                //Convert both to CipheredViews
                 CipheredView cipheredTicket = new CipheredView();
                 cipheredTicket.setData(ticketBytes);
                 CipheredView cipheredAuth = new CipheredView();
                 cipheredAuth.setData(authBytes);
+
                 System.out.println("[SERVER-INFO] Receiving request from " + ticketName);
 
                 System.out.println("[SERVER-INFO] Generating Ks from server password");

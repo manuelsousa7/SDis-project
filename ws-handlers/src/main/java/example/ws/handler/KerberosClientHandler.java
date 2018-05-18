@@ -150,16 +150,16 @@ public class KerberosClientHandler  implements SOAPHandler<SOAPMessageContext> {
 
                 CipherClerk clerk = new CipherClerk();
 
+                //Add ciphered ticket to SOAP Header
                 Name ticketName = se.createName(TICKET_HEADER, "e", TICKET_NS);
                 SOAPHeaderElement ticketElement = sh.addHeaderElement(ticketName);
-
                 byte[] ticketBytes = cipheredTicket.getData();
                 String cipherTicketText = printBase64Binary(ticketBytes);
                 ticketElement.addTextNode(cipherTicketText);
 
+                //Add ciphered authentication to SOAP Header
                 Name authName = se.createName(AUTH_HEADER, "e", AUTH_NS);
                 SOAPHeaderElement authElement = sh.addHeaderElement(authName);
-
                 byte[] authBytes = cipheredAuth.getData();
                 String cipherAuthText = printBase64Binary(authBytes);
                 authElement.addTextNode(cipherAuthText);
