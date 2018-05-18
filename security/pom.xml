@@ -26,6 +26,12 @@
             <version>4.12</version>
             <scope>test</scope>
         </dependency>
+        <!-- Kerby -->
+        <dependency>
+            <groupId>pt.ulisboa.tecnico.sdis</groupId>
+            <artifactId>kerby-lib</artifactId>
+            <version>1.0</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -51,119 +57,5 @@
             </plugins>
         </pluginManagement>
     </build>
-
-    <profiles>
-        <profile>
-            <!-- Symmetric key writing example -->
-            <id>sym-key-write</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>exec-maven-plugin</artifactId>
-                        <configuration>
-                            <mainClass>org.binas.security.SymKey</mainClass>
-                            <arguments>
-                                <argument>w</argument>
-                                <argument>${project.build.outputDirectory}/secret.key</argument>
-                            </arguments>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
-            <!-- Symmetric key reading example -->
-            <id>sym-key-read</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>exec-maven-plugin</artifactId>
-                        <configuration>
-                            <mainClass>org.binas.security.SymKey</mainClass>
-                            <arguments>
-                                <argument>r</argument>
-                                <argument>${project.build.outputDirectory}/secret.key</argument>
-                            </arguments>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
-            <!-- Asymmetric key writing example -->
-            <id>asym-keys-write</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>exec-maven-plugin</artifactId>
-                        <configuration>
-                            <mainClass>org.binas.security.AsymKeys</mainClass>
-                            <arguments>
-                                <argument>w</argument>
-                                <argument>${project.build.outputDirectory}/pub.key</argument>
-                                <argument>${project.build.outputDirectory}/priv.key</argument>
-                            </arguments>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
-            <!-- Asymmetric key reading example -->
-            <id>asym-keys-read</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>exec-maven-plugin</artifactId>
-                        <configuration>
-                            <mainClass>org.binas.security.AsymKeys</mainClass>
-                            <arguments>
-                                <argument>r</argument>
-                                <argument>${project.build.outputDirectory}/pub.key</argument>
-                                <argument>${project.build.outputDirectory}/priv.key</argument>
-                            </arguments>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
-            <!-- List Algorithms -->
-            <id>list-algos</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>exec-maven-plugin</artifactId>
-                        <configuration>
-                            <mainClass>org.binas.security.ListAlgorithms</mainClass>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
-            <!-- Secure Random Numbers -->
-            <id>secure-random</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>exec-maven-plugin</artifactId>
-                        <configuration>
-                            <mainClass>org.binas.security.SecureRandomNumber</mainClass>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
 
 </project>
