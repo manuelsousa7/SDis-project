@@ -98,7 +98,7 @@ public class EvilHandler implements SOAPHandler<SOAPMessageContext> {
             }
         }
         else {
-            //TODO: ?
+
         }
         return true;
     }

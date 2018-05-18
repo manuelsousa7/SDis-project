@@ -5,6 +5,7 @@ import org.binas.security.exception.SecurityMagicException;
 import javax.crypto.*;
 import java.security.*;
 import java.util.Arrays;
+import java.util.Base64;
 
 
 public class SecurityMagic {
@@ -50,6 +51,15 @@ public class SecurityMagic {
     public byte[] getMAC(){
         try{
            return makeMAC(this.getPlainText().getBytes(),this.sessionKey);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        throw new SecurityMagicException();
+    }
+
+    public String getMAC64(){
+        try{
+            return Base64.getEncoder().encodeToString(makeMAC(this.getPlainText().getBytes(),this.sessionKey));
         } catch (Exception e){
             e.printStackTrace();
         }

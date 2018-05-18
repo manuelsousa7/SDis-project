@@ -44,7 +44,7 @@
 			<version>2.2.10</version>
 		</dependency>
         <dependency>
-            <groupId>T06</groupId>
+            <groupId>org.binas.T06</groupId>
             <artifactId>ws-handlers</artifactId>
             <version>1.1-SNAPSHOT</version>
         </dependency>

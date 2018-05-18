@@ -114,7 +114,7 @@ public class KerberosServerHandler implements SOAPHandler<SOAPMessageContext> {
 
                 // check header
                 if (sh == null) {
-                    System.out.println("Body not found.");
+                    System.out.println("Header not found.");
                     return true;
                 }
 
@@ -157,6 +157,8 @@ public class KerberosServerHandler implements SOAPHandler<SOAPMessageContext> {
                 System.out.println("[SERVER-INFO] Opening ticket using Ks");
                 Ticket ticket = new Ticket(cipheredTicket, ks);
                 clientServerKey = ticket.getKeyXY();
+                smc.put("kcs",clientServerKey);
+
 
                 System.out.println("[SERVER-INFO] Decripting auth using Kcs");
                 Auth receivedAuth = new Auth(cipheredAuth, ticket.getKeyXY());
