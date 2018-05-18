@@ -14,6 +14,9 @@ public class SecurityMagic {
     private String plainText;
 
     public SecurityMagic(String plainText, Key sessionKey){
+        if(plainText == null || sessionKey == null){
+            throw new SecurityMagicException();
+        }
         this.sessionKey = sessionKey;
         this.plainText = plainText;
     }
@@ -27,6 +30,9 @@ public class SecurityMagic {
     }
 
     public void setSessionKey(Key sessionKey) {
+        if(sessionKey == null){
+            throw new SecurityMagicException();
+        }
         this.sessionKey = sessionKey;
     }
 
@@ -35,6 +41,9 @@ public class SecurityMagic {
     }
 
     public void setPlainText(String plainText) {
+        if(plainText == null){
+            throw new SecurityMagicException();
+        }
         this.plainText = plainText;
     }
 
@@ -66,7 +75,6 @@ public class SecurityMagic {
     }
 
     private static boolean verifyMAC(byte[] cipherDigest, byte[] bytes, Key key) throws Exception {
-
         Mac cipher = Mac.getInstance(MAC_ALGO);
         cipher.init(key);
         byte[] cipheredBytes = cipher.doFinal(bytes);

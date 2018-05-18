@@ -1,13 +1,16 @@
 package org.binas.security;
 
 import org.binas.security.domain.SecurityMagic;
+import org.binas.security.exception.SecurityMagicException;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import pt.ulisboa.tecnico.sdis.kerby.CipheredView;
 import pt.ulisboa.tecnico.sdis.kerby.SecurityHelper;
-import pt.ulisboa.tecnico.sdis.kerby.SessionKey;
 
 import java.security.Key;
+
+import static javax.xml.bind.DatatypeConverter.printHexBinary;
+import static junit.framework.TestCase.*;
 
 public class SecurityMagicTest {
 
@@ -16,19 +19,41 @@ public class SecurityMagicTest {
     @Before
     public void init(){
         try {
-            Key kc = SecurityHelper.generateKeyFromPassword("ySudhFL");
-             sm = new SecurityMagic("ola",kc);
+             Key kc = SecurityHelper.generateKeyFromPassword("ySudhFL");
+             sm = new SecurityMagic("eu quero encriptar isto",kc);
         } catch (Exception e){
-
+            e.printStackTrace();
         }
     }
 
     @Test
-    public void testXOR(){
+    public void testEvilChange(){
         byte[] asd =  sm.getMAC();
-       System.out.print( asd);
-        System.out.print(sm.checkMAC(asd));
+        assertTrue(sm.checkMAC(asd));
         asd[0] = 12;
-        System.out.print(sm.checkMAC(asd));
+        assertFalse(sm.checkMAC(asd));
+    }
+
+    @Test
+    public void testValidMAC(){
+        assertEquals("50F840B31830D6071BE31FA6CE860F64E55D5AC0C02AFE61FA2B04EC6FDBB37D",printHexBinary(sm.getMAC()));
+    }
+
+    @Test(expected = SecurityMagicException.class)
+    public void testNullKey(){
+        SecurityMagic sm = new SecurityMagic("encriptar isto",null);
+    }
+
+    @Test(expected = SecurityMagicException.class)
+    public void testNullPlainText(){
+        try {
+            Key kc = SecurityHelper.generateKeyFromPassword("ySudhFL");
+            sm = new SecurityMagic(null,kc);
+            fail();
+        } catch (SecurityMagicException sme){
+            throw sme;
+        } catch (Exception e){
+            fail();
+        }
     }
 }
