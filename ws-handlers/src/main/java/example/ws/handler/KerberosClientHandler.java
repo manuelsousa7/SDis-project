@@ -27,8 +27,7 @@ public class KerberosClientHandler  implements SOAPHandler<SOAPMessageContext> {
 
     /** Date formatter used for outputting time stamp in ISO 8601 format. */
     private String kerby = "http://sec.sd.rnl.tecnico.ulisboa.pt:8888/kerby";
-    private String client = "alice@T06.binas.org";
-    private String clientPw = "ySudhFL";
+    private static String clientPw = "ySudhFL";
     private String server = "binas@T06.binas.org";
 
     private static int ticketDuration = 30;
@@ -44,8 +43,6 @@ public class KerberosClientHandler  implements SOAPHandler<SOAPMessageContext> {
     private Key kc = null;
     private Key clientServerKey = null;
 
-    private static final String CLIENT_HEADER = "clientHeader";
-    private static final String CLIENT_HEADER_NS = "http://clientHeader.com";
     private static final String TICKET_HEADER = "clientTicketHeader";
     private static final String TICKET_NS = "http://ticket.com";
     private static final String AUTH_HEADER = "clientAuthHeader";
@@ -82,6 +79,10 @@ public class KerberosClientHandler  implements SOAPHandler<SOAPMessageContext> {
         // nothing to clean up
     }
 
+    public static void setPassword(String newPassword) {
+        clientPw = newPassword;
+    }
+
     /**
      * Check the MESSAGE_OUTBOUND_PROPERTY in the context to see if this is an
      * outgoing or incoming message. Write the SOAP message to the print stream. The
@@ -107,7 +108,7 @@ public class KerberosClientHandler  implements SOAPHandler<SOAPMessageContext> {
                 SecureRandom randomGenerator = new SecureRandom();
                 if (requestedTicket == null || timeLimit.before(new Date())) {
                     System.out.println("[CLIENT-INFO] Requesting ticket from Kerby");
-                    requestedTicket = cli.requestTicket(client, server, randomGenerator.nextLong(), ticketDuration);
+                    requestedTicket = cli.requestTicket(userEmail, server, randomGenerator.nextLong(), ticketDuration);
                     timeLimit = new Date();
                     timeLimit.setTime(timeLimit.getTime()+( (ticketDuration - 2)*1000) );
                     System.out.println("[CLIENT-INFO] Time limit:" + timeLimit);
@@ -130,7 +131,7 @@ public class KerberosClientHandler  implements SOAPHandler<SOAPMessageContext> {
 
                 System.out.println("[CLIENT-INFO] Generating auth ciphered with Kcs");
                 sentTimeRequest = new Date();
-                Auth auth = new Auth(client, sentTimeRequest);
+                Auth auth = new Auth(userEmail, sentTimeRequest);
                 CipheredView cipheredAuth = auth.cipher(clientServerKey);
 
                 //----------------------------------------------------------------------
@@ -162,12 +163,8 @@ public class KerberosClientHandler  implements SOAPHandler<SOAPMessageContext> {
                 String cipherAuthText = printBase64Binary(authBytes);
                 authElement.addTextNode(cipherAuthText);
 
-                Name clientName = se.createName(CLIENT_HEADER, "e", CLIENT_HEADER_NS);
-                SOAPBodyElement bodyElement = sb.addBodyElement(clientName);
-                bodyElement.addTextNode(client);
-
                 System.out.println("[INFO] Kerby Url: " + kerby);
-                System.out.println("[INFO] Client email: " + client);
+                System.out.println("[INFO] Client email: " + userEmail);
                 System.out.println("[INFO] Server Url: " + server);
                 System.out.println();
 

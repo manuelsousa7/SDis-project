@@ -1,5 +1,7 @@
 package org.binas.ws.cli;
 
+import org.binas.ws.StationView;
+
 public class BinasClientApp {
 
     public static void main(String[] args) throws Exception {
@@ -65,14 +67,14 @@ public class BinasClientApp {
         System.out.println("\n\nHappy End :) :) :) !!");
         */
 
-        System.out.println("Invoke ping()...");
-        String result = client.testPing("client");
-        System.out.print(result);
+        //System.out.println("Invoke ping()...");
+        //String result = client.testPing("client");
+        //System.out.print(result);
 
-        System.out.println("Invoke ping() again...");
-        result = client.testPing("client");
-        System.out.print(result);
-        
+        client.activateUser("alice@T06.binas.org");
+        client.rentBina("T06_Station1", "alice@T06.binas.org");
+
+        client.returnBina("T06_Station1", "alice@T06.binas.org");
 	 }
 }
 

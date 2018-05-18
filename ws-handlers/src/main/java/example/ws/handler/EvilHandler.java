@@ -27,16 +27,22 @@ public class EvilHandler implements SOAPHandler<SOAPMessageContext> {
     String fakeClient = "evilPotato@T06.binas.org";
     String server = "binas@T06.binas.org";
 
-    SessionKeyAndTicketView requestedTicket = null;
-
-    public static final String CLIENT_HEADER = "clientHeader";
-    public static final String CLIENT_HEADER_NS = "http://clientHeader.com";
     public static final String CLIENT_BODY = "clientBody";
     public static final String CLIENT_BODY_NS = "http://clientBody.com";
-    public static final String TICKET_HEADER = "clientTicketHeader";
-    public static final String TICKET_NS = "http://ticket.com";
-    public static final String AUTH_HEADER = "clientAuthHeader";
-    public static final String AUTH_NS = "http://auth.com";
+
+
+    private void changeRequest(SOAPBody sb) {
+        String requestName = sb.getFirstChild().getLocalName();
+        if (requestName.equals("activateUser")) {
+            Node textNode = sb.getChildNodes().item(0).getChildNodes().item(0);
+            textNode.setTextContent("victimEmail@victim.com");
+        } else if (requestName.equals("rentBina") || requestName.equals("returnBina")) {
+            Node textNode = sb.getChildNodes().item(0).getChildNodes().item(1);
+            textNode.setTextContent("victimEmail@victim.com");
+        }
+        return;
+    }
+
 
     /**
      * Gets the header blocks that can be processed by this Handler instance. If
@@ -85,22 +91,7 @@ public class EvilHandler implements SOAPHandler<SOAPMessageContext> {
                     sb = se.addBody();
                 }
 
-                Name clientName = se.createName(CLIENT_BODY, "e", CLIENT_BODY_NS);
-                System.out.println();
-                System.out.println(sb.getChildNodes().item(0).getTextContent());
-                System.out.println(sb.getChildNodes().item(1).getTextContent());
-                System.out.println();
-                Node node = sb.getChildNodes().item(1);
-                node.setTextContent(fakeClient);
-                System.out.println();
-                System.out.println(sb.getChildNodes().item(0).getTextContent());
-                System.out.println(sb.getChildNodes().item(1).getTextContent());
-                System.out.println();
-
-                System.out.println("[INFO] Kerby Url: " + kerby);
-                System.out.println("[INFO] Client email: " + fakeClient);
-                System.out.println("[INFO] Server Url: " + server);
-                System.out.println();
+                changeRequest(sb);
 
             } catch (SOAPException e) {
                 System.out.printf("Failed to get SOAP header because of %s%n", e);

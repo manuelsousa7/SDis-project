@@ -23,7 +23,6 @@ import static javax.xml.bind.DatatypeConverter.parseBase64Binary;
 public class BinasAuthorizationHandler implements SOAPHandler<SOAPMessageContext> {
 
     /** Date formatter used for outputting time stamp in ISO 8601 format. */
-    String server = "binas@T06.binas.org";
     String serverPw = "xm7bhuSz";
 
     public static final String TICKET_HEADER = "clientTicketHeader";
@@ -56,6 +55,20 @@ public class BinasAuthorizationHandler implements SOAPHandler<SOAPMessageContext
     @Override
     public void close(MessageContext messageContext) {
         // nothing to clean up
+    }
+
+    private boolean processRequest(SOAPBody sb, String email) {
+        String requestName = sb.getFirstChild().getLocalName();
+        String requestEmail;
+        if (requestName.equals("activateUser")) {
+            requestEmail = sb.getChildNodes().item(0).getChildNodes().item(0).getTextContent();
+        } else if (requestName.equals("rentBina") || requestName.equals("returnBina")) {
+            requestEmail = sb.getChildNodes().item(0).getChildNodes().item(1).getTextContent();
+        } else {
+            return true;
+        }
+
+        return email.equals(requestEmail);
     }
 
     /**
@@ -107,7 +120,6 @@ public class BinasAuthorizationHandler implements SOAPHandler<SOAPMessageContext
                 byte[] ticketBytes = parseBase64Binary(ticketValue);
                 byte[] authBytes = parseBase64Binary(authValue);
 
-                String clientName = sb.getChildNodes().item(1).getTextContent();
 
                 CipherClerk clerk = new CipherClerk();
                 CipheredView cipheredTicket = new CipheredView();
@@ -133,7 +145,7 @@ public class BinasAuthorizationHandler implements SOAPHandler<SOAPMessageContext
                 String authClient = receivedAuth.getX();
 
                 if((requestDate.before(validityEnd) || requestDate.after(validityStart))
-                    && ticketClient.equals(authClient) && authClient.equals(clientName)) {
+                    && ticketClient.equals(authClient) && processRequest(sb, authClient)) {
                     System.out.println("[SERVER-VALIDATION] Valid Auth from client: " + authClient);
                     System.out.println("[SERVER-VALIDATION] Recieved 'Request from client'");
                     return true;
