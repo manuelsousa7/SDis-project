@@ -68,6 +68,10 @@ public class BinasClientApp {
         System.out.println("Invoke ping()...");
         String result = client.testPing("client");
         System.out.print(result);
+
+        System.out.println("Invoke ping() again...");
+        result = client.testPing("client");
+        System.out.print(result);
         
 	 }
 }

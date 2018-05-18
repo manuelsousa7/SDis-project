@@ -15,6 +15,7 @@ import java.util.*;
 import org.w3c.dom.NodeList;
 import pt.ulisboa.tecnico.sdis.kerby.*;
 import static javax.xml.bind.DatatypeConverter.parseBase64Binary;
+import static javax.xml.bind.DatatypeConverter.printBase64Binary;
 import static javax.xml.bind.DatatypeConverter.printHexBinary;
 
 public class KerberosServerHandler implements SOAPHandler<SOAPMessageContext> {
@@ -23,6 +24,8 @@ public class KerberosServerHandler implements SOAPHandler<SOAPMessageContext> {
     String server = "binas@T06.binas.org";
     String serverPw = "xm7bhuSz";
 
+    public static final String SERVER_HEADER = "clientHeader";
+    public static final String SERVER_HEADER_NS = "http://clientHeader.com";
     public static final String TICKET_HEADER = "clientTicketHeader";
     public static final String TICKET_NS = "http://ticket.com";
     public static final String AUTH_HEADER = "clientAuthHeader";
@@ -86,6 +89,13 @@ public class KerberosServerHandler implements SOAPHandler<SOAPMessageContext> {
                 Date Tresp = new Date();
                 Auth responseAuth = new Auth(server, Tresp);
                 CipheredView cipheredResponse = responseAuth.cipher(clientServerKey);
+
+                Name ticketName = se.createName(SERVER_HEADER, "e", SERVER_HEADER_NS);
+                SOAPHeaderElement ticketElement = sh.addHeaderElement(ticketName);
+
+                byte[] ticketBytes = cipheredResponse.getData();
+                String cipherTicketText = printBase64Binary(ticketBytes);
+                ticketElement.addTextNode(cipherTicketText);
 
             } catch (KerbyException e) {
                 System.out.printf("Received kerby exception %s%n", e);

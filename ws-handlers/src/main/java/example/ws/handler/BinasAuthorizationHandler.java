@@ -132,13 +132,6 @@ public class BinasAuthorizationHandler implements SOAPHandler<SOAPMessageContext
                 String ticketClient = ticket.getX();
                 String authClient = recievedAuth.getX();
 
-                System.out.println();
-                System.out.println(ticketClient);
-                System.out.println();
-                System.out.println(authClient);
-                System.out.println();
-                System.out.println(clientName);
-                System.out.println();
                 if((requestDate.before(validityEnd) || requestDate.after(validityStart))
                     && ticketClient.equals(authClient) && authClient.equals(clientName)) {
                     System.out.println("[SERVER-VALIDATION] Valid Auth from client: " + authClient);

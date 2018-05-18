@@ -13,9 +13,7 @@ import java.security.Key;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
-import java.util.Date;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 
 import pt.ulisboa.tecnico.sdis.kerby.*;
 import pt.ulisboa.tecnico.sdis.kerby.cli.KerbyClient;
@@ -32,12 +30,13 @@ public class KerberosClientHandler  implements SOAPHandler<SOAPMessageContext> {
     String clientPw = "ySudhFL";
     String server = "binas@T06.binas.org";
 
+    static int ticketDuration = 30;
+
     SessionKeyAndTicketView requestedTicket = null;
+    Date timeLimit = null;
 
     public static final String CLIENT_HEADER = "clientHeader";
     public static final String CLIENT_HEADER_NS = "http://clientHeader.com";
-    public static final String CLIENT_BODY = "clientBody";
-    public static final String CLIENT_BODY_NS = "http://clientBody.com";
     public static final String TICKET_HEADER = "clientTicketHeader";
     public static final String TICKET_NS = "http://ticket.com";
     public static final String AUTH_HEADER = "clientAuthHeader";
@@ -86,9 +85,17 @@ public class KerberosClientHandler  implements SOAPHandler<SOAPMessageContext> {
                 KerbyClient cli = new KerbyClient(kerby);
                 System.out.println("[CLIENT-INFO] Connection to Kerby Successfull");
 
-                System.out.println("[CLIENT-INFO] Requesting ticket from Kerby");
                 SecureRandom randomGenerator = new SecureRandom();
-                requestedTicket = cli.requestTicket(client, server, randomGenerator.nextLong(), 30);
+                if (requestedTicket == null || timeLimit.before(new Date())) {
+                    System.out.println("[CLIENT-INFO] Requesting ticket from Kerby");
+                    requestedTicket = cli.requestTicket(client, server, randomGenerator.nextLong(), ticketDuration);
+                    timeLimit = new Date();
+                    timeLimit.setTime(timeLimit.getTime()+( (ticketDuration - 2)*1000) );
+                    System.out.println("[CLIENT-INFO] Time limit:" + timeLimit);
+                }
+                else {
+                    System.out.println("[CLIENT-INFO] Already own valid ticket");
+                }
 
                 System.out.println("[CLIENT-INFO] Generating Kc from client password");
                 Key kc = SecurityHelper.generateKeyFromPassword(clientPw);
@@ -134,7 +141,7 @@ public class KerberosClientHandler  implements SOAPHandler<SOAPMessageContext> {
                 String cipherAuthText = printBase64Binary(authBytes);
                 authElement.addTextNode(cipherAuthText);
 
-                Name clientName = se.createName(CLIENT_BODY, "e", CLIENT_BODY_NS);
+                Name clientName = se.createName(CLIENT_HEADER, "e", CLIENT_HEADER_NS);
                 SOAPBodyElement bodyElement = sb.addBodyElement(clientName);
                 bodyElement.addTextNode(client);
 
