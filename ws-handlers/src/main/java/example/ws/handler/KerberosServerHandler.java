@@ -24,14 +24,16 @@ public class KerberosServerHandler implements SOAPHandler<SOAPMessageContext> {
     String server = "binas@T06.binas.org";
     String serverPw = "xm7bhuSz";
 
-    public static final String SERVER_HEADER = "clientHeader";
-    public static final String SERVER_HEADER_NS = "http://clientHeader.com";
-    public static final String TICKET_HEADER = "clientTicketHeader";
-    public static final String TICKET_NS = "http://ticket.com";
-    public static final String AUTH_HEADER = "clientAuthHeader";
-    public static final String AUTH_NS = "http://auth.com";
+    private static final String TREQ_HEADER = "clientHeader";
+    private static final String TREQ_HEADER_NS = "http://clientHeader.com";
+    private static final String TICKET_HEADER = "clientTicketHeader";
+    private static final String TICKET_NS = "http://ticket.com";
+    private static final String AUTH_HEADER = "clientAuthHeader";
+    private static final String AUTH_NS = "http://auth.com";
 
     Key clientServerKey = null;
+
+    private Date treqDate = null;
 
     /**
      * Gets the header blocks that can be processed by this Handler instance. If
@@ -86,11 +88,10 @@ public class KerberosServerHandler implements SOAPHandler<SOAPMessageContext> {
                     System.out.println("clientServerKey is invalid!");
                     return true;
                 }
-                Date Tresp = new Date();
-                Auth responseAuth = new Auth(server, Tresp);
+                Auth responseAuth = new Auth(server, treqDate);
                 CipheredView cipheredResponse = responseAuth.cipher(clientServerKey);
 
-                Name ticketName = se.createName(SERVER_HEADER, "e", SERVER_HEADER_NS);
+                Name ticketName = se.createName(TREQ_HEADER, "e", TREQ_HEADER_NS);
                 SOAPHeaderElement ticketElement = sh.addHeaderElement(ticketName);
 
                 byte[] ticketBytes = cipheredResponse.getData();
@@ -144,7 +145,6 @@ public class KerberosServerHandler implements SOAPHandler<SOAPMessageContext> {
                 byte[] ticketBytes = parseBase64Binary(ticketValue);
                 byte[] authBytes = parseBase64Binary(authValue);
 
-                CipherClerk clerk = new CipherClerk();
                 CipheredView cipheredTicket = new CipheredView();
                 cipheredTicket.setData(ticketBytes);
                 CipheredView cipheredAuth = new CipheredView();
@@ -156,9 +156,12 @@ public class KerberosServerHandler implements SOAPHandler<SOAPMessageContext> {
 
                 System.out.println("[SERVER-INFO] Opening ticket using Ks");
                 Ticket ticket = new Ticket(cipheredTicket, ks);
+                clientServerKey = ticket.getKeyXY();
 
                 System.out.println("[SERVER-INFO] Decripting auth using Kcs");
-                clientServerKey = ticket.getKeyXY();
+                Auth receivedAuth = new Auth(cipheredAuth, ticket.getKeyXY());
+
+                treqDate = receivedAuth.getTimeRequest();
 
             } catch (NoSuchAlgorithmException e) {
                 System.out.printf("No such algorithm %s%n", e);

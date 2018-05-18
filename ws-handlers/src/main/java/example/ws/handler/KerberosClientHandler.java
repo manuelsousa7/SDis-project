@@ -19,28 +19,39 @@ import pt.ulisboa.tecnico.sdis.kerby.*;
 import pt.ulisboa.tecnico.sdis.kerby.cli.KerbyClient;
 import pt.ulisboa.tecnico.sdis.kerby.cli.KerbyClientException;
 
+import static javax.xml.bind.DatatypeConverter.parseBase64Binary;
 import static javax.xml.bind.DatatypeConverter.printBase64Binary;
 import static javax.xml.bind.DatatypeConverter.printHexBinary;
 
 public class KerberosClientHandler  implements SOAPHandler<SOAPMessageContext> {
 
     /** Date formatter used for outputting time stamp in ISO 8601 format. */
-    String kerby = "http://sec.sd.rnl.tecnico.ulisboa.pt:8888/kerby";
-    String client = "alice@T06.binas.org";
-    String clientPw = "ySudhFL";
-    String server = "binas@T06.binas.org";
+    private String kerby = "http://sec.sd.rnl.tecnico.ulisboa.pt:8888/kerby";
+    private String client = "alice@T06.binas.org";
+    private String clientPw = "ySudhFL";
+    private String server = "binas@T06.binas.org";
 
-    static int ticketDuration = 30;
+    private static int ticketDuration = 30;
 
-    SessionKeyAndTicketView requestedTicket = null;
-    Date timeLimit = null;
+    private SessionKeyAndTicketView requestedTicket = null;
+    private Date timeLimit = null;
 
-    public static final String CLIENT_HEADER = "clientHeader";
-    public static final String CLIENT_HEADER_NS = "http://clientHeader.com";
-    public static final String TICKET_HEADER = "clientTicketHeader";
-    public static final String TICKET_NS = "http://ticket.com";
-    public static final String AUTH_HEADER = "clientAuthHeader";
-    public static final String AUTH_NS = "http://auth.com";
+    private CipheredView cipheredSessionKey = null;
+    private CipheredView cipheredTicket = null;
+
+    private Date sentTimeRequest = null;
+
+    private Key kc = null;
+    private Key clientServerKey = null;
+
+    private static final String CLIENT_HEADER = "clientHeader";
+    private static final String CLIENT_HEADER_NS = "http://clientHeader.com";
+    private static final String TICKET_HEADER = "clientTicketHeader";
+    private static final String TICKET_NS = "http://ticket.com";
+    private static final String AUTH_HEADER = "clientAuthHeader";
+    private static final String AUTH_NS = "http://auth.com";
+    private static final String TREQ_HEADER = "clientHeader";
+    private static final String TREQ_HEADER_NS = "http://clientHeader.com";
 
     public static String userEmail = "invalid@email";
 
@@ -85,6 +96,14 @@ public class KerberosClientHandler  implements SOAPHandler<SOAPMessageContext> {
                 KerbyClient cli = new KerbyClient(kerby);
                 System.out.println("[CLIENT-INFO] Connection to Kerby Successfull");
 
+                if (kc == null) {
+                    System.out.println("[CLIENT-INFO] Generating Kc from client password");
+                    kc = SecurityHelper.generateKeyFromPassword(clientPw);
+                }
+                else {
+                    System.out.println("[CLIENT-INFO] Using generated Kc");
+                }
+
                 SecureRandom randomGenerator = new SecureRandom();
                 if (requestedTicket == null || timeLimit.before(new Date())) {
                     System.out.println("[CLIENT-INFO] Requesting ticket from Kerby");
@@ -92,24 +111,26 @@ public class KerberosClientHandler  implements SOAPHandler<SOAPMessageContext> {
                     timeLimit = new Date();
                     timeLimit.setTime(timeLimit.getTime()+( (ticketDuration - 2)*1000) );
                     System.out.println("[CLIENT-INFO] Time limit:" + timeLimit);
+
+                    cipheredSessionKey = requestedTicket.getSessionKey();
+                    cipheredTicket = requestedTicket.getTicket();
+                    System.out.println("[CLIENT-INFO] Obtaining sessionKey and Kcs using Kc");
+                    SessionKey sessionKey = new SessionKey(cipheredSessionKey, kc);
+                    clientServerKey = sessionKey.getKeyXY();
                 }
                 else {
                     System.out.println("[CLIENT-INFO] Already own valid ticket");
                 }
 
-                System.out.println("[CLIENT-INFO] Generating Kc from client password");
-                Key kc = SecurityHelper.generateKeyFromPassword(clientPw);
 
-                CipheredView cipheredSessionKey = requestedTicket.getSessionKey();
-                CipheredView cipheredTicket = requestedTicket.getTicket();
+                if (clientServerKey == null) {
 
-                System.out.println("[CLIENT-INFO] Obtaining sessionKey and Kcs using Kc");
-                SessionKey sessionKey = new SessionKey(cipheredSessionKey, kc);
-                Key clientServerKey = sessionKey.getKeyXY();
+                }
+
 
                 System.out.println("[CLIENT-INFO] Generating auth ciphered with Kcs");
-                Date timeRequest = new Date();
-                Auth auth = new Auth(client, timeRequest);
+                sentTimeRequest = new Date();
+                Auth auth = new Auth(client, sentTimeRequest);
                 CipheredView cipheredAuth = auth.cipher(clientServerKey);
 
                 //----------------------------------------------------------------------
@@ -165,7 +186,51 @@ public class KerberosClientHandler  implements SOAPHandler<SOAPMessageContext> {
             }
         }
         else {
-            //TODO: ?
+            try {
+                SOAPMessage msg = smc.getMessage();
+                SOAPPart sp = msg.getSOAPPart();
+                SOAPEnvelope se = sp.getEnvelope();
+                SOAPHeader sh = se.getHeader();
+
+                // check header
+                if (sh == null) {
+                    System.out.println("Body not found.");
+                    return true;
+                }
+
+                System.out.println("[CLIENT-RECEIVE] Opening header with Ciphered Response");
+
+                Name treqName = se.createName(TREQ_HEADER, "e", TREQ_HEADER_NS);
+                Iterator it = sh.getChildElements(treqName);
+                if (!it.hasNext()) {
+                    System.out.printf("TREQ element %s not found.%n", TREQ_HEADER);
+                    return true;
+                }
+                SOAPElement treqElement = (SOAPElement) it.next();
+                String treqValue = treqElement.getValue();
+                byte[] treqBytes = parseBase64Binary(treqValue);
+
+                CipheredView cipheredResponse = new CipheredView();
+                cipheredResponse.setData(treqBytes);
+
+                Auth receivedAuth = new Auth(cipheredResponse, clientServerKey);
+                Date timeRequest = receivedAuth.getTimeRequest();
+
+                System.out.println("[CLIENT-RECEIVE] Success opening ciphered response");
+
+                if (timeRequest.equals(sentTimeRequest)) {
+                    System.out.println("[CLIENT-RECEIVE] Valid date");
+                    return true;
+                }
+                else {
+                    System.out.println("[CLIENT-RECEIVE] ERROR: Invalid date");
+                    throw new RuntimeException();
+                }
+            } catch (KerbyException e) {
+                System.out.printf("Received Kerby Exception %s%n", e);
+            } catch (SOAPException e) {
+                System.out.printf("Failed to get SOAP header because of %s%n", e);
+            }
         }
         return true;
     }

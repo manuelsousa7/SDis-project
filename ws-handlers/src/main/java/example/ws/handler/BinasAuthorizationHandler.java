@@ -123,14 +123,14 @@ public class BinasAuthorizationHandler implements SOAPHandler<SOAPMessageContext
                 Ticket ticket = new Ticket(cipheredTicket, ks);
 
                 System.out.println("[SERVER-VALIDATION] Decripting auth using Kcs");
-                Auth recievedAuth = new Auth(cipheredAuth, ticket.getKeyXY());
+                Auth receivedAuth = new Auth(cipheredAuth, ticket.getKeyXY());
 
                 System.out.println("[SERVER-VALIDATION] Validating auth");
                 Date validityStart = ticket.getTime1();
                 Date validityEnd = ticket.getTime2();
-                Date requestDate = recievedAuth.getTimeRequest();
+                Date requestDate = receivedAuth.getTimeRequest();
                 String ticketClient = ticket.getX();
-                String authClient = recievedAuth.getX();
+                String authClient = receivedAuth.getX();
 
                 if((requestDate.before(validityEnd) || requestDate.after(validityStart))
                     && ticketClient.equals(authClient) && authClient.equals(clientName)) {
