@@ -1,7 +1,6 @@
 package org.binas.security.domain;
 
 import org.binas.security.exception.SecurityMagicException;
-import pt.ulisboa.tecnico.sdis.kerby.SessionKey;
 
 import javax.crypto.*;
 import java.security.*;
@@ -14,8 +13,8 @@ public class SecurityMagic {
     private Key sessionKey;
     private String plainText;
 
-    public SecurityMagic(String plainText, SessionKey sessionKey){
-        this.sessionKey = sessionKey.getKeyXY();
+    public SecurityMagic(String plainText, Key sessionKey){
+        this.sessionKey = sessionKey;
         this.plainText = plainText;
     }
 
@@ -39,9 +38,9 @@ public class SecurityMagic {
         this.plainText = plainText;
     }
 
-    public String getMAC(){
+    public byte[] getMAC(){
         try{
-            return makeMAC(this.getPlainText().getBytes(),(SecretKey) this.sessionKey).toString();
+           return makeMAC(this.getPlainText().getBytes(),this.sessionKey);
         } catch (Exception e){
             e.printStackTrace();
         }
@@ -50,7 +49,7 @@ public class SecurityMagic {
 
     public boolean checkMAC(byte[] cipherDigest){
         try{
-            return verifyMAC(cipherDigest,this.getPlainText().getBytes(),(SecretKey) this.sessionKey);
+            return verifyMAC(cipherDigest,this.getPlainText().getBytes(),this.sessionKey);
         } catch (Exception e){
             e.printStackTrace();
         }
@@ -58,7 +57,7 @@ public class SecurityMagic {
     }
 
 
-    private static byte[] makeMAC(byte[] bytes, SecretKey key) throws Exception {
+    private static byte[] makeMAC(byte[] bytes, Key key) throws Exception {
         Mac cipher = Mac.getInstance(MAC_ALGO);
         cipher.init(key);
         byte[] cipherDigest = cipher.doFinal(bytes);
@@ -66,7 +65,7 @@ public class SecurityMagic {
         return cipherDigest;
     }
 
-    private static boolean verifyMAC(byte[] cipherDigest, byte[] bytes, SecretKey key) throws Exception {
+    private static boolean verifyMAC(byte[] cipherDigest, byte[] bytes, Key key) throws Exception {
 
         Mac cipher = Mac.getInstance(MAC_ALGO);
         cipher.init(key);

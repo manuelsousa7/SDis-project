@@ -16,11 +16,8 @@ public class SecurityMagicTest {
     @Before
     public void init(){
         try {
-//            CipheredView cipheredSessionKey = new CipheredView();
-//            cipheredSessionKey.setData("asdassa".getBytes());
-//            Key kc = SecurityHelper.generateKeyFromPassword("ySudhFL");
-//            SessionKey asd = new SessionKey(cipheredSessionKey,kc);
-//             sm = new SecurityMagic("ola",asd);
+            Key kc = SecurityHelper.generateKeyFromPassword("ySudhFL");
+             sm = new SecurityMagic("ola",kc);
         } catch (Exception e){
 
         }
@@ -28,6 +25,10 @@ public class SecurityMagicTest {
 
     @Test
     public void testXOR(){
-//        System.out.println(sm.getMAC());
+        byte[] asd =  sm.getMAC();
+       System.out.print( asd);
+        System.out.print(sm.checkMAC(asd));
+        asd[0] = 12;
+        System.out.print(sm.checkMAC(asd));
     }
 }
