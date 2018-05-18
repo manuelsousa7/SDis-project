@@ -23,10 +23,6 @@ public class KerberosServerHandler implements SOAPHandler<SOAPMessageContext> {
     String server = "binas@T06.binas.org";
     String serverPw = "xm7bhuSz";
 
-    public static final String CLIENT_HEADER = "clientHeader";
-    public static final String CLIENT_HEADER_NS = "http://clientHeader.com";
-    public static final String CLIENT_BODY = "clientBody";
-    public static final String CLIENT_BODY_NS = "http://clientBody.com";
     public static final String TICKET_HEADER = "clientTicketHeader";
     public static final String TICKET_NS = "http://ticket.com";
     public static final String AUTH_HEADER = "clientAuthHeader";

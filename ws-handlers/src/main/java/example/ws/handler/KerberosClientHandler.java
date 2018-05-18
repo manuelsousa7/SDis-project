@@ -102,7 +102,7 @@ public class KerberosClientHandler  implements SOAPHandler<SOAPMessageContext> {
 
                 System.out.println("[CLIENT-INFO] Generating auth ciphered with Kcs");
                 Date timeRequest = new Date();
-                Auth auth = new Auth(userEmail, timeRequest);
+                Auth auth = new Auth(client, timeRequest);
                 CipheredView cipheredAuth = auth.cipher(clientServerKey);
 
                 //----------------------------------------------------------------------
@@ -136,7 +136,7 @@ public class KerberosClientHandler  implements SOAPHandler<SOAPMessageContext> {
 
                 Name clientName = se.createName(CLIENT_BODY, "e", CLIENT_BODY_NS);
                 SOAPBodyElement bodyElement = sb.addBodyElement(clientName);
-                bodyElement.addTextNode(userEmail);
+                bodyElement.addTextNode(client);
 
                 System.out.println("[INFO] Kerby Url: " + kerby);
                 System.out.println("[INFO] Client email: " + client);
