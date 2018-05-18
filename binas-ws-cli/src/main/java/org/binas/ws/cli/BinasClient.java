@@ -130,6 +130,7 @@ public class BinasClient implements BinasPortType {
             InvalidEmail_Exception {
         BindingProvider bindingProvider = (BindingProvider) port;
         KerberosClientHandler.userEmail = email;
+        KerberosClientHandler.setPassword("ySudhFL");
         return port.activateUser(email);
     }
 
