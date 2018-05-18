@@ -21,6 +21,9 @@ import pt.ulisboa.tecnico.sdis.kerby.*;
 import pt.ulisboa.tecnico.sdis.kerby.cli.KerbyClient;
 import pt.ulisboa.tecnico.sdis.kerby.cli.KerbyClientException;
 
+import static javax.xml.bind.DatatypeConverter.printBase64Binary;
+import static javax.xml.bind.DatatypeConverter.printHexBinary;
+
 public class KerberosClientHandler  implements SOAPHandler<SOAPMessageContext> {
 
     /** Date formatter used for outputting time stamp in ISO 8601 format. */
@@ -28,6 +31,8 @@ public class KerberosClientHandler  implements SOAPHandler<SOAPMessageContext> {
     String client = "alice@T06.binas.org";
     String clientPw = "ySudhFL";
     String server = "binas@T06.binas.org";
+
+    SessionKeyAndTicketView requestedTicket = null;
 
     public static final String CLIENT_HEADER = "clientHeader";
     public static final String CLIENT_HEADER_NS = "http://clientHeader.com";
@@ -38,7 +43,7 @@ public class KerberosClientHandler  implements SOAPHandler<SOAPMessageContext> {
     public static final String AUTH_HEADER = "clientAuthHeader";
     public static final String AUTH_NS = "http://auth.com";
 
-    //public static final String userEmail = "invalid@email";
+    public static String userEmail = "invalid@email";
 
     /**
      * Gets the header blocks that can be processed by this Handler instance. If
@@ -83,13 +88,13 @@ public class KerberosClientHandler  implements SOAPHandler<SOAPMessageContext> {
 
                 System.out.println("[CLIENT-INFO] Requesting ticket from Kerby");
                 SecureRandom randomGenerator = new SecureRandom();
-                SessionKeyAndTicketView view = cli.requestTicket(client, server, randomGenerator.nextLong(), 30);
+                requestedTicket = cli.requestTicket(client, server, randomGenerator.nextLong(), 30);
 
                 System.out.println("[CLIENT-INFO] Generating Kc from client password");
                 Key kc = SecurityHelper.generateKeyFromPassword(clientPw);
 
-                CipheredView cipheredSessionKey = view.getSessionKey();
-                CipheredView cipheredTicket = view.getTicket();
+                CipheredView cipheredSessionKey = requestedTicket.getSessionKey();
+                CipheredView cipheredTicket = requestedTicket.getTicket();
 
                 System.out.println("[CLIENT-INFO] Obtaining sessionKey and Kcs using Kc");
                 SessionKey sessionKey = new SessionKey(cipheredSessionKey, kc);
@@ -97,7 +102,7 @@ public class KerberosClientHandler  implements SOAPHandler<SOAPMessageContext> {
 
                 System.out.println("[CLIENT-INFO] Generating auth ciphered with Kcs");
                 Date timeRequest = new Date();
-                Auth auth = new Auth(client, timeRequest);
+                Auth auth = new Auth(userEmail, timeRequest);
                 CipheredView cipheredAuth = auth.cipher(clientServerKey);
 
                 //----------------------------------------------------------------------
@@ -113,20 +118,25 @@ public class KerberosClientHandler  implements SOAPHandler<SOAPMessageContext> {
                     sb = se.addBody();
                 }
 
-                Name clientHeaderName = se.createName(CLIENT_HEADER, "e", CLIENT_HEADER_NS);
-                sh.addHeaderElement(clientHeaderName);
-                Name clientBodyName = se.createName(CLIENT_BODY, "e", CLIENT_BODY_NS);
-                SOAPBodyElement bodyElement = sb.addBodyElement(clientBodyName);
-
-                // add ticket and auth values
                 CipherClerk clerk = new CipherClerk();
-                org.w3c.dom.Node ticketNode = clerk.cipherToXMLNode(cipheredTicket, "clientTicket");
-                Name ticketName = se.createName(TICKET_HEADER, "e", TICKET_NS);
-                bodyElement.addAttribute(ticketName, ticketNode.getNodeValue());
 
-                org.w3c.dom.Node authNode = clerk.cipherToXMLNode(cipheredAuth, client);
+                Name ticketName = se.createName(TICKET_HEADER, "e", TICKET_NS);
+                SOAPHeaderElement ticketElement = sh.addHeaderElement(ticketName);
+
+                byte[] ticketBytes = cipheredTicket.getData();
+                String cipherTicketText = printBase64Binary(ticketBytes);
+                ticketElement.addTextNode(cipherTicketText);
+
                 Name authName = se.createName(AUTH_HEADER, "e", AUTH_NS);
-                bodyElement.addAttribute(authName, authNode.getNodeValue());
+                SOAPHeaderElement authElement = sh.addHeaderElement(authName);
+
+                byte[] authBytes = cipheredAuth.getData();
+                String cipherAuthText = printBase64Binary(authBytes);
+                authElement.addTextNode(cipherAuthText);
+
+                Name clientName = se.createName(CLIENT_BODY, "e", CLIENT_BODY_NS);
+                SOAPBodyElement bodyElement = sb.addBodyElement(clientName);
+                bodyElement.addTextNode(userEmail);
 
                 System.out.println("[INFO] Kerby Url: " + kerby);
                 System.out.println("[INFO] Client email: " + client);
@@ -139,12 +149,10 @@ public class KerberosClientHandler  implements SOAPHandler<SOAPMessageContext> {
                 System.out.printf("No such algorithm %s%n", e);
             } catch (InvalidKeySpecException e) {
                 System.out.printf("Invalid key specification %s%n", e);
-            } catch (JAXBException e) {
-                System.out.printf("JAXB Exception %s%n", e);
             } catch (KerbyClientException e) {
                 System.out.printf("Received kerby client exception %s%n", e);
             } catch (KerbyException e) {
-                System.out.printf("Received kerby exception %s%n", e);
+                System.out.printf("Received kerby exception %s%n", e.getMessage());
             } catch (SOAPException e) {
                 System.out.printf("Failed to get SOAP header because of %s%n", e);
             }
