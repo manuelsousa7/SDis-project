@@ -58,8 +58,10 @@ public class BinasAuthorizationHandler implements SOAPHandler<SOAPMessageContext
     }
 
     private boolean processRequest(SOAPBody sb, String email) {
+        //Get request name (activateUser, rentBina, etc.)
         String requestName = sb.getFirstChild().getLocalName();
         String requestEmail;
+        //Get email from body, depending on request name
         if (requestName.equals("activateUser")) {
             requestEmail = sb.getChildNodes().item(0).getChildNodes().item(0).getTextContent();
         } else if (requestName.equals("rentBina") || requestName.equals("returnBina")) {
@@ -68,6 +70,7 @@ public class BinasAuthorizationHandler implements SOAPHandler<SOAPMessageContext
             return true;
         }
 
+        //Check if email contained in body coincides with email in the authentication
         return email.equals(requestEmail);
     }
 
@@ -87,17 +90,16 @@ public class BinasAuthorizationHandler implements SOAPHandler<SOAPMessageContext
                 SOAPHeader sh = se.getHeader();
                 SOAPBody sb = se.getBody();
 
-                // check header
                 if (sh == null) {
                     System.out.println("Body not found.");
                     return true;
                 }
-
                 if (sb == null) {
                     System.out.println("Body not found.");
                     return true;
                 }
 
+                //Get ticket element from header
                 Name ticketName = se.createName(TICKET_HEADER, "e", TICKET_NS);
                 Iterator it = sh.getChildElements(ticketName);
                 if (!it.hasNext()) {
@@ -106,6 +108,7 @@ public class BinasAuthorizationHandler implements SOAPHandler<SOAPMessageContext
                 }
                 SOAPElement ticketElement = (SOAPElement) it.next();
 
+                //Get authentication element from header
                 Name authName = se.createName(AUTH_HEADER, "e", AUTH_NS);
                 it = sh.getChildElements(authName);
                 if (!it.hasNext()) {
@@ -114,18 +117,21 @@ public class BinasAuthorizationHandler implements SOAPHandler<SOAPMessageContext
                 }
                 SOAPElement authElement = (SOAPElement) it.next();
 
+                //Get string value of ticket and authentication
                 String ticketValue = ticketElement.getValue();
                 String authValue = authElement.getValue();
 
+                //Convert both to array of bytes
                 byte[] ticketBytes = parseBase64Binary(ticketValue);
                 byte[] authBytes = parseBase64Binary(authValue);
 
-
+                //Convert both to CipheredViews
                 CipherClerk clerk = new CipherClerk();
                 CipheredView cipheredTicket = new CipheredView();
                 cipheredTicket.setData(ticketBytes);
                 CipheredView cipheredAuth = new CipheredView();
                 cipheredAuth.setData(authBytes);
+
                 System.out.println("[SERVER-VALIDATION] Receiving request from " + ticketName);
 
                 System.out.println("[SERVER-VALIDATION] Generating Ks from server password");
@@ -154,8 +160,6 @@ public class BinasAuthorizationHandler implements SOAPHandler<SOAPMessageContext
                     System.out.println();
                     throw new RuntimeException();
                 }
-
-
             } catch (NoSuchAlgorithmException e) {
                 System.out.printf("No such algorithm %s%n", e);
             } catch (InvalidKeySpecException e) {
