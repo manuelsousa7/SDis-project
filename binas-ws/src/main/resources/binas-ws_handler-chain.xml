@@ -9,6 +9,12 @@
             <handler-class>example.ws.handler.BinasAuthorizationHandler</handler-class>
         </handler>
         <handler>
+            <handler-class>example.ws.handler.MACHandlerServer</handler-class>
+        </handler>
+        <handler>
+            <handler-class>example.ws.handler.EvilMacHandler</handler-class>
+        </handler>
+        <handler>
             <handler-class>example.ws.handler.KerberosServerHandler</handler-class>
         </handler>
         <handler>

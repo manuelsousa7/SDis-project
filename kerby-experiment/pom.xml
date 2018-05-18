@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<!-- http://maven.apache.org/pom.html#Quick_Overview -->
 
-	<groupId>example</groupId>
+	<groupId>org.binas.T06</groupId>
 	<artifactId>kerby-experiment</artifactId>
 	<version>1.0</version>
 	<packaging>jar</packaging>

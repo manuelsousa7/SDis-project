@@ -118,6 +118,7 @@ public class KerberosClientHandler  implements SOAPHandler<SOAPMessageContext> {
                     System.out.println("[CLIENT-INFO] Obtaining sessionKey and Kcs using Kc");
                     SessionKey sessionKey = new SessionKey(cipheredSessionKey, kc);
                     clientServerKey = sessionKey.getKeyXY();
+                    smc.put("kcs",clientServerKey);
                 }
                 else {
                     System.out.println("[CLIENT-INFO] Already own valid ticket");

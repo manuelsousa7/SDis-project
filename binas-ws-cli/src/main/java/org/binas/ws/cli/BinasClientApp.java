@@ -72,9 +72,9 @@ public class BinasClientApp {
         //System.out.print(result);
 
         client.activateUser("alice@T06.binas.org");
-        client.rentBina("T06_Station1", "alice@T06.binas.org");
+        //client.rentBina("T06_Station1", "alice@T06.binas.org");
 
-        client.returnBina("T06_Station1", "alice@T06.binas.org");
+        //client.returnBina("T06_Station1", "alice@T06.binas.org");
 	 }
 }
 

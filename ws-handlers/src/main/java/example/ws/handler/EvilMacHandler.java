@@ -1,26 +1,19 @@
 package example.ws.handler;
 
 import org.w3c.dom.Node;
-import pt.ulisboa.tecnico.sdis.kerby.*;
-import pt.ulisboa.tecnico.sdis.kerby.cli.KerbyClient;
-import pt.ulisboa.tecnico.sdis.kerby.cli.KerbyClientException;
 
 import javax.xml.namespace.QName;
-import javax.xml.soap.*;
+import javax.xml.soap.SOAPBody;
+import javax.xml.soap.SOAPEnvelope;
+import javax.xml.soap.SOAPException;
+import javax.xml.soap.SOAPHeader;
 import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPHandler;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 import java.io.PrintStream;
-import java.security.Key;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.security.spec.InvalidKeySpecException;
-import java.util.Date;
 import java.util.Set;
 
-import static javax.xml.bind.DatatypeConverter.printBase64Binary;
-
-public class EvilHandler implements SOAPHandler<SOAPMessageContext> {
+public class EvilMacHandler implements SOAPHandler<SOAPMessageContext> {
 
     /** Date formatter used for outputting time stamp in ISO 8601 format. */
     String kerby = "http://sec.sd.rnl.tecnico.ulisboa.pt:8888/kerby";
@@ -30,18 +23,6 @@ public class EvilHandler implements SOAPHandler<SOAPMessageContext> {
     public static final String CLIENT_BODY = "clientBody";
     public static final String CLIENT_BODY_NS = "http://clientBody.com";
 
-
-    private void changeRequest(SOAPBody sb) {
-        String requestName = sb.getFirstChild().getLocalName();
-        if (requestName.equals("activateUser")) {
-            Node textNode = sb.getChildNodes().item(0).getChildNodes().item(0);
-            textNode.setTextContent("victimEmail@victim.com");
-        } else if (requestName.equals("rentBina") || requestName.equals("returnBina")) {
-            Node textNode = sb.getChildNodes().item(0).getChildNodes().item(1);
-            textNode.setTextContent("victimEmail@victim.com");
-        }
-        return;
-    }
 
 
     /**
@@ -81,24 +62,21 @@ public class EvilHandler implements SOAPHandler<SOAPMessageContext> {
 
         Boolean outbound = (Boolean) smc.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
         if (outbound) {
-            try {
-
+            //NOTHING
+        }
+        else {
+            try{
                 SOAPEnvelope se = smc.getMessage().getSOAPPart().getEnvelope();
-                SOAPHeader sh = se.getHeader();
                 SOAPBody sb = se.getBody();
 
                 if (sb == null) {
                     sb = se.addBody();
                 }
+                sb.setTextContent("malicious text content");
 
-                changeRequest(sb);
-
-            } catch (SOAPException e) {
+            }catch (SOAPException e) {
                 System.out.printf("Failed to get SOAP header because of %s%n", e);
             }
-        }
-        else {
-
         }
         return true;
     }
